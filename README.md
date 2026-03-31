@@ -1,6 +1,6 @@
 # J & E Game Vault
 
-A single-file HTML dashboard for managing a board game collection, picking what to play, logging sessions, and syncing data with Google Sheets.
+A retro-arcade-themed static web app / PWA for managing a board game collection, picking what to play, logging sessions, and syncing data with Google Sheets.
 
 ## What It Does
 
@@ -13,14 +13,22 @@ A single-file HTML dashboard for managing a board game collection, picking what 
 
 ## Project Structure
 
-This project currently consists of one main file:
+There is one live app file:
 
-- `gamevault_html_backup.html`: complete app UI, styling, data model, and client-side logic
+- `index.html`: the canonical app entrypoint for local use, hosting, and GitHub Pages
 
-The app is fully self-contained:
+Supporting PWA files:
+
+- `manifest.webmanifest`: install metadata for the app
+- `service-worker.js`: offline app-shell caching
+- `app-icon-192.png`, `app-icon-512.png`, `app-icon-maskable-512.png`: installable app icons
+
+Archived historical files live in `archive/` and should not be edited for normal app changes.
+
+The live app is still mostly self-contained:
 
 - HTML defines the navigation and all app sections
-- CSS provides the full visual design
+- CSS provides the visual design and responsive behavior
 - JavaScript handles state, filtering, logging, stats, and sync
 - A built-in `DEFAULT_GAMES` dataset serves as the local fallback collection
 
@@ -101,7 +109,7 @@ If Google Sheets sync is configured, sheet data can override the local default c
 Open the app directly in a browser:
 
 ```bash
-open gamevault_html_backup.html
+open index.html
 ```
 
 Or serve it locally:
@@ -110,7 +118,7 @@ Or serve it locally:
 python3 -m http.server
 ```
 
-Then open the served HTML page in your browser.
+Then open `index.html` in your browser.
 
 ## Google Sheets Setup
 
@@ -143,7 +151,8 @@ Important sheet columns used by the code include:
 
 ## Notes
 
+- `index.html` is the one file to edit for small text/UI/content updates
 - The app is currently framework-free and runs entirely in the browser
 - It depends on external Google Fonts and optional external CSV / Apps Script endpoints
 - CSV parsing and sync are implemented directly in the page script
-- The included HTML appears to be a backup/export version of the app rather than a split source project
+- Archived HTML snapshots are kept only for rollback/reference
