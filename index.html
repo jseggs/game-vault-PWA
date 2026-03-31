@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J & E Game Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#06070a;
+    --bg2:#0d1018;
+    --bg3:#141929;
+    --card:#101728;
+    --card2:#17213a;
+    --border:#233050;
+    --border2:#3d5485;
+    --line:rgba(110,255,193,0.18);
+    --green:#6effc1;
+    --green-dim:rgba(110,255,193,0.18);
+    --cyan:#66d9ff;
+    --amber:#ffd166;
+    --amber2:#ffb84d;
+    --gold:#ffd166;
+    --gold-dim:rgba(255,209,102,0.18);
+    --blue:#66d9ff;
+    --red:#ff6b6b;
+    --pink:#ff8ad8;
+    --text:#f4f7ff;
+    --text2:#c2c9dc;
+    --text3:#7f8ba8;
+    --panel-shadow:0 0 0 2px rgba(12,18,32,.92), 0 0 0 4px var(--border), 0 16px 40px rgba(0,0,0,.45);
+    --glow:0 0 18px rgba(102,217,255,.18);
+    --radius:18px;
+    --pixel-font:'Press Start 2P', cursive;
+    --ui-font:'IBM Plex Sans', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+    --dino-art:url('green-t-rex.png');
+    --dino-2p:url('Velociraptor-cyan.png');
+    --dino-adult:url('Spinosaurus-pink.png');
+    --dino-family:url('Brachiosaurus-yellow.png');
+    --dino-party:url('Pterodactyl-light-blue.png');
+    --dino-kids:url('Triceratops.png');
+    --dino-solo:url('Ankylosaurus-blue.png');
+    --dino-exp:url('Stegosaurus-purple.png');
+    --dino-brand:url('green-t-rex.png');
+    --dino-bg-a:url('Pterodactyl-light-blue.png');
+    --dino-bg-b:url('Brachiosaurus-yellow.png');
+    --dino-section:url('Stegosaurus-purple.png');
+    --dino-card:url('Triceratops.png');
+    --dino-picker:url('Velociraptor-cyan.png');
+    --dino-score:url('Spinosaurus-pink.png');
+    --dino-green:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect x='7' y='2' width='6' height='1' fill='%236effc1'/%3E%3Crect x='6' y='3' width='8' height='1' fill='%236effc1'/%3E%3Crect x='6' y='4' width='9' height='1' fill='%236effc1'/%3E%3Crect x='5' y='5' width='11' height='1' fill='%236effc1'/%3E%3Crect x='5' y='6' width='12' height='1' fill='%236effc1'/%3E%3Crect x='4' y='7' width='13' height='1' fill='%236effc1'/%3E%3Crect x='4' y='8' width='12' height='1' fill='%236effc1'/%3E%3Crect x='3' y='9' width='13' height='1' fill='%236effc1'/%3E%3Crect x='3' y='10' width='11' height='1' fill='%236effc1'/%3E%3Crect x='2' y='11' width='11' height='1' fill='%236effc1'/%3E%3Crect x='2' y='12' width='10' height='1' fill='%236effc1'/%3E%3Crect x='1' y='13' width='8' height='1' fill='%236effc1'/%3E%3Crect x='0' y='14' width='5' height='1' fill='%236effc1'/%3E%3Crect x='14' y='7' width='4' height='1' fill='%236effc1'/%3E%3Crect x='15' y='8' width='5' height='1' fill='%236effc1'/%3E%3Crect x='16' y='9' width='5' height='1' fill='%236effc1'/%3E%3Crect x='17' y='10' width='4' height='1' fill='%236effc1'/%3E%3Crect x='18' y='11' width='3' height='1' fill='%236effc1'/%3E%3Crect x='11' y='12' width='3' height='1' fill='%236effc1'/%3E%3Crect x='12' y='13' width='2' height='1' fill='%236effc1'/%3E%3Crect x='13' y='14' width='1' height='1' fill='%236effc1'/%3E%3Crect x='10' y='15' width='2' height='1' fill='%236effc1'/%3E%3Crect x='9' y='16' width='2' height='1' fill='%236effc1'/%3E%3Crect x='8' y='17' width='1' height='3' fill='%236effc1'/%3E%3Crect x='11' y='17' width='1' height='4' fill='%236effc1'/%3E%3Crect x='9' y='9' width='1' height='1' fill='%2306070a'/%3E%3Crect x='4' y='12' width='1' height='3' fill='%236effc1'/%3E%3Crect x='5' y='11' width='1' height='2' fill='%236effc1'/%3E%3C/svg%3E");
+    --dino-cyan:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' shape-rendering='crispEdges'%3E%3Crect x='6' y='1' width='5' height='1' fill='%2366d9ff'/%3E%3Crect x='5' y='2' width='7' height='1' fill='%2366d9ff'/%3E%3Crect x='4' y='3' width='8' height='1' fill='%2366d9ff'/%3E%3Crect x='4' y='4' width='9' height='1' fill='%2366d9ff'/%3E%3Crect x='3' y='5' width='11' height='1' fill='%2366d9ff'/%3E%3Crect x='3' y='6' width='10' height='1' fill='%2366d9ff'/%3E%3Crect x='4' y='7' width='8' height='1' fill='%2366d9ff'/%3E%3Crect x='7' y='8' width='4' height='1' fill='%2366d9ff'/%3E%3Crect x='8' y='9' width='2' height='1' fill='%2366d9ff'/%3E%3Crect x='7' y='10' width='1' height='3' fill='%2366d9ff'/%3E%3Crect x='10' y='10' width='1' height='3' fill='%2366d9ff'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%2366d9ff'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%2366d9ff'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%2366d9ff'/%3E%3Crect x='13' y='6' width='2' height='1' fill='%2366d9ff'/%3E%3Crect x='14' y='7' width='2' height='1' fill='%2366d9ff'/%3E%3Crect x='15' y='8' width='2' height='1' fill='%2366d9ff'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%2306070a'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:#04050a;}
+  body{
+    font-family:var(--ui-font);
+    background:
+      linear-gradient(180deg, rgba(102,217,255,0.06), transparent 22%),
+      linear-gradient(0deg, rgba(255,209,102,0.05), transparent 24%),
+      radial-gradient(circle at top, rgba(110,255,193,0.12), transparent 34%),
+      linear-gradient(180deg, #05070d 0%, #09101a 45%, #05070d 100%);
+    color:var(--text);
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+    padding:0 0 6rem;
+  }
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.16;
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.06) 0 1px, transparent 1px 4px),
+      linear-gradient(90deg, rgba(102,217,255,.05) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.08));
+    background-size:100% 4px, 26px 26px, auto;
+    mix-blend-mode:screen;
+    z-index:0;
+  }
+  body::after{
+    content:'';
+    position:fixed;
+    inset:auto -6rem -4rem auto;
+    width:8.5rem;
+    height:8.5rem;
+    background-image:var(--dino-bg-a);
+    background-size:contain;
+    background-repeat:no-repeat;
+    image-rendering:pixelated;
+    opacity:.16;
+    pointer-events:none;
+    filter:drop-shadow(0 0 22px rgba(102,217,255,.42));
+    z-index:0;
+    animation:floatDino 6s ease-in-out infinite;
+  }
+  .arcade-bg{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  .arcade-bg::before,
+  .arcade-bg::after{
+    content:'';
+    position:absolute;
+    width:11rem;
+    height:11rem;
+    background-repeat:no-repeat;
+    background-size:contain;
+    opacity:.14;
+    filter:drop-shadow(0 0 18px rgba(110,255,193,.45));
+  }
+  .arcade-bg::before{
+    top:5.5rem;
+    left:-1.5rem;
+    background-image:var(--dino-bg-b);
+    image-rendering:pixelated;
+    animation:floatDino 8s ease-in-out infinite;
+  }
+  .arcade-bg::after{
+    top:24rem;
+    right:-1.25rem;
+    background-image:var(--dino-score);
+    image-rendering:pixelated;
+    filter:drop-shadow(0 0 18px rgba(255,138,216,.34));
+    animation:floatDino 9s ease-in-out infinite reverse;
+  }
+  .scanline{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:.08;
+    background:repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 1px, transparent 1px 6px);
+  }
+  nav{
+    position:sticky;
+    bottom:0;
+    top:auto;
+    z-index:120;
+    display:flex;
+    gap:.85rem;
+    align-items:center;
+    justify-content:space-between;
+    padding:.9rem 1rem calc(.9rem + env(safe-area-inset-bottom));
+    margin:0;
+    border-top:1px solid rgba(102,217,255,.18);
+    border-bottom:none;
+    background:rgba(6,9,15,.88);
+    backdrop-filter:blur(16px);
+    box-shadow:0 -10px 30px rgba(0,0,0,.35);
+  }
+  .nav-brand{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+  }
+  .brand-mark{
+    width:2.65rem;
+    height:2.65rem;
+    flex:0 0 auto;
+    border-radius:12px;
+    border:2px solid var(--border2);
+    background:
+      linear-gradient(180deg, rgba(110,255,193,.2), rgba(102,217,255,.1)),
+      #0a1120;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.04), 0 0 18px rgba(110,255,193,.18);
+    position:relative;
+  }
+  .brand-mark::before{
+    content:'';
+    position:absolute;
+    inset:.32rem;
+    background-image:var(--dino-brand);
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:contain;
+    image-rendering:pixelated;
+  }
+  .brand-copy{display:flex;flex-direction:column;gap:.2rem;min-width:0;}
+  .brand-title{
+    font-family:var(--pixel-font);
+    font-size:.72rem;
+    line-height:1.4;
+    color:var(--amber);
+    text-shadow:0 0 10px rgba(255,209,102,.25);
+  }
+  .brand-sub{
+    font-size:.68rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--text3);
+    font-family:var(--mono);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .nav-tabs{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(3.45rem, 1fr));
+    gap:.45rem;
+    flex:1;
+    min-width:0;
+  }
+  .nav-tab{
+    min-height:3.4rem;
+    padding:.55rem .45rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:.56rem;
+    line-height:1.55;
+    font-family:var(--pixel-font);
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--text3);
+    cursor:pointer;
+    border:2px solid transparent;
+    border-radius:14px;
+    transition:all .18s ease;
+    white-space:normal;
+    background:rgba(14,22,38,.65);
+  }
+  .nav-tab:hover{color:var(--text2);border-color:rgba(102,217,255,.16);}
+  .nav-tab.active{
+    color:var(--bg);
+    background:linear-gradient(180deg, var(--green), #39d8ae);
+    border-color:#caffea;
+    box-shadow:0 0 18px rgba(110,255,193,.25);
+  }
+  .app-shell{
+    position:relative;
+    z-index:1;
+    width:min(100%, 1180px);
+    margin:0 auto;
+    padding:1rem .9rem 0;
+  }
+  .section{
+    display:none;
+    position:relative;
+    margin:0 auto 1.15rem;
+    padding:1.1rem;
+    border-radius:24px;
+    background:linear-gradient(180deg, rgba(15,23,39,.9), rgba(10,15,27,.94));
+    border:1px solid rgba(102,217,255,.14);
+    box-shadow:var(--panel-shadow);
+    overflow:hidden;
+  }
+  .section::before{
+    content:attr(data-screen);
+    display:inline-block;
+    margin-bottom:.95rem;
+    padding:.38rem .65rem;
+    border-radius:999px;
+    border:1px solid rgba(102,217,255,.22);
+    background:rgba(12,22,38,.8);
+    color:var(--cyan);
+    font-family:var(--mono);
+    font-size:.68rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .section::after{
+    content:'';
+    position:absolute;
+    top:1rem;
+    right:1rem;
+    width:3.4rem;
+    height:3.4rem;
+    background-image:var(--dino-section);
+    background-repeat:no-repeat;
+    background-size:contain;
+    image-rendering:pixelated;
+    opacity:.18;
+    pointer-events:none;
+  }
+  .section.active{display:block;}
+  .page-title{
+    font-family:var(--pixel-font);
+    font-size:1rem;
+    line-height:1.55;
+    color:var(--amber);
+    margin:0 4.5rem .5rem 0;
+    text-shadow:0 0 14px rgba(255,209,102,.18);
+  }
+  .page-sub{
+    color:var(--text3);
+    font-size:.77rem;
+    margin-bottom:1rem;
+    font-family:var(--mono);
+    line-height:1.6;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .stats-row,
+  .win-grid{display:grid;grid-template-columns:1fr;gap:.8rem;margin-bottom:1rem;}
+  .stat-card,
+  .pcard,
+  .sbox,
+  .pick-box{
+    position:relative;
+    background:linear-gradient(180deg, rgba(18,27,45,.98), rgba(12,17,29,.98));
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:1rem;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 10px 22px rgba(0,0,0,.22);
+    overflow:hidden;
+  }
+  .stat-card::before,
+  .pcard::before,
+  .sbox::before,
+  .pick-box::before,
+  .game-card::before,
+  .modal::before{
+    content:'';
+    position:absolute;
+    inset:0 auto auto 0;
+    width:100%;
+    height:3px;
+    background:linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent);
+    opacity:.55;
+  }
+  .stat-num,
+  .pwins{
+    font-family:var(--pixel-font);
+    font-size:1.45rem;
+    line-height:1.4;
+    color:var(--green);
+    text-shadow:0 0 16px rgba(110,255,193,.18);
+  }
+  .stat-label,
+  .psub,
+  .stitle,
+  .fgrp-lbl,
+  .msec,
+  .fg label,
+  .mfield label{
+    font-family:var(--mono);
+    font-size:.68rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--text3);
+  }
+  .filters-bar,
+  .pctrls,
+  .form-row{display:flex;flex-wrap:wrap;gap:.65rem;align-items:stretch;margin-bottom:.8rem;}
+  .fgrp{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;width:100%;}
+  .fsearch,
+  .fc{
+    width:100%;
+    min-width:0;
+    background:rgba(7,12,22,.9);
+    color:var(--text);
+    border:1px solid var(--border2);
+    border-radius:14px;
+    padding:.8rem .95rem;
+    font-size:.93rem;
+    font-family:var(--ui-font);
+    outline:none;
+    transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .fsearch:focus,
+  .fc:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(110,255,193,.12), var(--glow);transform:translateY(-1px);}
+  .fsearch::placeholder{color:#7080a4;}
+  .fbtn,
+  .btn{
+    appearance:none;
+    border-radius:14px;
+    border:1px solid var(--border2);
+    background:linear-gradient(180deg, rgba(21,32,54,.96), rgba(12,18,31,.96));
+    color:var(--text2);
+    font-size:.76rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .15s ease;
+    font-family:var(--ui-font);
+    letter-spacing:.04em;
+    min-height:2.65rem;
+  }
+  .fbtn{padding:.62rem .85rem;}
+  .btn{padding:.75rem 1rem;}
+  .fbtn:hover,.btn:hover{border-color:var(--green);color:var(--text);transform:translateY(-1px);}
+  .fbtn.active,
+  .btn-gold{
+    background:linear-gradient(180deg, var(--amber), var(--amber2));
+    border-color:#ffe7ac;
+    color:#241500;
+    box-shadow:0 0 18px rgba(255,209,102,.22);
+  }
+  .btn-outline{background:transparent;color:var(--cyan);border-color:rgba(102,217,255,.28);}
+  .btn-sm{padding:.62rem .9rem;font-size:.74rem;}
+  .game-grid{display:grid;grid-template-columns:1fr;gap:.8rem;}
+  .game-card{
+    background:linear-gradient(180deg, rgba(20,31,52,.98), rgba(11,17,30,.98));
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:1rem;
+    cursor:pointer;
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    position:relative;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);
+  }
+  .game-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.24), 0 0 20px rgba(110,255,193,.08);}
+  .game-card.played-card{border-left:4px solid var(--green);}
+  .game-card::after{
+    content:'';
+    position:absolute;
+    right:.8rem;
+    top:.8rem;
+    width:2.1rem;
+    height:2.1rem;
+    opacity:.14;
+    background-image:var(--dino-card);
+    background-repeat:no-repeat;
+    background-size:contain;
+    image-rendering:pixelated;
+  }
+  .gname{font-weight:700;font-size:1rem;color:var(--text);line-height:1.45;margin-bottom:.6rem;padding-right:2.6rem;}
+  .gmeta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem;}
+  .badge,
+  .wp,
+  .sstatus{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.28rem .56rem;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.04);
+    color:var(--text2);
+    font-size:.66rem;
+    font-family:var(--mono);
+    white-space:nowrap;
+  }
+  .badge[class*='s']{position:relative;padding-left:1.95rem;min-height:1.6rem;}
+  .badge[class*='s']::before,
+  .fbtn[data-shelf]::before{
+    content:'';
+    width:1rem;
+    height:1rem;
+    flex:0 0 auto;
+    position:absolute;
+    left:.55rem;
+    top:50%;
+    transform:translateY(-50%);
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:contain;
+    image-rendering:pixelated;
+  }
+  .fbtn[data-shelf]{position:relative;padding-left:2.1rem;background:linear-gradient(180deg, rgba(21,32,54,.96), rgba(12,18,31,.96));color:var(--text2);border-color:var(--border2);}
+  .fbtn[data-shelf]::before{left:.7rem;opacity:.72;}
+  .fbtn[data-shelf]:hover::before{opacity:1;}
+  .s2p{background:rgba(102,217,255,.14);color:#9ae9ff;border-color:rgba(102,217,255,.32);}
+  .s2p::before,.fbtn[data-shelf='2-Player']::before{background-image:var(--dino-2p);}
+  .sad{background:rgba(255,138,216,.14);color:#ffb1ea;border-color:rgba(255,138,216,.3);}
+  .sad::before,.fbtn[data-shelf='Adult']::before{background-image:var(--dino-adult);}
+  .sfam{background:rgba(255,209,102,.16);color:#ffe08a;border-color:rgba(255,209,102,.32);}
+  .sfam::before,.fbtn[data-shelf='Family']::before{background-image:var(--dino-family);}
+  .spar{background:rgba(160,225,255,.14);color:#bfefff;border-color:rgba(160,225,255,.3);}
+  .spar::before,.fbtn[data-shelf='Party']::before{background-image:var(--dino-party);}
+  .skid{background:rgba(255,107,107,.14);color:#ff9f9f;border-color:rgba(255,107,107,.3);}
+  .skid::before,.fbtn[data-shelf='Kids']::before{background-image:var(--dino-kids);}
+  .ssol{background:rgba(124,153,255,.16);color:#b4c4ff;border-color:rgba(124,153,255,.32);}
+  .ssol::before,.fbtn[data-shelf='Solo']::before{background-image:var(--dino-solo);}
+  .fbtn[data-shelf='2-Player'].active{background:rgba(102,217,255,.14);color:#9ae9ff;border-color:rgba(102,217,255,.32);}
+  .fbtn[data-shelf='Adult'].active{background:rgba(255,138,216,.14);color:#ffb1ea;border-color:rgba(255,138,216,.3);}
+  .fbtn[data-shelf='Family'].active{background:rgba(255,209,102,.16);color:#ffe08a;border-color:rgba(255,209,102,.32);}
+  .fbtn[data-shelf='Party'].active{background:rgba(160,225,255,.14);color:#bfefff;border-color:rgba(160,225,255,.3);}
+  .fbtn[data-shelf='Kids'].active{background:rgba(255,107,107,.14);color:#ff9f9f;border-color:rgba(255,107,107,.3);}
+  .fbtn[data-shelf='Solo'].active{background:rgba(124,153,255,.16);color:#b4c4ff;border-color:rgba(124,153,255,.32);}
+  .bcoop{background:rgba(110,255,193,.12);color:var(--green);border-color:rgba(110,255,193,.24);}
+  .bplayed,.st-sheets{background:rgba(110,255,193,.14);color:var(--green);border-color:rgba(110,255,193,.22);}
+  .bexp,.st-local{background:rgba(186,129,255,.15);color:#d3b5ff;border-color:rgba(186,129,255,.3);}
+  .gscore,.grating,.notes-box,.pdate,.pnotes,.mcat{font-family:var(--mono);}
+  .gscore{font-size:.72rem;color:var(--text3);margin-top:.34rem;line-height:1.6;}
+  .gscore span{color:var(--amber);font-weight:600;}
+  .grating{font-size:.73rem;color:var(--text2);margin-top:.35rem;}
+  .pick-box{
+    text-align:center;
+    padding:1.15rem;
+    background:
+      radial-gradient(circle at top, rgba(102,217,255,.12), transparent 36%),
+      linear-gradient(180deg, rgba(22,30,54,.98), rgba(10,15,27,.98));
+  }
+  .pick-title,
+  .mtitle,
+  .pname{font-family:var(--pixel-font);line-height:1.5;}
+  .pick-title{font-size:.95rem;color:var(--amber);margin-bottom:.75rem;}
+  .pick-box::after{
+    content:'';
+    display:block;
+    width:4.6rem;
+    height:4.6rem;
+    margin:0 auto .9rem;
+    background-image:var(--dino-picker);
+    background-repeat:no-repeat;
+    background-size:contain;
+    image-rendering:pixelated;
+    filter:drop-shadow(0 0 22px rgba(102,217,255,.38));
+    animation:floatDino 5s ease-in-out infinite;
+  }
+  .pick-result{
+    font-family:var(--pixel-font);
+    font-size:.95rem;
+    color:var(--text);
+    padding:1rem;
+    background:linear-gradient(180deg, rgba(8,12,21,.98), rgba(11,18,31,.98));
+    border-radius:18px;
+    margin:.75rem auto;
+    min-height:6.4rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--border2);
+    line-height:1.7;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);
+  }
+  #pick-detail{font-family:var(--mono);font-size:.74rem;color:var(--text3);line-height:1.7;min-height:2rem;}
+  .moverlay{display:none;position:fixed;inset:0;background:rgba(2,4,10,.82);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);padding:0;}
+  .moverlay.open{display:flex;}
+  .modal{
+    position:relative;
+    width:100%;
+    max-width:100%;
+    max-height:92vh;
+    overflow-y:auto;
+    padding:1.15rem 1rem 1.35rem;
+    border-radius:22px 22px 0 0;
+    background:linear-gradient(180deg, rgba(18,27,45,.99), rgba(8,12,21,.99));
+    border:1px solid var(--border2);
+    box-shadow:0 -16px 40px rgba(0,0,0,.4);
+  }
+  .mclose{
+    position:absolute;top:.85rem;right:.85rem;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);
+    width:2.35rem;height:2.35rem;border-radius:12px;font-size:1.15rem;cursor:pointer;transition:all .15s ease;
+  }
+  .mclose:hover{color:var(--text);border-color:var(--green);}
+  .mtitle{font-size:.95rem;color:var(--amber);margin-bottom:.55rem;padding-right:3rem;}
+  .mcat{font-size:.72rem;color:var(--cyan);margin-bottom:.95rem;line-height:1.6;text-transform:uppercase;letter-spacing:.08em;}
+  .mgrid{display:grid;grid-template-columns:1fr;gap:.6rem;margin-bottom:.95rem;}
+  .mfield{background:rgba(8,13,24,.9);border-radius:16px;padding:.75rem .85rem;border:1px solid rgba(102,217,255,.12);}
+  .mfield .val{font-size:.9rem;color:var(--text);font-weight:600;margin-top:.2rem;}
+  .plays-wrap{max-height:none;overflow:visible;margin-bottom:.7rem;}
+  .pentry{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:start;
+    gap:.45rem .75rem;
+    background:rgba(8,13,24,.88);
+    border:1px solid rgba(102,217,255,.1);
+    border-radius:16px;
+    padding:.8rem;
+    margin-bottom:.45rem;
+    font-size:.8rem;
+  }
+  .pdate{color:var(--cyan);font-size:.7rem;min-width:0;}
+  .pwinner{color:var(--amber);font-weight:700;}
+  .pnotes{color:var(--text2);font-size:.75rem;grid-column:1 / -1;line-height:1.55;}
+  .pdel{
+    margin-left:auto;background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--text3);cursor:pointer;
+    font-size:.85rem;padding:.3rem .45rem;border-radius:10px;transition:all .15s ease;
+  }
+  .pdel:hover{color:var(--red);border-color:rgba(255,107,107,.22);}
+  .fg{display:flex;flex-direction:column;gap:.35rem;flex:1 1 100%;min-width:0;}
+  .st{width:100%;border-collapse:separate;border-spacing:0 0; font-size:.82rem;}
+  .st th{text-align:left;padding:.65rem .75rem;font-size:.68rem;letter-spacing:.12em;color:var(--text3);border-bottom:1px solid var(--border);font-family:var(--mono);font-weight:500;text-transform:uppercase;}
+  .st td{padding:.8rem .75rem;border-bottom:1px solid rgba(102,217,255,.08);color:var(--text2);vertical-align:middle;background:transparent;}
+  .st tr:hover td{background:rgba(255,255,255,.02);}
+  .st td:first-child{color:var(--text);font-weight:600;}
+  .twrap{
+    overflow:auto;
+    border:1px solid rgba(102,217,255,.1);
+    border-radius:18px;
+    background:rgba(7,11,19,.6);
+    margin-bottom:1rem;
+  }
+  .bar-wrap{margin:1rem 0;height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;border:1px solid rgba(255,255,255,.05);}
+  .bar{height:100%;background:linear-gradient(90deg, var(--cyan), var(--pink));border-radius:999px;transition:width .5s ease;box-shadow:0 0 14px rgba(102,217,255,.2);}
+  .notes-box{
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.05);
+    border-left:4px solid var(--amber);
+    border-radius:16px;
+    padding:.85rem .95rem;
+    font-size:.78rem;
+    color:var(--text2);
+    line-height:1.7;
+    margin:.45rem 0 .25rem;
+  }
+  .empty{
+    text-align:center;
+    padding:2rem 1rem;
+    color:var(--text3);
+    font-family:var(--mono);
+    font-size:.8rem;
+    border:1px dashed rgba(102,217,255,.16);
+    border-radius:18px;
+    background:rgba(7,11,19,.5);
+  }
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:6.2rem;
+    right:auto;
+    transform:translate(-50%, 10px);
+    background:linear-gradient(180deg, var(--green), #3fd9af);
+    color:#032016;
+    padding:.8rem 1rem;
+    border-radius:14px;
+    font-size:.82rem;
+    font-weight:700;
+    z-index:999;
+    opacity:0;
+    transition:all .25s ease;
+    pointer-events:none;
+    box-shadow:0 10px 24px rgba(0,0,0,.3);
+    max-width:min(92vw, 420px);
+    text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%, 0);}
+  pre{white-space:pre-wrap;word-break:break-word;background:rgba(7,11,19,.74)!important;border:1px solid rgba(102,217,255,.12);}
+  #sync-msg{font-family:var(--mono);line-height:1.6;}
+  #gf-active-msg{color:var(--amber)!important;line-height:1.6;}
+  .section[data-screen='Randomizer']::after{background-image:var(--dino-picker);image-rendering:pixelated;opacity:.24;}
+  .section[data-screen='Scoreboard']::after{background-image:var(--dino-score);image-rendering:pixelated;opacity:.2;}
+  .section[data-screen='Setup']::after{background-image:var(--dino-bg-b);image-rendering:pixelated;opacity:.18;}
+  .section[data-screen='Play Log']::after{background-image:var(--dino-card);image-rendering:pixelated;opacity:.18;}
+  .pick-box.rolling{box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 0 0 1px rgba(102,217,255,.2), 0 14px 30px rgba(0,0,0,.24), 0 0 28px rgba(102,217,255,.14);}
+  .pick-box.rolling .pick-result{animation:pickerPulse .32s steps(2,end) infinite;}
+  @keyframes pickerPulse {
+    0%, 100%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 0 0 0 rgba(102,217,255,.12);}
+    50%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 0 0 4px rgba(102,217,255,.12);}
+  }
+  
+  @keyframes floatDino {
+    0%,100%{transform:translateY(0px);}
+    50%{transform:translateY(-8px);}
+  }
+  @media (max-width: 760px){
+    .nav-brand{display:none;}
+    .app-shell{padding-top:.85rem;}
+    .fsearch{order:-1;}
+    .filters-bar > *{width:100%;}
+    .pctrls{justify-content:flex-start;}
+    .st thead{display:none;}
+    .st,.st tbody,.st tr,.st td{display:block;width:100%;}
+    .st tr{padding:.5rem .75rem;border-bottom:1px solid rgba(102,217,255,.08);}
+    .st td{border:none;padding:.3rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;}
+    #stats-body td:nth-child(1)::before{content:'Game';}
+    #stats-body td:nth-child(2)::before{content:'Plays';}
+    #stats-body td:nth-child(3)::before{content:'John W';}
+    #stats-body td:nth-child(4)::before{content:'Elizabeth W';}
+    #stats-body td:nth-child(5)::before{content:'Ties/Coop';}
+    #stats-body td:nth-child(6)::before{content:'Leader';}
+    #twoplayer-body td:nth-child(1)::before{content:'Game';}
+    #twoplayer-body td:nth-child(2)::before{content:'Shelf';}
+    #twoplayer-body td:nth-child(3)::before{content:'Best At';}
+    #twoplayer-body td:nth-child(4)::before{content:'Status';}
+    #twoplayer-body td:nth-child(5)::before{content:'Action';}
+    #excluded-body td:nth-child(1)::before{content:'Game';}
+    #excluded-body td:nth-child(2)::before{content:'Shelf';}
+    #excluded-body td:nth-child(3)::before{content:'Best At';}
+    #excluded-body td:nth-child(4)::before{content:'Action';}
+    .st td::before{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);flex:0 0 6rem;}
+  }
+  @media (min-width: 761px){
+    body{padding:0;}
+    nav{
+      top:0;bottom:auto;padding:1rem 1.2rem;border-top:none;border-bottom:1px solid rgba(102,217,255,.12);box-shadow:0 14px 30px rgba(0,0,0,.2);
+    }
+    .nav-tabs{flex:0 1 auto;grid-template-columns:repeat(5, minmax(6rem, auto));}
+    .nav-tab{min-height:2.9rem;padding:.7rem .85rem;font-size:.6rem;white-space:nowrap;}
+    .app-shell{padding:1.35rem 1.2rem 2rem;}
+    .section{padding:1.4rem;}
+    .page-title{font-size:1.2rem;}
+    .stats-row{grid-template-columns:repeat(4, minmax(0, 1fr));}
+    .win-grid{grid-template-columns:1fr 1fr;}
+    .game-grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    .moverlay{align-items:center;padding:1rem;}
+    .modal{max-width:780px;width:min(94vw, 780px);border-radius:24px;max-height:90vh;padding:1.35rem 1.35rem 1.5rem;}
+    .mgrid{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    .pick-box{padding:1.5rem;}
+  }
+  @media (min-width: 1024px){
+    .app-shell{padding-left:1.4rem;padding-right:1.4rem;}
+    .section{padding:1.65rem;}
+    .stats-row{grid-template-columns:repeat(8, minmax(0, 1fr));}
+    .game-grid{grid-template-columns:repeat(3, minmax(0, 1fr));}
+    .pick-box{padding:1.8rem 2rem;}
+    .modal{max-width:860px;}
+    body::after{width:12rem;height:12rem;opacity:.18;}
+    .arcade-bg::before,.arcade-bg::after{width:9.5rem;height:9.5rem;opacity:.14;}
+    .section::after{width:4rem;height:4rem;opacity:.22;}
+  }
+  @media (min-width: 1280px){
+    .game-grid{grid-template-columns:repeat(4, minmax(0, 1fr));}
+  }
+</style>
+
+<meta name="theme-color" content="#09101a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Game Vault DX">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png">
+<link rel="apple-touch-icon" href="app-icon-512.png">
+</head>
+<body>
+<div class="arcade-bg" aria-hidden="true"></div>
+<div class="scanline" aria-hidden="true"></div>
+
+<nav>
+  <div class="nav-brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-copy">
+      <span class="brand-title">GAME VAULT DX</span>
+      <span class="brand-sub">J + E Dino Arcade</span>
+    </span>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" data-tab="collection">Collection</div>
+    <div class="nav-tab" data-tab="picker">Pick a Game</div>
+    <div class="nav-tab" data-tab="plays">Play Log</div>
+    <div class="nav-tab" data-tab="stats">Stats</div>
+    <div class="nav-tab" data-tab="settings">⚙ Sync</div>
+  </div>
+</nav>
+
+<main class="app-shell">
+<!-- COLLECTION -->
+<div class="section active" id="tab-collection" data-screen="Collection">
+  <div class="page-title">Collection Cartridge Bay</div>
+  <div class="page-sub" id="col-sub">Loading...</div>
+  <div class="stats-row" id="col-stats"></div>
+  <div class="filters-bar">
+    <input class="fsearch" type="text" id="search-input" placeholder="Search name or category..." oninput="renderCollection()">
+    <div class="fgrp">
+      <span class="fgrp-lbl">Shelf</span>
+      <button class="fbtn" data-shelf-special="all" onclick="setFilter('shelf',null,this)">All</button>
+      <button class="fbtn active" data-shelf-special="all-but-kids" onclick="setFilter('shelf','__all_but_kids__',this)">All but kids</button>
+      <button class="fbtn" data-shelf="2-Player" onclick="setFilter('shelf','2-Player',this)">2-Player</button>
+      <button class="fbtn" data-shelf="Adult" onclick="setFilter('shelf','Adult',this)">Adult</button>
+      <button class="fbtn" data-shelf="Family" onclick="setFilter('shelf','Family',this)">Family</button>
+      <button class="fbtn" data-shelf="Party" onclick="setFilter('shelf','Party',this)">Party</button>
+      <button class="fbtn" data-shelf="Kids" onclick="setFilter('shelf','Kids',this)">Kids</button>
+      <button class="fbtn" data-shelf="Solo" onclick="setFilter('shelf','Solo',this)">Solo</button>
+    </div>
+    <div class="fgrp">
+      <span class="fgrp-lbl">Status</span>
+      <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
+      <button class="fbtn" onclick="setFilter('status','played',this)">Played ✓</button>
+      <button class="fbtn" onclick="setFilter('status','unplayed',this)">Unplayed</button>
+      <button class="fbtn" onclick="setFilter('status','base',this)">Base Only</button>
+    </div>
+  </div>
+  <div class="game-grid" id="game-grid"></div>
+</div>
+
+<!-- PICKER -->
+<div class="section" id="tab-picker" data-screen="Randomizer">
+  <div class="page-title">Dino Picker</div>
+  <div class="page-sub">Cue the neon, spin the selector, and let the dino decide tonight</div>
+  <div class="pick-box">
+    <div class="pick-title">PLAYER SELECT: TONIGHT WE PLAY...</div>
+    <div class="pick-result" id="pick-result" style="color:var(--text3);">Hit the button to pick</div>
+    <div id="pick-detail" style="font-size:.78rem;color:var(--text3);min-height:1.1em;margin-bottom:.4rem;"></div>
+    <div class="pctrls">
+      <span class="fgrp-lbl" style="align-self:center;">Shelf</span>
+      <button class="fbtn active" onclick="setPick('shelf',null,this)">Any</button>
+      <button class="fbtn" data-shelf="2-Player" onclick="setPick('shelf','2-Player',this)">2-Player</button>
+      <button class="fbtn" data-shelf="Adult" onclick="setPick('shelf','Adult',this)">Adult</button>
+      <button class="fbtn" data-shelf="Family" onclick="setPick('shelf','Family',this)">Family</button>
+      <button class="fbtn" data-shelf="Party" onclick="setPick('shelf','Party',this)">Party</button>
+      <button class="fbtn" data-shelf="Kids" onclick="setPick('shelf','Kids',this)">Kids</button>
+    </div>
+    <div class="pctrls">
+      <span class="fgrp-lbl" style="align-self:center;">History</span>
+      <button class="fbtn active" onclick="setPick('played',null,this)">Any</button>
+      <button class="fbtn" onclick="setPick('played','yes',this)">Played Before</button>
+      <button class="fbtn" onclick="setPick('played','no',this)">Never Played ✨</button>
+    </div>
+    <div class="pctrls">
+      <button class="fbtn active" onclick="setPick('exp','no',this)">Base Games Only</button>
+      <button class="fbtn" onclick="setPick('exp',null,this)">Include Expansions</button>
+    </div>
+    <div class="pctrls">
+      <span class="fgrp-lbl" style="align-self:center;">Co-op</span>
+      <button class="fbtn active" onclick="setPick('coop',null,this)">Either</button>
+      <button class="fbtn" onclick="setPick('coop','yes',this)">🤝 Co-op only</button>
+      <button class="fbtn" onclick="setPick('coop','no',this)">No co-op</button>
+    </div>
+    <div class="pctrls">
+      <span class="fgrp-lbl" style="align-self:center;">Player count</span>
+      <button class="fbtn active" onclick="setPick('players',null,this)">Any</button>
+      <button class="fbtn" onclick="setPick('players','1',this)">1</button>
+      <button class="fbtn" onclick="setPick('players','2',this)">2</button>
+      <button class="fbtn" onclick="setPick('players','3',this)">3</button>
+      <button class="fbtn" onclick="setPick('players','4',this)">4</button>
+      <button class="fbtn" onclick="setPick('players','5',this)">5</button>
+      <button class="fbtn" onclick="setPick('players','6',this)">6</button>
+    </div>
+    <button class="btn btn-gold" style="font-size:.93rem;padding:.62rem 1.8rem;margin-top:.4rem;" onclick="pickRandom()">🎲 Roll the Dice</button>
+  </div>
+</div>
+
+<!-- PLAYS -->
+<div class="section" id="tab-plays" data-screen="Play Log">
+  <div class="page-title">Arcade Session Log</div>
+  <div class="page-sub">Log every run, rivalry, co-op quest, and rating</div>
+  <div class="sbox">
+    <div class="stitle">Log a Play</div>
+    <div class="form-row">
+      <div class="fg" style="flex:2;min-width:170px;">
+        <label>Game</label>
+        <select class="fc" id="log-game"></select>
+      </div>
+      <div class="fg" style="max-width:138px;">
+        <label>Date</label>
+        <input type="date" class="fc" id="log-date">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label>Winner</label>
+        <select class="fc" id="log-winner">
+          <option value="">— Select —</option>
+          <option value="John">John</option>
+          <option value="Elizabeth">Elizabeth</option>
+          <option value="Tie">Tie</option>
+          <option value="N/A (Coop)">N/A – Cooperative</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fg" style="max-width:100px;">
+        <label>J Rating (1-10)</label>
+        <input class="fc" type="number" id="log-jrat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg" style="max-width:100px;">
+        <label>E Rating (1-10)</label>
+        <input class="fc" type="number" id="log-erat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg">
+        <label>Notes (optional)</label>
+        <input class="fc" type="text" id="log-notes" placeholder="Quick notes...">
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="logPlay()">Log Play</button>
+  </div>
+  <div id="play-log-list"></div>
+</div>
+
+<!-- STATS -->
+<div class="section" id="tab-stats" data-screen="Scoreboard">
+  <div class="page-title">Scoreboard + Records</div>
+  <div class="page-sub">Pixel scoreboard for every showdown, streak, and 2-player favorite</div>
+  <div class="win-grid" id="win-stats"></div>
+  <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Per-Game Win Records</div>
+  <div class="twrap">
+    <table class="st">
+      <thead><tr>
+        <th>Game</th><th>Plays</th><th>John W</th><th>Elizabeth W</th><th>Ties/Coop</th><th>Leader</th>
+      </tr></thead>
+      <tbody id="stats-body"></tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:2rem 0 .5rem;">
+    <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'DM Mono',monospace;">2-Player Games</div>
+  </div>
+
+  <div class="filters-bar" style="margin-bottom:.9rem;">
+    <div class="fgrp">
+      <button class="fbtn" id="2p-mode-best" onclick="set2pMode('best',this)">Best at 2</button>
+      <button class="fbtn active" id="2p-mode-good" onclick="set2pMode('good',this)">Good at 2</button>
+    </div>
+  </div>
+  <div class="stats-row" id="twoplayer-stats"></div>
+  <div class="twrap">
+    <table class="st">
+      <thead><tr>
+        <th>Game</th><th>Shelf</th><th>Best At</th><th>Status</th><th style="width:40px;"></th>
+      </tr></thead>
+      <tbody id="twoplayer-body"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:1.4rem;">
+    <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'DM Mono',monospace;cursor:pointer;display:flex;align-items:center;gap:.5rem;" onclick="toggleExcluded()">
+      <span id="excl-arrow">▸</span> Excluded Games <span id="excl-count" style="color:var(--text3);"></span>
+    </div>
+    <div id="excluded-wrap" style="display:none;margin-top:.7rem;">
+      <div class="twrap">
+        <table class="st">
+          <thead><tr>
+            <th>Game</th><th>Shelf</th><th>Best At</th><th style="width:40px;"></th>
+          </tr></thead>
+          <tbody id="excluded-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="section" id="tab-settings" data-screen="Setup">
+  <div class="page-title">Machine Setup</div>
+  <div class="page-sub">Tune the cabinet, sync the sheets, and keep the vault live across every screen</div>
+
+  <div class="sbox">
+    <div class="stitle">How It Works</div>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.7;margin-bottom:.9rem;">
+      Connect this dashboard to a Google Sheet so your <strong style="color:var(--text)">game list</strong> and <strong style="color:var(--text)">play log</strong> stay in sync. Add a new game to the sheet → refresh → it appears here. Log a play here → it writes back to the sheet.
+    </p>
+    <div style="background:var(--bg3);border-radius:9px;padding:1rem 1.1rem;font-size:.8rem;color:var(--text2);line-height:2;border-left:3px solid var(--gold-dim);">
+      <strong style="color:var(--text);">Setup &mdash; your existing spreadsheet works as-is, no column changes needed:</strong><br>
+      1. Open <strong style="color:var(--text);">board_games_updated</strong> in Google Sheets (already in your Drive)<br>
+      2. Go to <strong style="color:var(--text);">File &rarr; Share &rarr; Publish to web</strong><br>
+      3. First dropdown: select the <strong style="color:var(--text);">Games</strong> tab &middot; Second: <strong style="color:var(--text);">Comma-separated values (.csv)</strong> &rarr; Publish &rarr; copy that URL<br>
+      4. Add a new tab named <strong style="color:var(--text);">Plays</strong> with four columns in row 1: <code style="font-family:'DM Mono',monospace;font-size:.74rem;color:var(--text);">Date | Game | Winner | Notes | J Rating | E Rating</code><br>
+      5. Back in Publish to web &mdash; publish the <strong style="color:var(--text);">Plays</strong> tab as CSV too &rarr; copy that URL<br>
+      6. Paste both URLs into the fields below and click <strong style="color:var(--text);">Save &amp; Sync</strong><br><br>
+      <strong style="color:var(--text);">Column mapping (your exact column names, no changes needed):</strong><br>
+      <span style="font-family:'DM Mono',monospace;font-size:.71rem;color:#c9a84c;">Game &middot; Shelf &middot; Players (Manufacturer) &middot; Best At &middot; Plays well at 2? - from chat &middot; Good solo option &middot; BGG Score &middot; BGG Category &middot; Played &middot; Rating &middot; Expansion &middot; E knows? &middot; Potentially sell? &middot; Notes</span>
+    </div>
+  </div>
+
+  <div class="sbox">
+    <div class="stitle">
+      Configuration
+      <span id="sync-badge" class="sstatus st-local">● Local Storage</span>
+    </div>
+    <div class="form-row"><div class="fg" style="flex:3;">
+      <label>Games Sheet — CSV Publish URL</label>
+      <input class="fc" id="cfg-games" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=0&single=true&output=csv">
+    </div></div>
+    <div class="form-row"><div class="fg" style="flex:3;">
+      <label>Plays Sheet — CSV Publish URL (optional, to load plays from Sheets)</label>
+      <input class="fc" id="cfg-plays" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=123&single=true&output=csv">
+    </div></div>
+    <div class="form-row"><div class="fg" style="flex:3;">
+      <label>Apps Script URL (optional, to write plays back to Sheets)</label>
+      <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec">
+    </div></div>
+    <div class="form-row"><div class="fg" style="flex:3;">
+      <label>Stats Sheet — CSV Publish URL <span style="color:var(--text3);font-weight:400;text-transform:none;">(optional — for live $ spent)</span></label>
+      <input class="fc" id="cfg-stats" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv">
+    </div></div>
+    <div style="display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;margin-top:.2rem;">
+      <button class="btn btn-gold" onclick="saveConfig()">Save & Sync</button>
+      <button class="btn btn-outline" onclick="syncNow()">↺ Sync Now</button>
+      <span id="sync-msg" style="font-size:.76rem;color:var(--text3);"></span>
+    </div>
+  </div>
+
+  <div class="sbox" style="opacity:0.75;">
+    <div class="stitle">Global Filter <span style="color:var(--text3);font-weight:400;text-transform:none;font-family:'DM Sans',sans-serif;font-size:.78rem;letter-spacing:0;">&nbsp;— applies across all tabs</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;">
+      <div class="fg" style="max-width:220px;">
+        <label>Ready to Play?</label>
+        <select class="fc" id="gf-eknows" onchange="applyGlobalFilters()">
+          <option value="">All games</option>
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="fg" style="max-width:220px;">
+        <label>Year bought</label>
+        <select class="fc" id="gf-year" onchange="applyGlobalFilters()">
+          <option value="">All years</option>
+          <option value="2026">2026</option>
+          <option value="before">Before 2026</option>
+        </select>
+      </div>
+    </div>
+    <div id="gf-active-msg" style="margin-top:.6rem;font-size:.75rem;color:var(--amber);font-family:'DM Mono',monospace;display:none;">
+      ⚠ Global filter active — collection, stats &amp; picker are filtered
+    </div>
+  </div>
+
+  <div class="sbox">
+    <div class="stitle" style="cursor:pointer;" onclick="toggleGuide()">▸ Apps Script for Writing Plays Back to Sheets <span style="color:var(--text3);">(click to expand)</span></div>
+    <div id="guide-body" style="display:none;margin-top:.8rem;">
+      <p style="font-size:.8rem;color:var(--text2);margin-bottom:.7rem;">In your Google Sheet, go to <strong style="color:var(--text);">Extensions → Apps Script</strong>, paste this, then <strong style="color:var(--text);">Deploy → New deployment → Web app</strong> (Execute as: Me, Access: Anyone):</p>
+      <pre style="background:var(--bg3);border-radius:8px;padding:1rem;font-size:.7rem;color:#a8d8a8;line-height:1.6;">function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var data = JSON.parse(e.postData.contents);
+
+  // Log play to Plays sheet
+  if (data.action === "add" || data.action === "delete") {
+    var playsSheet = ss.getSheetByName("Plays");
+    if (!playsSheet) {
+      playsSheet = ss.insertSheet("Plays");
+      playsSheet.appendRow(["Date","Game","Winner","Notes","J Rating","E Rating"]);
+    }
+    if (data.action === "add") {
+      playsSheet.appendRow([data.date, data.game, data.winner, data.notes || "", data.jRat || "", data.eRat || ""]);
+      // Mark game as Played + write ratings to Games sheet
+      if (data.markPlayed || data.jRat || data.eRat) {
+        var gamesSheet = ss.getSheetByName("Games");
+        if (gamesSheet) {
+          var gv = gamesSheet.getDataRange().getValues();
+          var headers = gv[0];
+          // Find columns by name — robust to column order changes
+          var playedCol  = headers.indexOf("Played")   + 1; // col J = 10
+          var jRatCol    = headers.indexOf("J Rating")  + 1; // col K = 11
+          var eRatCol    = headers.indexOf("E Rating")  + 1; // col L = 12
+          for (var i = 1; i < gv.length; i++) {
+            if (gv[i][0] === data.game) {
+              if (data.markPlayed && playedCol > 0) {
+                var cur = (gv[i][playedCol-1]||'').toString().toLowerCase();
+                if (cur !== 'yes') gamesSheet.getRange(i+1, playedCol).setValue("Yes");
+              }
+              if (data.jRat && jRatCol > 0) {
+                gamesSheet.getRange(i+1, jRatCol).setValue(parseFloat(data.jRat));
+              }
+              if (data.eRat && eRatCol > 0) {
+                gamesSheet.getRange(i+1, eRatCol).setValue(parseFloat(data.eRat));
+              }
+              break;
+            }
+          }
+        }
+      }
+    } else if (data.action === "delete") {
+      var v = playsSheet.getDataRange().getValues();
+      for (var i = v.length - 1; i >= 1; i--) {
+        if (v[i][0]==data.date && v[i][1]==data.game && v[i][2]==data.winner) {
+          playsSheet.deleteRow(i + 1); break;
+        }
+      }
+    }
+  }
+
+  // Update Excluded column (found by header name) in Games sheet
+  if (data.action === "exclude") {
+    var gamesSheet = ss.getSheetByName("Games");
+    if (gamesSheet) {
+      var gv = gamesSheet.getDataRange().getValues();
+      // Find or create the Excluded column
+      var headers = gv[0];
+      var exclCol = headers.indexOf('Excluded') + 1; // 1-based
+      if (exclCol === 0) {
+        // Column doesn't exist yet - add it after last column
+        exclCol = gv[0].length + 1;
+        gamesSheet.getRange(1, exclCol).setValue('Excluded');
+      }
+      for (var i = 1; i < gv.length; i++) {
+        if (gv[i][0] === data.game) {
+          gamesSheet.getRange(i + 1, exclCol).setValue(data.excluded ? 1 : '');
+          break;
+        }
+      }
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+    </div>
+  </div>
+</div>
+</main>
+
+<!-- MODAL -->
+<div class="moverlay" id="moverlay" onclick="maybeClose(event)">
+  <div class="modal">
+    <button class="mclose" onclick="closeModal()">×</button>
+    <div class="mtitle" id="m-name"></div>
+    <div class="mcat" id="m-cat"></div>
+    <div class="mgrid" id="m-grid"></div>
+    <div id="m-notes"></div>
+    <div class="msec">Win / Loss Record</div>
+    <div id="m-wl"></div>
+    <div class="msec">Play History</div>
+    <div class="plays-wrap" id="m-plays"></div>
+    <div class="msec">Log a Play for This Game</div>
+    <div class="form-row">
+      <div class="fg" style="max-width:138px;"><label>Date</label><input type="date" class="fc" id="m-date"></div>
+      <div class="fg">
+        <label>Winner</label>
+        <select class="fc" id="m-winner">
+          <option value="">— Select —</option>
+          <option value="John">John</option>
+          <option value="Elizabeth">Elizabeth</option>
+          <option value="Tie">Tie</option>
+          <option value="N/A (Coop)">N/A – Cooperative</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg" style="max-width:90px;">
+        <label>J Rating</label>
+        <input class="fc" type="number" id="m-jrat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg" style="max-width:90px;">
+        <label>E Rating</label>
+        <input class="fc" type="number" id="m-erat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg"><label>Notes</label><input class="fc" type="text" id="m-notes-in" placeholder="Optional..."></div>
+    </div>
+    <button class="btn btn-gold btn-sm" onclick="logModal()">Log Play</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// COMPLETE GAME DATA (108 games from your sheet)
+// ═══════════════════════════════════════════════
+const DEFAULT_GAMES = [
+  // 2-PLAYER (35 entries)
+  {n:"7 Wonders Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Air Land & Sea: Spies, Lies, & Supplies",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Military, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Agent Avenue",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.2,cat:"Card Game, Deduction, Spy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Azul Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Abstract Strategy, Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Bottom of the 9th",s:"2-Player",pl:"1–2",plBGG:"1-2",ba:"2",so:"Yes",bg:7.0,cat:"Dice Game, Sports, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Compile: Main 1",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Compile: Main 2",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Dice Throne: Season 2 - Gunslinger vs. Samurai",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Dice Rolling, Combat, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Flamecraft: Duals",s:"2-Player",pl:"2",plBGG:"1-2",ba:"2",so:"No",bg:7.4,cat:"Card Game, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Ironwood",s:"2-Player",pl:"2–4",plBGG:"1-2",ba:"2",so:"No",bg:7.6,cat:"Area Control, Fantasy, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"King of Tokyo Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Dice, Fighting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Lord of the Rings: Duel for Middle-Earth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Area Control, Fantasy",played:true,jRat:"9",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Lord of the Rings: Duel for Middle-Earth - Allies (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Area Control, Fantasy",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Lost Cities",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:"Like solitaire"},
+  {n:"Mind MGMT",s:"2-Player",pl:"2–5",plBGG:"1-5",ba:"3–4",so:"No",bg:8.0,cat:"Asymmetric, Deduction, Hidden Role",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Mindbug: First Contact",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"NFL Showdown",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:6.3,cat:"Sports, Dice Game",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"Me, Johnny, and Jack can play this"},
+  {n:"Radlands",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"In retrospect, bad purchase – FOMO got the best of me"},
+  {n:"Radlands Cult of Chrome Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.5,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Sky Team",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.2,cat:"Cooperative, Aviation",played:true,jRat:"9",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Splendor Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Economic, Abstract",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Star Realms",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Star Realms: Frontiers",s:"2-Player",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:7.8,cat:"Deck-Building, Sci-Fi, Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Star Wars X-Wing First Edition - 2x Core Sets - Force Awakens, Original; Heroes of the Resistance Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Star Wars X-Wing First Edition Tie Advanced Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Star Wars: Battle of Hoth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.4,cat:"Wargame, Tactical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Star Wars: The Deckbuilding Game",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:true,jRat:"8",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Star Wars: The Deckbuilding Game - Mandalorian Faction Pack (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Summoner Wars",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:7.7,cat:"Card Game, Fantasy, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Undaunted: Normandy",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Wargame, Deck-Building, WWII",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Undaunted: Stalingrad",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Wargame, Deck-Building, Campaign",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Unmatched - Bruce Lee vs. Muhammad Ali",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:8.1,cat:"Card Game, Fighting",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Unmatched: Battle of Legends Vol. 2",s:"2-Player",pl:"2–4",plBGG:"2,4",ba:"2,4",so:"No",bg:8.2,cat:"Card Game, Fighting, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Watergate",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.9,cat:"Political, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  // ADULT (17)
+  {n:"7 Wonders",s:"Adult",pl:"2–7",plBGG:"3-7",ba:"4–5",so:"No",bg:7.7,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Been a long long time"},
+  {n:"Arcs",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:8.5,cat:"Strategy, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Cascadia",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2–3",so:"Yes",bg:7.8,cat:"Tile Placement, Nature",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Catan",s:"Adult",pl:"3–4",plBGG:"3-4",ba:"4",so:"No",bg:7.2,cat:"Negotiation, Territory Building, Resource Management",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Catan: Game of Thrones",s:"Adult",pl:"3–4",plBGG:"",ba:"4",so:"No",bg:7.1,cat:"Negotiation, Territory Building, Fantasy",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:false,year:"",excluded:false,notes:"Sell candidate"},
+  {n:"Clank!: Catacombs",s:"Adult",pl:"2–4",plBGG:"2-4, Best: 3",ba:"3–4",so:"No",bg:8.2,cat:"Deck-Building, Adventure, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Dominion",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.6,cat:"Deck-Building",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Dune Imperium",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"Yes",bg:8.4,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Dune Imperium: Rise of Ix (Expansion)",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"No",bg:8.8,cat:"Strategy, Sci-Fi, Worker Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Dune Imperium: Uprising",s:"Adult",pl:"1–4",plBGG:"1-4,6",ba:"3–4",so:"No",bg:8.7,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Lost Ruins of Arnak",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:8.1,cat:"Deck-Building, Worker Placement, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Risk",s:"Adult",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:5.6,cat:"Area Control, Wargame",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Need to play with kids now"},
+  {n:"Space Base",s:"Adult",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:7.7,cat:"Dice Game, Engine Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Thief's Market - Retail + Promo Pack",s:"Adult",pl:"2–5",plBGG:"3-5, Best: 4",ba:"4",so:"No",bg:6.8,cat:"Set Collection, Negotiation, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Thunder Road: Vendetta",s:"Adult",pl:"2–5",plBGG:"3-4",ba:"4–5",so:"No",bg:7.9,cat:"Racing, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Unmatched Adventures: Tales to Amaze",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"No",bg:8.1,cat:"Cooperative, Miniatures, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  // FAMILY (25)
+  {n:"Antiquity Quest",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:6.6,cat:"Family, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Like canasta"},
+  {n:"Azul",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.8,cat:"Abstract Strategy, Tile Placement",played:true,jRat:"8",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Only played as 2-player"},
+  {n:"Bunny Kingdom",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:7.4,cat:"Area Control, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Play as 2-player next. Parents have this too."},
+  {n:"Carcassonne",s:"Family",pl:"2–5",plBGG:"2-5",ba:"2",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"At grandma's house"},
+  {n:"Cartographers: Heroes",s:"Family",pl:"1–100",plBGG:"1-10",ba:"1",so:"Yes",bg:7.7,cat:"Roll & Write, Fantasy, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Castle Combo",s:"Family",pl:"2–5",plBGG:"2-4",ba:"2",so:"No",bg:7.7,cat:"Card Drafting, Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Castle Panic",s:"Family",pl:"1–6",plBGG:"1-6",ba:"4",so:"No",bg:6.6,cat:"Cooperative, Tower Defense",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Cover Your Assets",s:"Family",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.4,cat:"Set Collection",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"J is over it. Good one with kids."},
+  {n:"Cover Your Kingdom",s:"Family",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.3,cat:"Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Forbidden Island",s:"Family",pl:"2–4",plBGG:"1-4",ba:"4",so:"No",bg:6.8,cat:"Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Kingdomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Kingdomino: Age of Giants (Expansion)",s:"Family",pl:"2–5",plBGG:"2-5",ba:"5",so:"No",bg:7.2,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Monopoly Deal",s:"Family",pl:"2–5",plBGG:"2-3+",ba:"3",so:"No",bg:6.4,cat:"Economic, Card Game",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
+  {n:"Queendomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.1,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Qwixx",s:"Family",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:6.9,cat:"Dice Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Santorini",s:"Family",pl:"2–4",plBGG:"2-3",ba:"2",so:"No",bg:7.6,cat:"Abstract Strategy, Mythology",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Scout",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:7.7,cat:"Ladder Climbing, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Sea Salt and Paper",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Set Collection, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Skip-Bo",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:5.4,cat:"Card Game, Classic",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
+  {n:"Splendor",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.4,cat:"Economic, Abstract",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Sushi Go",s:"Family",pl:"2–5",plBGG:"3-5",ba:"5",so:"No",bg:7.0,cat:"Card Drafting, Set Collection",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"The Crew: Mission Deep Sea",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:8.0,cat:"Cooperative, Trick-taking",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"The Lost Expedition Card Game",s:"Family",pl:"1–6",plBGG:"1-3",ba:"3",so:"Yes",bg:7.2,cat:"Cooperative, Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"The Quest for El Dorado",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Race, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Ticket to Ride",s:"Family",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.4,cat:"Network Building, Route",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Yahtzee",s:"Family",pl:"2–10",plBGG:"",ba:"4",so:"No",bg:5.6,cat:"Dice Game, Classic",played:true,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  // PARTY (13)
+  {n:"6 Nimmt!",s:"Party",pl:"2–10",plBGG:"3-8",ba:"5–8",so:"No",bg:7.0,cat:"Card Game, Party",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Decrypto",s:"Party",pl:"3–8",plBGG:"4-8",ba:"4–6",so:"No",bg:7.8,cat:"Word Game, Party, Deduction",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
+  {n:"Exploding Kittens",s:"Party",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:5.9,cat:"Card Game, Party, Humor",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Exploding Kittens: Good vs Evil",s:"Party",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.2,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Imploding Kittens (Expansion)",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:6.5,cat:"Card Game, Party",played:false,jRat:"5",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Love Letter",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:7.2,cat:"Card Game, Deduction",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Mantis",s:"Party",pl:"2–6",plBGG:"2-6",ba:"4–5",so:"No",bg:6.5,cat:"Card Game, Party, Set Collection",played:false,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Mountain Goats",s:"Party",pl:"2–5",plBGG:"2-4",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Mountain Goats: Big Mountain (Expansion)",s:"Party",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Power Hungry Pets",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.8,cat:"Card Game, Party, Humor",played:false,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Saboteur",s:"Party",pl:"3–10",plBGG:"",ba:"7",so:"No",bg:6.6,cat:"Card Game, Party, Deduction",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"The Resistance: Avalon",s:"Party",pl:"5–10",plBGG:"",ba:"7",so:"No",bg:7.7,cat:"Social Deduction, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Zombie Kittens",s:"Party",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.3,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  // KIDS (11)
+  {n:"A Game of Cat and Mouth Pinball Game",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:7.1,cat:"Dexterity, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Bounce Off",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.8,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Chicken vs Hot Dog",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.0,cat:"Card Game, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Connect 4",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:5.8,cat:"Abstract Strategy, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Enchanted Forest",s:"Kids",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.7,cat:"Children's, Memory",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"HABA Rhino Hero",s:"Kids",pl:"2–5",plBGG:"",ba:"4",so:"No",bg:7.2,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"My First Stone Age",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:7.1,cat:"Children's, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Parcheesi",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.2,cat:"Race Game, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Race to the Treasure",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.8,cat:"Cooperative, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Throw Throw Burrito",s:"Kids",pl:"2–6",plBGG:"",ba:"4–6",so:"No",bg:6.2,cat:"Dexterity, Party",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  {n:"Trouble",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:4.6,cat:"Children's Game, Race",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
+  // SOLO (8)
+  {n:"Hadrian's Wall",s:"Solo",pl:"1–6",plBGG:"1",ba:"1",so:"Yes",bg:8.0,cat:"Roll & Write, Historical, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Imperium: Classics",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"2",so:"Yes",bg:7.6,cat:"Civilization, Deck-Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Legacy of Yu",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.7,cat:"Solo, Deck-Building, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Marvel Champions LCG - Core Set",s:"Solo",pl:"1–4",plBGG:"1-3",ba:"2",so:"Yes",bg:8.0,cat:"Cooperative, Card Game, Superhero",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Resist!",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.4,cat:"Card Game, Solo, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Solo Hero Series: Warp's Edge",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.6,cat:"Solo, Bag Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Sprawlopolis",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"1",so:"Yes",bg:7.5,cat:"Solo, Tile Laying, City Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Under Falling Skies",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.8,cat:"Solo, Sci-Fi, Dice Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let GAMES = DEFAULT_GAMES.map(g=>({...g}));
+let plays = JSON.parse(localStorage.getItem('bgv-plays')||'[]');
+let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
+// Hardcoded defaults — override if not already set by user
+if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
+if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
+if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
+if (!cfg.scriptUrl) cfg.scriptUrl = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
+let filters = {shelf:['2-Player','Adult','Family','Party','Solo'],status:null};
+let picks = {shelf:null,played:null,exp:'no',coop:null,players:null};
+let activeModal = null;
+// Global filters (set in Sync tab, applied everywhere)
+let globalFilters = {eKnows:'1', year:''}; // default: Ready to Play = Yes
+let twoPlayerMode = 'good'; // 'best' = Best At contains 2, 'good' = BGG Comm contains 2 or 1-
+let twoPlayerExcludedShelves = new Set([]); // Kids always excluded via logic
+let twoPlayerExcludedGames = new Set(JSON.parse(localStorage.getItem('bgv-2p-excl') || '[]'));
+
+function save2pExclusions() {
+  localStorage.setItem('bgv-2p-excl', JSON.stringify([...twoPlayerExcludedGames]));
+}
+
+function toggle2pShelfExclude(shelf, btn) {
+  if (twoPlayerExcludedShelves.has(shelf)) {
+    twoPlayerExcludedShelves.delete(shelf);
+    btn.classList.remove('active');
+  } else {
+    twoPlayerExcludedShelves.add(shelf);
+    btn.classList.add('active');
+  }
+  renderTwoPlayer();
+}
+
+function set2pMode(mode, btn) {
+  twoPlayerMode = mode;
+  document.querySelectorAll('[id^="2p-mode-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTwoPlayer();
+}
+
+function excludeGame(name) {
+  twoPlayerExcludedGames.add(name);
+  save2pExclusions();
+  // Also update sheet if Apps Script is connected
+  if (cfg.scriptUrl) pushExclusion(name, true);
+  renderTwoPlayer();
+}
+
+function includeGame(name) {
+  twoPlayerExcludedGames.delete(name);
+  // Also clear sheet flag if Apps Script is connected
+  if (cfg.scriptUrl) pushExclusion(name, false);
+  // If the game has g.excluded=true from sheet, sync will clear it on next sync
+  save2pExclusions();
+  renderTwoPlayer();
+}
+
+async function pushExclusion(name, excluded) {
+  if (!cfg.scriptUrl) return;
+  try {
+    await fetch(cfg.scriptUrl, {
+      method: 'POST',
+      body: JSON.stringify({action: 'exclude', game: name, excluded: excluded})
+    });
+  } catch(e) {}
+}
+
+function toggleExcluded() {
+  const wrap = document.getElementById('excluded-wrap');
+  const arrow = document.getElementById('excl-arrow');
+  if (wrap.style.display === 'none') {
+    wrap.style.display = 'block';
+    arrow.textContent = '▾';
+  } else {
+    wrap.style.display = 'none';
+    arrow.textContent = '▸';
+  }
+}
+
+function applyGlobalFilters() {
+  globalFilters.eKnows = document.getElementById('gf-eknows')?.value || '';
+  globalFilters.year   = document.getElementById('gf-year')?.value || '';
+  const active = globalFilters.eKnows || globalFilters.year;
+  const msg = document.getElementById('gf-active-msg');
+  if (msg) msg.style.display = active ? 'block' : 'none';
+  updateInvestedCard();
+  renderCollection(); renderStats(); renderTwoPlayer();
+  if(document.getElementById('tab-plays').classList.contains('active')) renderPlays();
+}
+
+function passesGlobal(g) {
+  if (globalFilters.eKnows === '1' && !g.eKnows) return false;
+  if (globalFilters.eKnows === '0' && g.eKnows) return false;
+  if (globalFilters.year && g.year !== globalFilters.year) return false;
+  return true;
+}
+
+function updateInvestedCard() {
+  const el = document.getElementById('stat-invested');
+  if (!el) return;
+  const useEKnows = globalFilters.eKnows === '1' && cfg.eKnowsInvested;
+  el.textContent = '$' + (useEKnows ? cfg.eKnowsInvested : (cfg.invested || '…'));
+}
+
+function populateYearFilter() {
+  const sel = document.getElementById('gf-year');
+  if (!sel) return;
+  const years = [...new Set(GAMES.map(g=>g.year).filter(y=>y))].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All years</option>' +
+    years.map(y => `<option value="${y}"${cur===y?' selected':''}>${y}</option>`).join('');
+}
+
+function isCoop(g) {
+  const cat = (g.cat||'').toLowerCase();
+  return cat.includes('cooperative') || cat.includes('co-op') || cat.includes('coop');
+}
+
+// Check if a game supports exactly N players based on Players (BGG Comm) field
+// Handles: "2", "2-4", "1-4,6", "2,4", "2-3+", "2-4, Best: 3" etc.
+function supportsPlayerCount(g, n) {
+  const raw = (g.plBGG||g.pl||'').toString().replace(/best:.*/i,'').trim();
+  if (!raw) return true; // unknown = include
+  const num = parseInt(n);
+  // Split on commas to handle "1-4,6"
+  const parts = raw.split(',');
+  for (const part of parts) {
+    const p = part.trim().replace('+',''); // handle "2-3+"
+    if (p.includes('-')) {
+      const [lo, hi] = p.split('-').map(x => parseInt(x.trim()));
+      if (!isNaN(lo) && !isNaN(hi) && num >= lo && num <= hi) return true;
+      if (!isNaN(lo) && isNaN(hi) && num >= lo) return true;
+    } else {
+      if (parseInt(p) === num) return true;
+    }
+  }
+  return false;
+}
+
+function savePlays(){localStorage.setItem('bgv-plays',JSON.stringify(plays));}
+function saveCfg(){localStorage.setItem('bgv-cfg',JSON.stringify(cfg));}
+
+// ═══════════════════════════════════════
+// SHELF BADGE CLASS
+// ═══════════════════════════════════════
+function sBadge(shelf){
+  const s = shelf.toLowerCase();
+  if(s.includes('2-player')) return 's2p';
+  if(s.includes('adult')) return 'sad';
+  if(s.includes('family')) return 'sfam';
+  if(s.includes('kids')) return 'skid';
+  if(s.includes('solo')) return 'ssol';
+  if(s.includes('party')) return 'spar';
+  return '';
+}
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+document.querySelectorAll('.nav-tab').forEach(t=>{
+  t.addEventListener('click',function(){
+    const id = this.dataset.tab;
+    document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('tab-'+id).classList.add('active');
+    if(id==='plays') renderPlays();
+    if(id==='stats') renderStats();
+    if(id==='collection') renderCollection();
+  });
+});
+
+// ═══════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════
+function setFilter(k,v,btn){
+  if(k!=='shelf'){
+    filters[k]=v;
+    btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCollection();
+    return;
+  }
+
+  const group = btn.parentElement;
+  const buttons = [...group.querySelectorAll('.fbtn')];
+  const specialButtons = buttons.filter(b => b.dataset.shelfSpecial);
+
+  if(v===null){
+    filters.shelf = [];
+    buttons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCollection();
+    return;
+  }
+
+  if(v==='__all_but_kids__'){
+    filters.shelf = ['2-Player','Adult','Family','Party','Solo'];
+    buttons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCollection();
+    return;
+  }
+
+  specialButtons.forEach(b=>b.classList.remove('active'));
+  const idx = filters.shelf.indexOf(v);
+  if(idx >= 0){
+    filters.shelf.splice(idx,1);
+    btn.classList.remove('active');
+  } else {
+    filters.shelf.push(v);
+    btn.classList.add('active');
+  }
+
+  if(filters.shelf.length===0){
+    const allBtn = group.querySelector('[data-shelf-special="all"]');
+    if(allBtn) allBtn.classList.add('active');
+  }
+
+  renderCollection();
+}
+function setPick(k,v,btn){
+  picks[k]=v;
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// COLLECTION
+// ═══════════════════════════════════════
+function getFiltered(){
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  return GAMES.filter(g=>{
+    if(!passesGlobal(g)) return false;
+    if(q && !g.n.toLowerCase().includes(q) && !g.cat.toLowerCase().includes(q)) return false;
+    if(filters.shelf.length && !filters.shelf.some(shelf => g.s.toLowerCase().includes(shelf.toLowerCase()))) return false;
+    if(filters.status==='played' && !g.played) return false;
+    if(filters.status==='unplayed' && g.played) return false;
+    if(filters.status==='base' && g.exp) return false;
+    return true;
+  });
+}
+
+function renderCollection(){
+  const filtered = getFiltered();
+  const allBase = GAMES.filter(g=>!g.exp);
+  const kids = GAMES.filter(g=>g.s.toLowerCase()==='kids'&&!g.exp);
+  const exps = GAMES.filter(g=>g.exp);
+  const played = allBase.filter(g=>g.played).length;
+
+  // Always use full GAMES for structural counts (subtitle), global filter for stats
+  const goodStuff = GAMES.filter(g=>g.s.toLowerCase()!=='kids');
+  // Subtitle respects global filter
+  const gfAll = GAMES.filter(g=>passesGlobal(g));
+  const gfKids = gfAll.filter(g=>g.s.toLowerCase()==='kids');
+  const gfGoodStuffBase = gfAll.filter(g=>g.s.toLowerCase()!=='kids'&&!g.exp);
+  const gfGoodStuffExp  = gfAll.filter(g=>g.s.toLowerCase()!=='kids'&&g.exp);
+  document.getElementById('col-sub').textContent =
+    `${gfGoodStuffBase.length} base games · ${gfGoodStuffExp.length} expansions · ${gfKids.length} children's · ${gfAll.length} total`;
+
+  // Stats respect global filter
+  const gfGoodStuff = GAMES.filter(g=>g.s.toLowerCase()!=='kids' && passesGlobal(g));
+  const goodStuffBase = gfGoodStuff.filter(g=>!g.exp);
+  const goodStuffExps = gfGoodStuff.filter(g=>g.exp);
+  const goodStuffPlayed = gfGoodStuff.filter(g=>g.played).length;
+  const goodStuffUnplayed = gfGoodStuff.filter(g=>!g.played).length;
+  const goodStuffPct = gfGoodStuff.length > 0 ? Math.round(goodStuffPlayed / gfGoodStuff.length * 100) : 0;
+  document.getElementById('col-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${gfGoodStuff.length}</div><div class="stat-label">The Good Stuff</div><div style="font-size:.65rem;color:var(--text3);margin-top:.25rem;">excl. kids' games</div></div>
+    <div class="stat-card"><div class="stat-num">${goodStuffBase.length}</div><div class="stat-label">Base Games</div></div>
+    <div class="stat-card"><div class="stat-num">${goodStuffExps.length}</div><div class="stat-label">Expansions</div></div>
+    <div class="stat-card"><div class="stat-num">${goodStuffPlayed}</div><div class="stat-label">Played</div></div>
+    <div class="stat-card"><div class="stat-num">${goodStuffUnplayed}</div><div class="stat-label">Unplayed</div></div>
+    <div class="stat-card">
+      <div class="stat-num">${goodStuffPct}<span style="font-size:1.2rem;color:var(--text3);">%</span></div>
+      <div class="stat-label">Base Games + Expansions</div>
+      <div style="margin-top:.5rem;height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;">
+        <div style="width:${goodStuffPct}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
+      </div>
+    </div>
+    <div class="stat-card"><div class="stat-num">${plays.length}</div><div class="stat-label">Logged Plays</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Effective $ Spent</div></div>
+  `;
+
+  const grid = document.getElementById('game-grid');
+  updateInvestedCard();
+  if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
+  grid.innerHTML = filtered.map(g=>{
+    const gp = plays.filter(p=>p.game===g.n);
+    const jW = gp.filter(p=>p.winner==='John').length;
+    const eW = gp.filter(p=>p.winner==='Elizabeth').length;
+    return `<div class="game-card ${g.played?'played-card':''}" onclick="openModal(${JSON.stringify(g.n)})">
+      <div class="gname">${g.n}</div>
+      <div class="gmeta">
+        <span class="badge ${sBadge(g.s)}">${g.s}</span>
+        ${g.played?'<span class="badge bplayed">✓ Played</span>':''}
+        ${g.exp?'<span class="badge bexp">Expansion</span>':''}
+        ${g.so==='Yes'?'<span class="badge">🧍 Solo</span>':''}
+      </div>
+      <div class="gscore" style="margin-bottom:.25rem;">BGG <span>${g.bg}</span> · ${g.cat}</div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        ${g.ba?`<span class="badge" style="font-size:.64rem;">⭐ Best: ${g.ba}</span>`:''}
+        ${g.plBGG?`<span class="badge" style="font-size:.64rem;">👥 ${g.plBGG}p</span>`:''}
+      </div>
+      ${(g.jRat||g.eRat)?`<div class="grating">${g.jRat?'J: '+g.jRat:''}${g.jRat&&g.eRat?' · ':''}${g.eRat?'E: '+g.eRat:''}</div>`:''}
+      ${isCoop(g)?'<span class="badge bcoop" style="margin-top:.3rem;display:inline-block;">🤝 Co-op</span>':''}
+      ${gp.length?`<div class="gscore" style="margin-top:.3rem;">🎮 ${gp.length} play${gp.length>1?'s':''} · J:${jW}W E:${eW}W</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openModal(name){
+  const g = GAMES.find(x=>x.n===name); if(!g) return;
+  activeModal = name;
+  document.getElementById('m-name').textContent = g.n;
+  document.getElementById('m-cat').textContent = g.cat;
+  document.getElementById('m-grid').innerHTML = `
+    <div class="mfield"><label>Shelf</label><div class="val">${g.s}</div></div>
+    <div class="mfield"><label>BGG Score</label><div class="val">${g.bg}</div></div>
+    <div class="mfield"><label>Players</label><div class="val">${g.pl}</div></div>
+    <div class="mfield"><label>Best At</label><div class="val">${g.ba}</div></div>
+    <div class="mfield"><label>Good at 2P</label><div class="val">${g.p2||'—'}</div></div>
+    <div class="mfield"><label>Solo Option</label><div class="val">${g.so||'—'}</div></div>
+    <div class="mfield"><label>J Rating</label><div class="val">${g.jRat||'—'}</div></div>
+    <div class="mfield"><label>E Rating</label><div class="val">${g.eRat||'—'}</div></div>
+    <div class="mfield"><label>Type</label><div class="val">${g.exp?'Expansion':'Base Game'}</div></div>
+  `;
+  document.getElementById('m-notes').innerHTML = g.notes?`<div class="notes-box">${g.notes}</div>`:'';
+  document.getElementById('m-date').valueAsDate = new Date();
+  refreshModalPlays(name);
+  document.getElementById('moverlay').classList.add('open');
+}
+
+function refreshModalPlays(name){
+  const gp = plays.filter(p=>p.game===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const jW = gp.filter(p=>p.winner==='John').length;
+  const eW = gp.filter(p=>p.winner==='Elizabeth').length;
+  const ot = gp.filter(p=>p.winner!=='John'&&p.winner!=='Elizabeth').length;
+  document.getElementById('m-wl').innerHTML = gp.length
+    ?`<div style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.8rem;margin-bottom:.3rem;">
+        <span>🎮 <strong style="color:var(--text)">${gp.length}</strong> plays</span>
+        <span>John: <strong style="color:#7ab0d4">${jW}W</strong></span>
+        <span>Elizabeth: <strong style="color:#d492c0">${eW}W</strong></span>
+        ${ot?`<span>Other: <strong style="color:var(--text3)">${ot}</strong></span>`:''}
+      </div>`
+    :'<div style="color:var(--text3);font-size:.79rem;margin-bottom:.3rem;">No plays logged yet.</div>';
+  document.getElementById('m-plays').innerHTML = gp.length
+    ? gp.map(p=>{
+        const ri = plays.findIndex(x=>x.date===p.date&&x.game===p.game&&x.winner===p.winner&&x.notes===p.notes);
+        return `<div class="pentry">
+          <span class="pdate">${p.date}</span>
+          <span class="pwinner" style="color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'}">${p.winner}</span>
+          ${p.jRat?`<span class="badge">J:${p.jRat}</span>`:''}
+          ${p.eRat?`<span class="badge">E:${p.eRat}</span>`:''}
+          <span class="pnotes">${p.notes||''}</span>
+          <button class="pdel" onclick="delPlay(${ri},'${name.replace(/'/g,"\\'")}')" title="Delete">✕</button>
+        </div>`;
+      }).join('')
+    :'<div class="empty" style="padding:.7rem;">No plays yet.</div>';
+}
+
+function maybeClose(e){if(e.target===document.getElementById('moverlay'))closeModal();}
+function closeModal(){document.getElementById('moverlay').classList.remove('open');activeModal=null;}
+
+// ═══════════════════════════════════════
+// PLAY LOGGING
+// ═══════════════════════════════════════
+async function logPlay(){
+  const game=document.getElementById('log-game').value;
+  const date=document.getElementById('log-date').value;
+  const winner=document.getElementById('log-winner').value;
+  const notes=document.getElementById('log-notes').value;
+  if(!game||!date||!winner){showToast('Fill in game, date & winner!','#c45c3c');return;}
+  const jRat = document.getElementById('log-jrat')?.value||'';
+  const eRat = document.getElementById('log-erat')?.value||'';
+  const wasUnplayed = !GAMES.find(x=>x.n===game)?.played;
+  const p={game,date,winner,notes,jRat,eRat};
+  plays.push(p);savePlays();markPlayed(game);
+  document.getElementById('log-winner').value='';
+  document.getElementById('log-notes').value='';
+  document.getElementById('log-jrat').value='';
+  document.getElementById('log-erat').value='';
+  renderPlays();renderCollection();
+  await push(p, wasUnplayed);showToast('Play logged! 🎮');
+}
+
+async function logModal(){
+  if(!activeModal)return;
+  const date=document.getElementById('m-date').value;
+  const winner=document.getElementById('m-winner').value;
+  const notes=document.getElementById('m-notes-in').value;
+  if(!date||!winner){showToast('Select date & winner!','#c45c3c');return;}
+  const jRat = document.getElementById('m-jrat')?.value||'';
+  const eRat = document.getElementById('m-erat')?.value||'';
+  const wasUnplayed = !GAMES.find(x=>x.n===activeModal)?.played;
+  const p={game:activeModal,date,winner,notes,jRat,eRat};
+  plays.push(p);savePlays();markPlayed(activeModal);
+  document.getElementById('m-winner').value='';
+  document.getElementById('m-notes-in').value='';
+  document.getElementById('m-jrat').value='';
+  document.getElementById('m-erat').value='';
+  refreshModalPlays(activeModal);renderCollection();
+  await push(p, wasUnplayed);showToast('Play logged! 🎮');
+}
+
+function markPlayed(name){const g=GAMES.find(x=>x.n===name);if(g)g.played=true;}
+
+async function delPlay(idx,name){
+  const p=plays[idx];
+  plays.splice(idx,1);savePlays();
+  if(name&&document.getElementById('moverlay').classList.contains('open'))refreshModalPlays(name);
+  renderPlays();renderStats();renderCollection();
+  await pushDel(p);showToast('Deleted.','#c45c3c');
+}
+
+function renderPlays(){
+  const sel=document.getElementById('log-game');
+  if(sel){
+    const cur=sel.value;
+    sel.innerHTML=GAMES.filter(g=>!g.exp&&passesGlobal(g)).map(g=>`<option value="${g.n}">${g.n}</option>`).join('');
+    if(cur)sel.value=cur;
+  }
+  document.getElementById('log-date').valueAsDate=new Date();
+  const list=document.getElementById('play-log-list');
+  if(!plays.length){list.innerHTML='<div class="empty">No plays logged yet.</div>';return;}
+  // Filter play list to only show plays for games that pass global filter
+  const filteredPlays = plays.filter(p => {
+    const g = GAMES.find(x=>x.n===p.game);
+    return !g || passesGlobal(g);
+  });
+  if(!filteredPlays.length){list.innerHTML='<div class="empty">No plays match the current filter.</div>';return;}
+  const sorted=[...filteredPlays].map((p,i)=>({...p,_i:plays.indexOf(p)})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  list.innerHTML=`<div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.65rem;font-family:'DM Mono',monospace;">All Plays — ${filteredPlays.length}${filteredPlays.length!==plays.length?' (filtered, '+plays.length+' total)':''}</div>`+
+    sorted.map(p=>`<div class="pentry">
+      <span class="pdate">${p.date}</span>
+      <span class="pwinner" style="flex:2;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.game}">${p.game}</span>
+      <span class="pwinner" style="flex:0 0 auto;color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'};">${p.winner}</span>
+      ${p.jRat?`<span class="badge" style="flex:0 0 auto;">J:${p.jRat}</span>`:''}
+      ${p.eRat?`<span class="badge" style="flex:0 0 auto;">E:${p.eRat}</span>`:''}
+      <span class="pnotes" style="flex:1;">${p.notes||''}</span>
+      <button class="pdel" onclick="delPlay(${p._i},null)">✕</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+function renderStats(){
+  const jW=plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return p.winner==='John'&&(!g||passesGlobal(g));}).length;
+  const eW=plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return p.winner==='Elizabeth'&&(!g||passesGlobal(g));}).length;
+  const tot=jW+eW;
+  const pct=tot>0?(jW/tot*100):50;
+  document.getElementById('win-stats').innerHTML=`
+    <div class="pcard">
+      <div class="pname john">John</div>
+      <div class="pwins">${jW}</div>
+      <div class="psub">Wins</div>
+      <div style="color:var(--text3);font-size:.75rem;margin-top:.28rem;">${tot>0?Math.round(jW/tot*100):0}% win rate</div>
+    </div>
+    <div class="pcard">
+      <div class="pname liz">Elizabeth</div>
+      <div class="pwins">${eW}</div>
+      <div class="psub">Wins</div>
+      <div style="color:var(--text3);font-size:.75rem;margin-top:.28rem;">${tot>0?Math.round(eW/tot*100):0}% win rate</div>
+    </div>
+    <div class="pcard" style="grid-column:1/-1;">
+      <div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.45rem;font-family:'DM Mono',monospace;">Head to Head (excl. coop/ties)</div>
+      <div class="bar-wrap"><div class="bar" id="hbar" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.71rem;color:var(--text3);margin-top:.28rem;font-family:'DM Mono',monospace;">
+        <span>John ${jW}</span><span>${plays.length} total logged plays</span><span>${eW} Elizabeth</span>
+      </div>
+    </div>`;
+  const map={};
+  plays.forEach(p=>{
+    const g = GAMES.find(x=>x.n===p.game);
+    if(g && !passesGlobal(g)) return; // respect global filter
+    if(!map[p.game])map[p.game]={n:0,j:0,e:0,t:0};
+    map[p.game].n++;
+    if(p.winner==='John')map[p.game].j++;
+    else if(p.winner==='Elizabeth')map[p.game].e++;
+    else map[p.game].t++;
+  });
+  const rows=Object.entries(map).sort((a,b)=>b[1].n-a[1].n);
+  const tb=document.getElementById('stats-body');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.8rem;">No plays yet.</td></tr>';return;}
+  tb.innerHTML=rows.map(([name,d])=>{
+    const ldr=d.j>d.e?'John':d.e>d.j?'Elizabeth':'Tied';
+    const lc=ldr==='John'?'wj':ldr==='Elizabeth'?'we':'wn';
+    return `<tr>
+      <td title="${name}">${name.length>42?name.slice(0,40)+'…':name}</td>
+      <td>${d.n}</td>
+      <td><span class="wp wj">${d.j}</span></td>
+      <td><span class="wp we">${d.e}</span></td>
+      <td>${d.t}</td>
+      <td><span class="wp ${lc}">${ldr}</span></td>
+    </tr>`;
+  }).join('');
+  renderTwoPlayer();
+}
+
+function renderTwoPlayer() {
+  // All candidates: Best At contains "2", not expansions, passes global filter
+  // 2-player modes
+  const qualifies2P = g => {
+    const ba  = String(g.ba||'');
+    const bgg = String(g.plBGG||'');
+    if (twoPlayerMode === 'best') return ba.includes('2');
+    return bgg.includes('2') || /1-/.test(bgg); // 'good' mode
+  };
+  const allCandidates = GAMES.filter(g => {
+    if (!passesGlobal(g)) return false;
+    if (g.exp) return false;
+    if (g.s.toLowerCase() === 'kids') return false;
+    return qualifies2P(g);
+  });
+
+  // Split into active list (not excluded) and excluded
+  // Excluded = sheet flag OR locally excluded by user OR shelf filter
+  const isExcluded = g =>
+    g.excluded ||
+    twoPlayerExcludedGames.has(g.n) ||
+    [...twoPlayerExcludedShelves].some(s => g.s.toLowerCase().includes(s.toLowerCase()));
+
+  const active   = allCandidates.filter(g => !isExcluded(g));
+  const excluded = allCandidates.filter(g =>  isExcluded(g));
+
+  const unplayed = active.filter(g => !g.played);
+  const played   = active.filter(g =>  g.played);
+
+  document.getElementById('twoplayer-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-num">${active.length}</div>
+      <div class="stat-label">Best at 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--green);">${played.length}</div>
+      <div class="stat-label">Played Together</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--amber);">${unplayed.length}</div>
+      <div class="stat-label">Still to Play</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">${active.length > 0 ? Math.round(played.length/active.length*100) : 0}<span style="font-size:1.2rem;color:var(--text3);">%</span></div>
+      <div class="stat-label">Played</div>
+      <div style="margin-top:.5rem;height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;">
+        <div style="width:${active.length>0?Math.round(played.length/active.length*100):0}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
+      </div>
+    </div>
+  `;
+
+  // Main table: unplayed first, then played
+  const sorted = [
+    ...unplayed.sort((a,b)=>a.n.localeCompare(b.n)),
+    ...played.sort((a,b)=>a.n.localeCompare(b.n))
+  ];
+
+  document.getElementById('twoplayer-body').innerHTML = sorted.map(g => {
+    const gp = plays.filter(p=>p.game===g.n);
+    const statusColor = g.played ? 'var(--green)' : 'var(--amber)';
+    const statusText  = g.played ? '✓ Played' : '○ Unplayed';
+    return `<tr>
+      <td style="cursor:pointer;" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="openModal(this.dataset.game)">${g.n}</td>
+      <td><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:.78rem;">${g.ba}</td>
+      <td><span style="color:${statusColor};font-size:.8rem;font-weight:600;">${statusText}</span>${gp.length?` <span style="color:var(--text3);font-size:.75rem;">(${gp.length} plays)</span>`:''}</td>
+      <td><button title="Exclude from list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="excludeGame(this.dataset.game)"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:.1rem .3rem;border-radius:4px;transition:color .15s;"
+        onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Excluded games table
+  const exclCount = document.getElementById('excl-count');
+  if (exclCount) exclCount.textContent = excluded.length ? `(${excluded.length})` : '';
+  document.getElementById('excluded-body').innerHTML = excluded.length
+    ? excluded.sort((a,b)=>a.n.localeCompare(b.n)).map(g => `<tr>
+        <td style="color:var(--text3);">${g.n}</td>
+        <td><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
+        <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--text3);">${g.ba}</td>
+        <td><button title="Restore to list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="includeGame(this.dataset.game)"
+          style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:.1rem .4rem;border-radius:4px;border:1px solid var(--border2);transition:all .15s;"
+          onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" 
+          onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border2)'">↩ Restore</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:1rem;">No excluded games.</td></tr>';
+}
+
+// ═══════════════════════════════════════
+// PICKER
+// ═══════════════════════════════════════
+function pickRandom(){
+  const pool=GAMES.filter(g=>{
+    if(!passesGlobal(g)) return false;
+    if(picks.exp==='no'&&g.exp)return false;
+    if(picks.shelf&&!g.s.toLowerCase().includes(picks.shelf.toLowerCase()))return false;
+    if(picks.played==='yes'&&!g.played)return false;
+    if(picks.played==='no'&&g.played)return false;
+    if(picks.coop==='yes'&&!isCoop(g))return false;
+    if(picks.coop==='no'&&isCoop(g))return false;
+    if(picks.players&&!supportsPlayerCount(g,picks.players))return false;
+    return true;
+  });
+  const box=document.querySelector('#tab-picker .pick-box');
+  const el=document.getElementById('pick-result');
+  const det=document.getElementById('pick-detail');
+  if(!pool.length){el.textContent='No games match!';el.style.color='var(--red)';det.textContent='';box?.classList.remove('rolling');return;}
+  box?.classList.add('rolling');
+  let c=0;
+  const iv=setInterval(()=>{
+    el.textContent=pool[Math.floor(Math.random()*pool.length)].n;
+    el.style.color='var(--text3)';
+    if(++c>13){
+      clearInterval(iv);
+      box?.classList.remove('rolling');
+      const p=pool[Math.floor(Math.random()*pool.length)];
+      el.textContent=p.n;el.style.color='var(--gold)';
+      const gp=plays.filter(x=>x.game===p.n);
+      det.innerHTML=`<strong style="color:var(--text2)">${p.cat}</strong> · ${p.pl}p · BGG ${p.bg}${gp.length?` · ${gp.length} prev. plays`:''}${!p.played?' · ✨ Never played!':''}`;
+    }
+  },72);
+}
+
+// ═══════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════
+function parseCSV(txt){
+  const lines=txt.trim().split('\n');
+  const hdrs=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).map(line=>{
+    const cols=[];let cur='',inQ=false;
+    for(let c of line){if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else{cur+=c;}}
+    cols.push(cur);
+    const obj={};
+    hdrs.forEach((h,i)=>{obj[h]=(cols[i]||'').replace(/^"|"$/g,'').trim();});
+    return obj;
+  });
+}
+
+// Try multiple CORS proxies in order until one returns valid CSV
+async function fetchCSV(url) {
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://openproxy.space/list/http?url=${encodeURIComponent(u)}`,
+    u => u, // last resort: try direct (works if hosted on same origin or CORS allowed)
+  ];
+  for (const makeProxy of proxies) {
+    try {
+      const res = await fetch(makeProxy(url), {
+        cache: 'no-store',
+        headers: {'Accept': 'text/csv, text/plain, */*'}
+      });
+      if (!res.ok) continue;
+      const txt = await res.text();
+      // Valid CSV: has commas, doesn't start with HTML, has reasonable length
+      const trimmed = txt.replace(/^﻿/, '').trim();
+      if (trimmed.length > 50 && trimmed.includes(',') && !trimmed.startsWith('<') && !trimmed.startsWith('{')) {
+        return trimmed;
+      }
+    } catch(e) { /* try next proxy */ }
+  }
+  return null;
+}
+
+function mapGameRow(r) {
+  const isOne = v => v==='1'||v==='1.0'||parseFloat(v)===1;
+  const plBGG = (r['Players (BGG Comm)']||'').toString().trim();
+  return {
+    n:    r['Game']||'',
+    s:    r['Shelf']||'',
+    pl:   r['Players (Manufacturer)']||r['Players']||'',
+    plBGG: plBGG,
+    ba:   r['Best At']||'',
+    so:   r['Good solo option']||r['Solo']||'',
+    bg:   parseFloat(r['BGG Score'])||0,
+    cat:  r['BGG Category']||'',
+    played:(r['Played']||'').trim().toLowerCase()==='yes',
+    jRat: r['J Rating']||'',
+    eRat: r['E Rating']||'',
+    exp:  isOne(r['Expansion'])||(r['Expansion']||'').toLowerCase()==='yes',
+    eKnows: isOne(r['E knows?']),
+    sell: isOne(r['Potentially sell?']),
+    age:  r['Age']||'',
+    year: r['Year bought']||'',
+    notes:r['Notes']||'',
+    excluded:(r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1)
+  };
+}
+
+async function syncNow(){
+  const msg=document.getElementById('sync-msg');
+  if(!cfg.gamesUrl){msg.textContent='No Games URL set.';return;}
+  msg.textContent='⟳ Syncing...';
+  try{
+    const txt = await fetchCSV(cfg.gamesUrl);
+    if (!txt) { msg.textContent='⚠ Could not reach sheet. Check the URL and that it is published as CSV.'; return; }
+    
+    // Strip BOM if present
+    const clean = txt.replace(/^﻿/,'').trim();
+    const rows = parseCSV(clean);
+    
+    // Debug: show what columns we found
+    const foundCols = rows.length > 0 ? Object.keys(rows[0]) : [];
+    console.log('CSV columns found:', foundCols);
+    
+    // Accept the data if we find "Game" column (with or without extra cols)
+    const gameCol = foundCols.find(k => k.trim() === 'Game');
+    if(rows.length && gameCol){
+      // Re-key if column had whitespace
+      const normalized = rows.map(r => {
+        const out = {};
+        Object.keys(r).forEach(k => { out[k.trim()] = r[k]; });
+        // Explicitly remove stray columns outside the named table
+        delete out['Ratings'];
+        return out;
+      });
+      GAMES = normalized.map(mapGameRow).filter(g=>g.n.trim());
+      // Sum Total column from game rows as a fallback
+      try {
+        let totalSpent = 0;
+        rows.forEach(r => { const v=parseFloat(r['Total']); if(!isNaN(v)&&v>0) totalSpent+=v; });
+        if(totalSpent > 0) { cfg.totalSpent = totalSpent.toFixed(2); saveCfg(); }
+      } catch(e2) {}
+      // Fetch Stats sheet for sold/effective values
+      if(cfg.statsUrl) fetchStats();
+      msg.textContent=`✓ ${GAMES.length} games loaded from Sheets`;
+      document.getElementById('sync-badge').className='sstatus st-sheets';
+      document.getElementById('sync-badge').textContent='● Google Sheets';
+      populateYearFilter();
+      renderCollection();renderPlays();
+    } else {
+      msg.textContent=`⚠ "Game" column not found. Columns seen: ${foundCols.slice(0,5).join(', ')}`;
+    }
+  }catch(e){msg.textContent='⚠ Sync error: '+e.message; console.error(e);}
+
+  if(cfg.playsUrl){
+    try{
+      const t2 = await fetchCSV(cfg.playsUrl);
+      if(t2){
+        const clean2 = t2.replace(/^\uFEFF/,'').trim();
+        const rows2 = parseCSV(clean2);
+        const cols2 = rows2.length > 0 ? Object.keys(rows2[0]) : [];
+        const dateCol = cols2.find(k=>k.trim()==='Date');
+        if(rows2.length && dateCol){
+          const norm2 = rows2.map(r=>{const o={};Object.keys(r).forEach(k=>{o[k.trim()]=r[k];});return o;});
+          plays = norm2.filter(r=>r.Date&&r.Game).map(r=>({date:r.Date,game:r.Game,winner:r.Winner||r.Wimmer||'',notes:r.Notes||''}));
+          savePlays();renderPlays();
+        }
+      }
+    }catch(e2){ console.error('Plays sync error:', e2); }
+  }
+}
+
+async function push(p, wasUnplayed){
+  if(!cfg.scriptUrl)return;
+  try{
+    await fetch(cfg.scriptUrl,{
+      method:'POST',
+      body:JSON.stringify({action:'add', markPlayed: wasUnplayed===true, ...p})
+    });
+  }catch(e){}
+}
+async function pushDel(p){
+  if(!cfg.scriptUrl)return;
+  try{await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'delete',...p})});}catch(e){}
+}
+
+async function fetchStats(){
+  const el = document.getElementById('stat-invested');
+  try {
+    if (el) el.textContent = '…';
+    const txt = await fetchCSV(cfg.statsUrl);
+    if (!txt) {
+      if (el) el.textContent = 'check URL';
+      return;
+    }
+    const clean = txt.replace(/^\uFEFF/,'').trim();
+    console.log('Stats CSV raw:', clean.slice(0,200));
+    const rows = parseCSV(clean);
+    console.log('Stats rows:', rows);
+    const statsMap = {};
+    rows.forEach(r => {
+      const key = (r['Key']||r['key']||Object.values(r)[0]||'').toString().trim().toLowerCase();
+      const raw = (r['Value']||r['value']||Object.values(r)[1]||'').toString().trim();
+      const val = raw.replace(/[$,\s]/g, '');
+      if (key) statsMap[key] = val;
+    });
+    console.log('Stats map:', statsMap);
+    // Store e knows effective separately
+    if (statsMap['e knows effective'] && !isNaN(parseFloat(statsMap['e knows effective']))) {
+      cfg.eKnowsInvested = Math.round(parseFloat(statsMap['e knows effective'])).toLocaleString('en-US');
+    }
+    // Main effective value
+    let finalVal = null;
+    if (statsMap['effective'] && !isNaN(parseFloat(statsMap['effective']))) {
+      finalVal = parseFloat(statsMap['effective']);
+    } else if (statsMap['spent'] && statsMap['sold']) {
+      finalVal = parseFloat(statsMap['spent']) - parseFloat(statsMap['sold']);
+    } else if (cfg.totalSpent && statsMap['sold']) {
+      finalVal = parseFloat(cfg.totalSpent) - parseFloat(statsMap['sold']);
+    }
+    if (finalVal !== null && !isNaN(finalVal)) {
+      cfg.invested = Math.round(finalVal).toLocaleString('en-US');
+      saveCfg();
+      updateInvestedCard();
+    } else {
+      if (el) el.textContent = 'parse err';
+      console.warn('Could not parse stats. Map:', statsMap);
+    }
+  } catch(e) {
+    if (el) el.textContent = 'error';
+    console.error('Stats fetch error:', e);
+  }
+}
+
+function saveConfig(){
+  cfg.gamesUrl=document.getElementById('cfg-games').value.trim();
+  cfg.playsUrl=document.getElementById('cfg-plays').value.trim();
+  cfg.scriptUrl=document.getElementById('cfg-script').value.trim();
+  const newStatsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
+  if(newStatsUrl !== cfg.statsUrl) cfg.invested = ''; // clear stale cache
+  cfg.statsUrl=newStatsUrl;
+  saveCfg();showToast('Config saved!');
+  if(cfg.gamesUrl)syncNow();
+  if(cfg.statsUrl)fetchStats();
+}
+
+function loadCfgUI(){
+  if(cfg.gamesUrl){const el=document.getElementById('cfg-games');if(el)el.value=cfg.gamesUrl;}
+  if(cfg.playsUrl){const el=document.getElementById('cfg-plays');if(el)el.value=cfg.playsUrl;}
+  if(cfg.scriptUrl){const el=document.getElementById('cfg-script');if(el)el.value=cfg.scriptUrl;}
+  if(cfg.statsUrl){const el=document.getElementById('cfg-stats');if(el)el.value=cfg.statsUrl;}
+  if(cfg.gamesUrl){
+    document.getElementById('sync-badge').className='sstatus st-sheets';
+    document.getElementById('sync-badge').textContent='● Google Sheets';
+  }
+}
+function toggleGuide(){
+  const b=document.getElementById('guide-body');
+  b.style.display=b.style.display==='none'?'block':'none';
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+function showToast(msg,color='#4a9f6e'){
+  const t=document.getElementById('toast');t.textContent=msg;t.style.background=color;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  loadCfgUI();
+  populateYearFilter();
+  cfg.invested = ''; // always fetch fresh on load, never use stale cache
+  saveCfg();
+  // Set Ready to Play dropdown to default Yes
+  const gfEl = document.getElementById('gf-eknows');
+  if (gfEl) gfEl.value = '1';
+  // Update the active filter banner
+  const msg = document.getElementById('gf-active-msg');
+  if (msg) msg.style.display = 'block';
+  renderCollection();
+  renderStats();
+  if(cfg.gamesUrl)syncNow();
+  if(cfg.statsUrl)fetchStats();
+});
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => {
+      console.error('Service worker registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
