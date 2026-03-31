@@ -212,8 +212,10 @@
     min-height:3.4rem;
     padding:.55rem .45rem;
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
+    gap:.26rem;
     text-align:center;
     font-size:.56rem;
     line-height:1.55;
@@ -227,6 +229,22 @@
     transition:all .18s ease;
     white-space:normal;
     background:rgba(14,22,38,.65);
+  }
+  .nav-tab::before{
+    content:attr(data-icon);
+    display:block;
+    font-family:var(--ui-font);
+    font-size:1.02rem;
+    line-height:1;
+    text-shadow:0 0 12px rgba(102,217,255,.18);
+  }
+  .nav-tab::after{
+    content:attr(data-short);
+    display:block;
+    font-family:var(--mono);
+    font-size:.46rem;
+    line-height:1.1;
+    letter-spacing:.16em;
   }
   .nav-tab:hover{color:var(--text2);border-color:rgba(102,217,255,.16);}
   .nav-tab.active{
@@ -647,7 +665,12 @@
     50%{transform:translateY(-8px);}
   }
   @media (max-width: 760px){
+    nav{padding:.75rem .7rem calc(.75rem + env(safe-area-inset-bottom));gap:.5rem;}
     .nav-brand{display:none;}
+    .nav-tabs{grid-template-columns:repeat(5, minmax(0, 1fr));gap:.35rem;}
+    .nav-tab{min-height:4rem;padding:.45rem .2rem;font-size:0;letter-spacing:0;overflow:hidden;}
+    .nav-tab::before{font-size:1.1rem;}
+    .nav-tab::after{font-size:.42rem;}
     .app-shell{padding-top:.85rem;}
     .fsearch{order:-1;}
     .filters-bar > *{width:100%;}
@@ -679,7 +702,8 @@
       top:0;bottom:auto;padding:1rem 1.2rem;border-top:none;border-bottom:1px solid rgba(102,217,255,.12);box-shadow:0 14px 30px rgba(0,0,0,.2);
     }
     .nav-tabs{flex:0 1 auto;grid-template-columns:repeat(5, minmax(6rem, auto));}
-    .nav-tab{min-height:2.9rem;padding:.7rem .85rem;font-size:.6rem;white-space:nowrap;}
+    .nav-tab{min-height:2.9rem;padding:.7rem .85rem;font-size:.6rem;white-space:nowrap;flex-direction:row;gap:0;}
+    .nav-tab::before,.nav-tab::after{display:none;}
     .app-shell{padding:1.35rem 1.2rem 2rem;}
     .section{padding:1.4rem;}
     .page-title{font-size:1.2rem;}
@@ -728,11 +752,11 @@
     </span>
   </div>
   <div class="nav-tabs">
-    <div class="nav-tab active" data-tab="collection">Collection</div>
-    <div class="nav-tab" data-tab="picker">Pick a Game</div>
-    <div class="nav-tab" data-tab="plays">Play Log</div>
-    <div class="nav-tab" data-tab="stats">Stats</div>
-    <div class="nav-tab" data-tab="settings">⚙ Sync</div>
+    <div class="nav-tab active" data-tab="collection" data-icon="▦" data-short="COLL" aria-label="Collection">Collection</div>
+    <div class="nav-tab" data-tab="picker" data-icon="✦" data-short="PICK" aria-label="Pick a Game">Pick a Game</div>
+    <div class="nav-tab" data-tab="plays" data-icon="🕹" data-short="LOG" aria-label="Play Log">Play Log</div>
+    <div class="nav-tab" data-tab="stats" data-icon="▥" data-short="STAT" aria-label="Stats">Stats</div>
+    <div class="nav-tab" data-tab="settings" data-icon="⚙" data-short="SYNC" aria-label="Sync">⚙ Sync</div>
   </div>
 </nav>
 
