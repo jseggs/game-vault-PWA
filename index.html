@@ -365,10 +365,18 @@
   .stat-num,
   .pwins{
     font-family:var(--pixel-font);
-    font-size:1.45rem;
-    line-height:1.4;
+    font-size:clamp(1rem, 4.8vw, 1.45rem);
+    line-height:1.18;
     color:var(--green);
     text-shadow:0 0 16px rgba(110,255,193,.18);
+    min-width:0;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  #stat-invested{
+    font-size:clamp(.86rem, 4vw, 1.22rem);
+    line-height:1.08;
+    letter-spacing:-0.04em;
   }
   .stat-label,
   .psub,
@@ -451,15 +459,22 @@
     position:absolute;
     right:.8rem;
     top:.8rem;
-    width:2.1rem;
-    height:2.1rem;
-    opacity:.14;
+    width:2.4rem;
+    height:2.4rem;
+    opacity:.28;
     background-image:var(--dino-card);
     background-repeat:no-repeat;
     background-size:contain;
     image-rendering:pixelated;
+    filter:brightness(1.18) saturate(1.18) drop-shadow(0 0 10px rgba(255,209,102,.12));
   }
-  .gname{font-weight:700;font-size:1rem;color:var(--text);line-height:1.45;margin-bottom:.6rem;padding-right:2.6rem;}
+  .section[data-screen='Collection']::after{opacity:.3;filter:brightness(1.12) saturate(1.1) drop-shadow(0 0 14px rgba(186,129,255,.18));}
+  .game-head{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:.65rem;}
+  .game-main{min-width:0;flex:1;}
+  .game-thumb-wrap{flex:0 0 5rem;width:5rem;height:5rem;border-radius:16px;overflow:hidden;border:1px solid rgba(102,217,255,.18);background:linear-gradient(180deg, rgba(14,23,39,.96), rgba(9,14,24,.98));box-shadow:0 10px 20px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.04);position:relative;}
+  .game-thumb-wrap::before{content:'';position:absolute;inset:0 auto auto 0;width:100%;height:2px;background:linear-gradient(90deg, transparent, var(--cyan), transparent);opacity:.72;z-index:1;}
+  .game-thumb{display:block;width:100%;height:100%;object-fit:cover;}
+  .gname{font-weight:700;font-size:1rem;color:var(--text);line-height:1.45;margin-bottom:.6rem;padding-right:0;}
   .gmeta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem;}
   .badge,
   .wp,
@@ -480,8 +495,8 @@
   .badge[class*='s']::before,
   .fbtn[data-shelf]::before{
     content:'';
-    width:1rem;
-    height:1rem;
+    width:1.08rem;
+    height:1.08rem;
     flex:0 0 auto;
     position:absolute;
     left:.55rem;
@@ -491,10 +506,13 @@
     background-position:center;
     background-size:contain;
     image-rendering:pixelated;
+    filter:brightness(1.32) saturate(1.26) drop-shadow(0 0 8px rgba(255,255,255,.08));
   }
-  .fbtn[data-shelf]{position:relative;padding-left:2.1rem;background:linear-gradient(180deg, rgba(21,32,54,.96), rgba(12,18,31,.96));color:var(--text2);border-color:var(--border2);}
-  .fbtn[data-shelf]::before{left:.7rem;opacity:.72;}
+  .fbtn[data-shelf]{position:relative;padding-left:2.2rem;background:linear-gradient(180deg, rgba(21,32,54,.96), rgba(12,18,31,.96));color:var(--text2);border-color:var(--border2);}
+  .fbtn[data-shelf]::before{left:.72rem;opacity:.94;}
   .fbtn[data-shelf]:hover::before{opacity:1;}
+  .sgen{background:rgba(110,255,193,.14);color:#bfffe3;border-color:rgba(110,255,193,.26);}
+  .sgen::before,.fbtn[data-shelf]::before{background-image:var(--dino-brand);}
   .s2p{background:rgba(102,217,255,.14);color:#9ae9ff;border-color:rgba(102,217,255,.32);}
   .s2p::before,.fbtn[data-shelf='2-Player']::before{background-image:var(--dino-2p);}
   .sad{background:rgba(255,138,216,.14);color:#ffb1ea;border-color:rgba(255,138,216,.3);}
@@ -786,16 +804,8 @@
   <div class="stats-row" id="col-stats"></div>
   <div class="filters-bar">
     <input class="fsearch" type="text" id="search-input" placeholder="Search name or category..." oninput="renderCollection()">
-    <div class="fgrp">
+    <div class="fgrp" id="collection-shelf-group">
       <span class="fgrp-lbl">Shelf</span>
-      <button class="fbtn" data-shelf-special="all" onclick="setFilter('shelf',null,this)">All</button>
-      <button class="fbtn active" data-shelf-special="all-but-kids" onclick="setFilter('shelf','__all_but_kids__',this)">All but kids</button>
-      <button class="fbtn" data-shelf="2-Player" onclick="setFilter('shelf','2-Player',this)">2-Player</button>
-      <button class="fbtn" data-shelf="Adult" onclick="setFilter('shelf','Adult',this)">Adult</button>
-      <button class="fbtn" data-shelf="Family" onclick="setFilter('shelf','Family',this)">Family</button>
-      <button class="fbtn" data-shelf="Party" onclick="setFilter('shelf','Party',this)">Party</button>
-      <button class="fbtn" data-shelf="Kids" onclick="setFilter('shelf','Kids',this)">Kids</button>
-      <button class="fbtn" data-shelf="Solo" onclick="setFilter('shelf','Solo',this)">Solo</button>
     </div>
     <div class="fgrp">
       <span class="fgrp-lbl">Status</span>
@@ -821,14 +831,8 @@
     <div class="pick-title">PLAYER SELECT: TONIGHT WE PLAY...</div>
     <div class="pick-result" id="pick-result" style="color:var(--text3);">Hit the button to pick</div>
     <div id="pick-detail" style="font-size:.78rem;color:var(--text3);min-height:1.1em;margin-bottom:.4rem;"></div>
-    <div class="pctrls">
+    <div class="pctrls" id="picker-shelf-group">
       <span class="fgrp-lbl" style="align-self:center;">Shelf</span>
-      <button class="fbtn active" onclick="setPick('shelf',null,this)">Any</button>
-      <button class="fbtn" data-shelf="2-Player" onclick="setPick('shelf','2-Player',this)">2-Player</button>
-      <button class="fbtn" data-shelf="Adult" onclick="setPick('shelf','Adult',this)">Adult</button>
-      <button class="fbtn" data-shelf="Family" onclick="setPick('shelf','Family',this)">Family</button>
-      <button class="fbtn" data-shelf="Party" onclick="setPick('shelf','Party',this)">Party</button>
-      <button class="fbtn" data-shelf="Kids" onclick="setPick('shelf','Kids',this)">Kids</button>
     </div>
     <div class="pctrls">
       <span class="fgrp-lbl" style="align-self:center;">History</span>
@@ -1298,7 +1302,7 @@ if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PAC
 if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
 if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
 if (!cfg.scriptUrl) cfg.scriptUrl = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
-let filters = {shelf:['2-Player','Adult','Family','Party','Solo'],status:null};
+let filters = {shelf:[],status:null,shelfAll:false};
 let picks = {shelf:null,played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
 // Global filters (set in Sync tab, applied everywhere)
@@ -1442,7 +1446,79 @@ function sBadge(shelf){
   if(s.includes('kids')) return 'skid';
   if(s.includes('solo')) return 'ssol';
   if(s.includes('party')) return 'spar';
-  return '';
+  return 'sgen';
+}
+
+const shelfOrder = ['2-Player','Adult','Family','Party','Kids','Solo'];
+
+function getAvailableShelves(){
+  const seen = new Set();
+  const raw = GAMES.map(g => (g.s || '').trim()).filter(Boolean);
+  const ordered = [];
+  shelfOrder.forEach(name => {
+    if(raw.some(s => s.toLowerCase() === name.toLowerCase())){
+      seen.add(name.toLowerCase());
+      ordered.push(raw.find(s => s.toLowerCase() === name.toLowerCase()));
+    }
+  });
+  raw.sort((a,b)=>a.localeCompare(b)).forEach(name => {
+    const key = name.toLowerCase();
+    if(!seen.has(key)){
+      seen.add(key);
+      ordered.push(name);
+    }
+  });
+  return ordered;
+}
+
+function getDefaultShelves(){
+  const shelves = getAvailableShelves();
+  const nonKids = shelves.filter(s => s.toLowerCase() !== 'kids');
+  return nonKids.length ? nonKids : shelves;
+}
+
+function sameShelfSet(a,b){
+  if(a.length !== b.length) return false;
+  const as = [...a].map(x=>x.toLowerCase()).sort();
+  const bs = [...b].map(x=>x.toLowerCase()).sort();
+  return as.every((val, idx) => val === bs[idx]);
+}
+
+function normalizeShelfSelections(){
+  const shelves = getAvailableShelves();
+  const allowed = new Set(shelves.map(s => s.toLowerCase()));
+  filters.shelf = filters.shelf.filter(s => allowed.has(s.toLowerCase()));
+  if(!filters.shelf.length && shelves.length && !filters.shelfAll){
+    filters.shelf = getDefaultShelves();
+  }
+  if(picks.shelf && !allowed.has(picks.shelf.toLowerCase())){
+    picks.shelf = null;
+  }
+}
+
+function renderShelfControls(){
+  const shelves = getAvailableShelves();
+  const defaultShelves = getDefaultShelves();
+  const collectionGroup = document.getElementById('collection-shelf-group');
+  if(collectionGroup){
+    const showAllButKids = shelves.some(s => s.toLowerCase() === 'kids') && defaultShelves.length && defaultShelves.length < shelves.length;
+    const isAll = filters.shelfAll;
+    const isDefault = !isAll && sameShelfSet(filters.shelf, defaultShelves);
+    collectionGroup.innerHTML = `<span class="fgrp-lbl">Shelf</span>
+      <button class="fbtn ${isAll?'active':''}" data-shelf-special="all" onclick="setFilter('shelf',null,this)">All</button>
+      ${showAllButKids ? `<button class="fbtn ${isDefault?'active':''}" data-shelf-special="all-but-kids" onclick="setFilter('shelf','__all_but_kids__',this)">All but kids</button>` : ''}
+      ${shelves.map(shelf => `<button class="fbtn ${filters.shelf.some(sel => sel.toLowerCase() === shelf.toLowerCase())?'active':''}" data-shelf="${shelf.replace(/"/g,'&quot;')}" onclick="setFilter('shelf',${JSON.stringify(shelf)},this)">${shelf}</button>`).join('')}`;
+  }
+  const pickerGroup = document.getElementById('picker-shelf-group');
+  if(pickerGroup){
+    pickerGroup.innerHTML = `<span class="fgrp-lbl" style="align-self:center;">Shelf</span>
+      <button class="fbtn ${picks.shelf===null?'active':''}" onclick="setPick('shelf',null,this)">Any</button>
+      ${shelves.map(shelf => `<button class="fbtn ${picks.shelf===shelf?'active':''}" data-shelf="${shelf.replace(/"/g,'&quot;')}" onclick="setPick('shelf',${JSON.stringify(shelf)},this)">${shelf}</button>`).join('')}`;
+  }
+}
+
+function escAttr(value){
+  return String(value || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ═══════════════════════════════════════
@@ -1473,39 +1549,31 @@ function setFilter(k,v,btn){
     return;
   }
 
-  const group = btn.parentElement;
-  const buttons = [...group.querySelectorAll('.fbtn')];
-  const specialButtons = buttons.filter(b => b.dataset.shelfSpecial);
-
+  const defaultShelves = getDefaultShelves();
   if(v===null){
+    filters.shelfAll = true;
     filters.shelf = [];
-    buttons.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
     renderCollection();
     return;
   }
 
   if(v==='__all_but_kids__'){
-    filters.shelf = ['2-Player','Adult','Family','Party','Solo'];
-    buttons.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+    filters.shelfAll = false;
+    filters.shelf = [...defaultShelves];
     renderCollection();
     return;
   }
 
-  specialButtons.forEach(b=>b.classList.remove('active'));
-  const idx = filters.shelf.indexOf(v);
+  filters.shelfAll = false;
+  const idx = filters.shelf.findIndex(shelf => shelf.toLowerCase() === v.toLowerCase());
   if(idx >= 0){
     filters.shelf.splice(idx,1);
-    btn.classList.remove('active');
   } else {
     filters.shelf.push(v);
-    btn.classList.add('active');
   }
 
-  if(filters.shelf.length===0){
-    const allBtn = group.querySelector('[data-shelf-special="all"]');
-    if(allBtn) allBtn.classList.add('active');
+  if(!filters.shelf.length){
+    filters.shelfAll = true;
   }
 
   renderCollection();
@@ -1514,6 +1582,7 @@ function setPick(k,v,btn){
   picks[k]=v;
   btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  if(k==='shelf') renderShelfControls();
 }
 
 // ═══════════════════════════════════════
@@ -1533,6 +1602,8 @@ function getFiltered(){
 }
 
 function renderCollection(){
+  normalizeShelfSelections();
+  renderShelfControls();
   const filtered = getFiltered();
   const allBase = GAMES.filter(g=>!g.exp);
   const kids = GAMES.filter(g=>g.s.toLowerCase()==='kids'&&!g.exp);
@@ -1580,15 +1651,21 @@ function renderCollection(){
     const gp = plays.filter(p=>p.game===g.n);
     const jW = gp.filter(p=>p.winner==='John').length;
     const eW = gp.filter(p=>p.winner==='Elizabeth').length;
+    const thumb = g.thumb ? `<div class="game-thumb-wrap"><img class="game-thumb" src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} thumbnail" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-thumb-wrap').style.display='none'"></div>` : '';
     return `<div class="game-card ${g.played?'played-card':''}" onclick="openModal(${JSON.stringify(g.n)})">
-      <div class="gname">${g.n}</div>
-      <div class="gmeta">
-        <span class="badge ${sBadge(g.s)}">${g.s}</span>
-        ${g.played?'<span class="badge bplayed">✓ Played</span>':''}
-        ${g.exp?'<span class="badge bexp">Expansion</span>':''}
-        ${g.so==='Yes'?'<span class="badge">🧍 Solo</span>':''}
+      <div class="game-head">
+        <div class="game-main">
+          <div class="gname">${g.n}</div>
+          <div class="gmeta">
+            <span class="badge ${sBadge(g.s)}">${g.s}</span>
+            ${g.played?'<span class="badge bplayed">✓ Played</span>':''}
+            ${g.exp?'<span class="badge bexp">Expansion</span>':''}
+            ${g.so==='Yes'?'<span class="badge">🧍 Solo</span>':''}
+          </div>
+        </div>
+        ${thumb}
       </div>
-      <div class="gscore" style="margin-bottom:.25rem;">BGG <span>${g.bg}</span> · ${g.cat}</div>
+      <div class="gscore" style="margin-bottom:.25rem;">BGG <span>${g.bg}</span>${g.cat?` · ${g.cat}`:''}</div>
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
         ${g.ba?`<span class="badge" style="font-size:.64rem;">⭐ Best: ${g.ba}</span>`:''}
         ${g.plBGG?`<span class="badge" style="font-size:.64rem;">👥 ${g.plBGG}p</span>`:''}
@@ -1990,7 +2067,8 @@ function mapGameRow(r) {
     age:  r['Age']||'',
     year: r['Year bought']||'',
     notes:r['Notes']||'',
-    excluded:(r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1)
+    excluded:(r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1),
+    thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim()
   };
 }
 
