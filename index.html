@@ -473,10 +473,13 @@
     image-rendering:pixelated;
     filter:brightness(1.18) saturate(1.18) drop-shadow(0 0 10px rgba(255,209,102,.12));
   }
+  .game-card.has-thumb::after{display:none;}
   .section[data-screen='Collection']::after{opacity:.3;filter:brightness(1.12) saturate(1.1) drop-shadow(0 0 14px rgba(186,129,255,.18));}
   .game-head{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:.65rem;}
   .game-main{min-width:0;flex:1;}
   .game-thumb-wrap{flex:0 0 5rem;width:5rem;height:5rem;border-radius:16px;overflow:hidden;border:1px solid rgba(102,217,255,.18);background:linear-gradient(180deg, rgba(14,23,39,.96), rgba(9,14,24,.98));box-shadow:0 10px 20px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.04);position:relative;}
+  .game-thumb-link{display:block;cursor:pointer;transition:transform .18s ease, filter .18s ease;}
+  .game-thumb-link:hover{transform:translateY(-1px);filter:brightness(1.06);}
   .game-thumb-wrap::before{content:'';position:absolute;inset:0 auto auto 0;width:100%;height:2px;background:linear-gradient(90deg, transparent, var(--cyan), transparent);opacity:.72;z-index:1;}
   .game-thumb{display:block;width:100%;height:100%;object-fit:cover;}
   .gname{font-weight:700;font-size:1rem;color:var(--text);line-height:1.45;margin-bottom:.6rem;padding-right:0;}
@@ -1443,14 +1446,35 @@ function saveCfg(){localStorage.setItem('bgv-cfg',JSON.stringify(cfg));}
 // ═══════════════════════════════════════
 // SHELF BADGE CLASS
 // ═══════════════════════════════════════
+function splitShelfValues(shelfValue){
+  return String(shelfValue || '')
+    .split(/[;,/]|\band\b/gi)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function shelfMatchesValue(shelfValue, targetShelf){
+  const target = String(targetShelf || '').trim().toLowerCase();
+  if(!target) return false;
+  return splitShelfValues(shelfValue).some(s => s.toLowerCase() === target);
+}
+
+function hasShelfValue(shelfValue, targetShelf){
+  const raw = String(shelfValue || '').trim().toLowerCase();
+  const target = String(targetShelf || '').trim().toLowerCase();
+  if(!target) return false;
+  if(raw === target) return true;
+  return splitShelfValues(shelfValue).some(s => s.toLowerCase() === target);
+}
+
 function sBadge(shelf){
-  const s = shelf.toLowerCase();
-  if(s.includes('2-player')) return 's2p';
-  if(s.includes('adult')) return 'sad';
-  if(s.includes('family')) return 'sfam';
-  if(s.includes('kids')) return 'skid';
-  if(s.includes('solo')) return 'ssol';
-  if(s.includes('party')) return 'spar';
+  const shelves = splitShelfValues(shelf).map(s => s.toLowerCase());
+  if(shelves.some(s => s.includes('2-player'))) return 's2p';
+  if(shelves.some(s => s.includes('adult'))) return 'sad';
+  if(shelves.some(s => s.includes('family'))) return 'sfam';
+  if(shelves.some(s => s.includes('kids'))) return 'skid';
+  if(shelves.some(s => s.includes('solo'))) return 'ssol';
+  if(shelves.some(s => s.includes('party'))) return 'spar';
   return 'sgen';
 }
 
@@ -1458,12 +1482,13 @@ const shelfOrder = ['2-Player','Adult','Family','Party','Kids','Solo'];
 
 function getAvailableShelves(){
   const seen = new Set();
-  const raw = GAMES.map(g => (g.s || '').trim()).filter(Boolean);
+  const raw = GAMES.flatMap(g => splitShelfValues(g.s));
   const ordered = [];
   shelfOrder.forEach(name => {
-    if(raw.some(s => s.toLowerCase() === name.toLowerCase())){
+    const match = raw.find(s => s.toLowerCase() === name.toLowerCase());
+    if(match && !seen.has(name.toLowerCase())){
       seen.add(name.toLowerCase());
-      ordered.push(raw.find(s => s.toLowerCase() === name.toLowerCase()));
+      ordered.push(match);
     }
   });
   raw.sort((a,b)=>a.localeCompare(b)).forEach(name => {
@@ -1598,7 +1623,7 @@ function getFiltered(){
   return GAMES.filter(g=>{
     if(!passesGlobal(g)) return false;
     if(q && !g.n.toLowerCase().includes(q) && !g.cat.toLowerCase().includes(q)) return false;
-    if(filters.shelf.length && !filters.shelf.some(shelf => g.s.toLowerCase().includes(shelf.toLowerCase()))) return false;
+    if(!filters.shelfAll && filters.shelf.length && !filters.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
     if(filters.status==='played' && !g.played) return false;
     if(filters.status==='unplayed' && g.played) return false;
     if(filters.status==='base' && g.exp) return false;
@@ -1611,22 +1636,22 @@ function renderCollection(){
   renderShelfControls();
   const filtered = getFiltered();
   const allBase = GAMES.filter(g=>!g.exp);
-  const kids = GAMES.filter(g=>g.s.toLowerCase()==='kids'&&!g.exp);
+  const kids = GAMES.filter(g=>hasShelfValue(g.s,'Kids')&&!g.exp);
   const exps = GAMES.filter(g=>g.exp);
   const played = allBase.filter(g=>g.played).length;
 
   // Always use full GAMES for structural counts (subtitle), global filter for stats
-  const goodStuff = GAMES.filter(g=>g.s.toLowerCase()!=='kids');
+  const goodStuff = GAMES.filter(g=>!hasShelfValue(g.s,'Kids'));
   // Subtitle respects global filter
   const gfAll = GAMES.filter(g=>passesGlobal(g));
-  const gfKids = gfAll.filter(g=>g.s.toLowerCase()==='kids');
-  const gfGoodStuffBase = gfAll.filter(g=>g.s.toLowerCase()!=='kids'&&!g.exp);
-  const gfGoodStuffExp  = gfAll.filter(g=>g.s.toLowerCase()!=='kids'&&g.exp);
+  const gfKids = gfAll.filter(g=>hasShelfValue(g.s,'Kids'));
+  const gfGoodStuffBase = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&!g.exp);
+  const gfGoodStuffExp  = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&g.exp);
   document.getElementById('col-sub').textContent =
     `${gfGoodStuffBase.length} base games · ${gfGoodStuffExp.length} expansions · ${gfKids.length} children's · ${gfAll.length} total`;
 
   // Stats respect global filter
-  const gfGoodStuff = GAMES.filter(g=>g.s.toLowerCase()!=='kids' && passesGlobal(g));
+  const gfGoodStuff = GAMES.filter(g=>!hasShelfValue(g.s,'Kids') && passesGlobal(g));
   const goodStuffBase = gfGoodStuff.filter(g=>!g.exp);
   const goodStuffExps = gfGoodStuff.filter(g=>g.exp);
   const goodStuffPlayed = gfGoodStuff.filter(g=>g.played).length;
@@ -1656,8 +1681,8 @@ function renderCollection(){
     const gp = plays.filter(p=>p.game===g.n);
     const jW = gp.filter(p=>p.winner==='John').length;
     const eW = gp.filter(p=>p.winner==='Elizabeth').length;
-    const thumb = g.thumb ? `<div class="game-thumb-wrap"><img class="game-thumb" src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} thumbnail" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-thumb-wrap').style.display='none'"></div>` : '';
-    return `<div class="game-card ${g.played?'played-card':''}" onclick="openModal(${JSON.stringify(g.n)})">
+    const thumb = g.thumb ? `${g.bggUrl ? `<a class="game-thumb-wrap game-thumb-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">` : `<div class="game-thumb-wrap">`}<img class="game-thumb" src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} thumbnail" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-thumb-wrap').style.display='none'">${g.bggUrl ? `</a>` : `</div>`}` : '';
+    return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" onclick="openModal(${JSON.stringify(g.n)})">
       <div class="game-head">
         <div class="game-main">
           <div class="gname">${g.n}</div>
@@ -2073,7 +2098,8 @@ function mapGameRow(r) {
     year: r['Year bought']||'',
     notes:r['Notes']||'',
     excluded:(r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1),
-    thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim()
+    thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim(),
+    bggUrl:(r['BGG URL']||'').toString().trim()
   };
 }
 
