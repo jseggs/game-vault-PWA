@@ -616,25 +616,25 @@
       'sub del'
       'notes notes';
     align-items:start;
-    gap:.4rem .75rem;
+    gap:.24rem .7rem;
     background:rgba(8,13,24,.88);
     border:1px solid rgba(102,217,255,.1);
     border-radius:16px;
-    padding:.72rem .8rem;
+    padding:.62rem .78rem;
     margin-bottom:.45rem;
     font-size:.8rem;
   }
-  .pmeta{grid-area:meta;display:flex;flex-wrap:wrap;align-items:baseline;gap:.45rem .7rem;min-width:0;}
-  .psub{grid-area:sub;display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .45rem;min-width:0;}
+  .pmeta{grid-area:meta;display:flex;flex-wrap:wrap;align-items:baseline;gap:.28rem .55rem;min-width:0;}
+  .psub{grid-area:sub;display:flex;flex-wrap:wrap;align-items:center;gap:.22rem .42rem;min-width:0;}
   .pgame{color:var(--text);font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .pdate{color:var(--cyan);font-size:.7rem;min-width:0;}
-  .pwinner{color:var(--amber);font-weight:700;}
-  .pnotes{grid-area:notes;color:var(--text2);font-size:.75rem;line-height:1.5;margin-top:.05rem;}
+  .pdate{color:var(--cyan);font-size:.68rem;min-width:0;}
+  .pwinner{color:var(--amber);font-weight:700;line-height:1.15;}
+  .pnotes{grid-area:notes;color:var(--text2);font-size:.74rem;line-height:1.4;margin-top:0;}
   .pdel{
     grid-area:del;
-    align-self:center;
+    align-self:start;
     margin-left:auto;background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--text3);cursor:pointer;
-    font-size:.85rem;padding:.3rem .45rem;border-radius:10px;transition:all .15s ease;
+    font-size:.82rem;padding:.22rem .38rem;border-radius:10px;transition:all .15s ease;
   }
   .pdel:hover{color:var(--red);border-color:rgba(255,107,107,.22);}
   .fg{display:flex;flex-direction:column;gap:.35rem;flex:1 1 100%;min-width:0;}
@@ -1357,7 +1357,7 @@ if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PAC
 if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
 if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
 if (!cfg.scriptUrl) cfg.scriptUrl = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
-let filters = {shelf:[],status:null,shelfAll:false};
+let filters = {shelf:[],status:null,shelfInitialized:false};
 let picks = {shelf:null,played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
 // Global filters (set in Sync tab, applied everywhere)
@@ -1555,6 +1555,8 @@ function getAvailableShelves(){
 
 function getDefaultShelves(){
   const shelves = getAvailableShelves();
+  const canonical = shelves.filter(s => shelfOrder.some(name => name.toLowerCase() === s.toLowerCase()) && s.toLowerCase() !== 'kids');
+  if(canonical.length) return canonical;
   const nonKids = shelves.filter(s => s.toLowerCase() !== 'kids');
   return nonKids.length ? nonKids : shelves;
 }
@@ -1570,8 +1572,9 @@ function normalizeShelfSelections(){
   const shelves = getAvailableShelves();
   const allowed = new Set(shelves.map(s => s.toLowerCase()));
   filters.shelf = filters.shelf.filter(s => allowed.has(s.toLowerCase()));
-  if(!filters.shelf.length && shelves.length && !filters.shelfAll){
-    filters.shelf = getDefaultShelves();
+  if(!filters.shelfInitialized && shelves.length){
+    filters.shelf = [...getDefaultShelves()];
+    filters.shelfInitialized = true;
   }
   if(picks.shelf && !allowed.has(picks.shelf.toLowerCase())){
     picks.shelf = null;
@@ -1580,16 +1583,10 @@ function normalizeShelfSelections(){
 
 function renderShelfControls(){
   const shelves = getAvailableShelves();
-  const defaultShelves = getDefaultShelves();
   const collectionGroup = document.getElementById('collection-shelf-group');
   if(collectionGroup){
-    const showAllButKids = shelves.some(s => s.toLowerCase() === 'kids') && defaultShelves.length && defaultShelves.length < shelves.length;
-    const isAll = filters.shelfAll;
-    const isDefault = !isAll && sameShelfSet(filters.shelf, defaultShelves);
     collectionGroup.innerHTML = `<span class="fgrp-lbl">Shelf</span>
-      <button class="fbtn ${isAll?'active':''}" data-shelf-special="all" onclick="setFilter('shelf',null,this)">All</button>
-      ${showAllButKids ? `<button class="fbtn ${isDefault?'active':''}" data-shelf-special="all-but-kids" onclick="setFilter('shelf','__all_but_kids__',this)">All but kids</button>` : ''}
-      ${shelves.map(shelf => `<button class="fbtn ${!isAll && !isDefault && filters.shelf.some(sel => sel.toLowerCase() === shelf.toLowerCase())?'active':''}" data-shelf="${shelf.replace(/"/g,'&quot;')}" onclick="setFilter('shelf',${JSON.stringify(shelf)},this)">${shelf}</button>`).join('')}`;
+      ${shelves.map(shelf => `<button class="fbtn ${filters.shelf.some(sel => sel.toLowerCase() === shelf.toLowerCase())?'active':''}" data-shelf="${shelf.replace(/"/g,'&quot;')}" onclick="setFilter('shelf',${JSON.stringify(shelf)},this)">${shelf}</button>`).join('')}`;
   }
   const pickerGroup = document.getElementById('picker-shelf-group');
   if(pickerGroup){
@@ -1631,24 +1628,18 @@ function setFilter(k,v,btn){
     return;
   }
 
-  const defaultShelves = getDefaultShelves();
+  const shelves = getAvailableShelves();
+  filters.shelfInitialized = true;
+  const key = v.toLowerCase();
+  const selected = new Set(filters.shelf.map(shelf => shelf.toLowerCase()));
 
-  if(v===null){
-    filters.shelfAll = true;
-    filters.shelf = [];
-    renderCollection();
-    return;
+  if(selected.has(key)){
+    filters.shelf = filters.shelf.filter(shelf => shelf.toLowerCase() !== key);
+  } else {
+    const canonical = shelves.find(shelf => shelf.toLowerCase() === key) || v;
+    filters.shelf = [...filters.shelf, canonical];
   }
 
-  if(v==='__all_but_kids__'){
-    filters.shelfAll = false;
-    filters.shelf = [...defaultShelves];
-    renderCollection();
-    return;
-  }
-
-  filters.shelfAll = false;
-  filters.shelf = [v];
   renderCollection();
 }
 function setPick(k,v,btn){
@@ -1666,7 +1657,8 @@ function getFiltered(){
   return GAMES.filter(g=>{
     if(!passesGlobal(g)) return false;
     if(q && !g.n.toLowerCase().includes(q) && !g.cat.toLowerCase().includes(q)) return false;
-    if(!filters.shelfAll && filters.shelf.length && !filters.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
+    if(filters.shelfInitialized && !filters.shelf.length) return false;
+    if(filters.shelf.length && !filters.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
     if(filters.status==='played' && !g.played) return false;
     if(filters.status==='unplayed' && g.played) return false;
     if(filters.status==='base' && g.exp) return false;
