@@ -652,6 +652,47 @@
   }
   .bar-wrap{margin:1rem 0;height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;border:1px solid rgba(255,255,255,.05);}
   .bar{height:100%;background:linear-gradient(90deg, var(--cyan), var(--pink));border-radius:999px;transition:width .5s ease;box-shadow:0 0 14px rgba(102,217,255,.2);}
+  .battle-card{grid-column:1/-1;padding:1rem 1rem 1.08rem;overflow:hidden;}
+  .battle-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.75rem;font-family:'DM Mono',monospace;}
+  .battle-stage{position:relative;padding:.85rem .85rem .7rem;border-radius:20px;background:radial-gradient(circle at 50% 14%, rgba(255,209,102,.1), transparent 24%), linear-gradient(180deg, rgba(8,13,24,.98), rgba(17,24,41,.96));border:1px solid rgba(102,217,255,.1);overflow:hidden;}
+  .battle-stage::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(102,217,255,.04), transparent 36%, transparent 64%, rgba(255,138,216,.04));pointer-events:none;}
+  .battle-vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-84%);display:inline-flex;align-items:center;justify-content:center;min-width:74px;height:50px;padding:.1rem .9rem .05rem;border-radius:16px;border:1px solid rgba(255,209,102,.35);background:linear-gradient(180deg, rgba(52,34,8,.92), rgba(26,18,7,.94));font-family:var(--pixel-font);font-size:1.28rem;line-height:1;color:#ffd36b;text-shadow:0 0 14px rgba(255,209,102,.3), 0 0 2px rgba(255,255,255,.45);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset, 0 10px 24px rgba(0,0,0,.28), 0 0 20px rgba(255,209,102,.14);z-index:3;letter-spacing:.06em;}
+  .battle-flash{position:absolute;left:50%;top:50%;width:86px;height:86px;transform:translate(-50%,-78%);border-radius:50%;background:radial-gradient(circle, rgba(255,209,102,.16), rgba(255,138,216,.05) 45%, transparent 70%);filter:blur(1px);z-index:2;}
+  .battle-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;gap:1rem;position:relative;z-index:4;}
+  .battle-side{display:flex;flex-direction:column;align-items:center;gap:.4rem;min-width:0;}
+  .battle-dino{width:96px;height:96px;background-repeat:no-repeat;background-position:center;background-size:contain;image-rendering:pixelated;}
+  .battle-dino.john{background-image:var(--dino-2p);transform:scaleX(-1);filter:drop-shadow(0 0 20px rgba(102,217,255,.34)) saturate(1.08) brightness(1.05);}
+  .battle-dino.liz{background-image:var(--dino-kids);filter:drop-shadow(0 0 22px rgba(255,107,107,.38)) saturate(1.22) brightness(1.18);}
+  .battle-name{font-family:var(--pixel-font);font-size:.82rem;line-height:1;color:var(--text);text-align:center;}
+  .battle-wins{display:inline-flex;align-items:center;justify-content:center;min-width:2.25rem;padding:.24rem .55rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:.69rem;background:rgba(255,255,255,.06);}
+  .battle-wins.john{color:#9ae9ff;border-color:rgba(102,217,255,.32);background:rgba(102,217,255,.12);}
+  .battle-wins.liz{color:#ffb1ea;border-color:rgba(255,138,216,.32);background:rgba(255,138,216,.13);}
+  .battle-rate{font-size:.68rem;color:var(--text3);font-family:var(--mono);}
+  .battle-meter{display:flex;flex-direction:column;align-items:center;gap:.38rem;min-width:132px;padding-bottom:.5rem;}
+  .battle-meter-bar{width:100%;height:10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.05);overflow:hidden;box-shadow:none;}
+  .battle-meter-fill{height:100%;background:linear-gradient(90deg, rgba(102,217,255,.88), rgba(255,209,102,.85) 50%, rgba(255,138,216,.88));border-radius:999px;transition:width .45s ease;box-shadow:0 0 10px rgba(255,209,102,.12);}
+  .battle-meter-text{font-family:var(--mono);font-size:.63rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
+  .battle-lead{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .5rem;border-radius:999px;border:1px solid rgba(255,209,102,.14);background:rgba(255,209,102,.09);font-family:var(--mono);font-size:.64rem;color:#ffd98a;}
+  .battle-lead.tie{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);color:var(--text2);}
+  .battle-footer{display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-top:.8rem;padding-top:.7rem;border-top:1px solid rgba(102,217,255,.08);font-size:.71rem;color:var(--text3);font-family:'DM Mono',monospace;position:relative;z-index:4;}
+  .battle-footer .center{flex:1;text-align:center;}
+  @media (max-width: 760px){
+    .battle-card{padding:.9rem .85rem 1rem;}
+    .battle-stage{padding:.85rem .65rem .65rem;}
+    .battle-vs{font-size:1.05rem;transform:translate(-50%,-88%);}
+    .battle-flash{width:72px;height:72px;transform:translate(-50%,-82%);}
+    .battle-row{grid-template-columns:minmax(0,1fr);gap:.55rem;align-items:center;}
+    .battle-meter{order:-1;min-width:0;padding-bottom:0;}
+    .battle-side{display:grid;grid-template-columns:52px 1fr auto;grid-template-areas:'dino name wins' 'dino rate rate';align-items:center;gap:.15rem .55rem;}
+    .battle-side.right{grid-template-columns:auto 1fr 52px;grid-template-areas:'wins name dino' 'rate rate dino';}
+    .battle-dino{width:52px;height:52px;grid-area:dino;}
+    .battle-name{grid-area:name;text-align:left;font-size:.68rem;}
+    .battle-side.right .battle-name{text-align:right;}
+    .battle-wins{grid-area:wins;justify-self:start;}
+    .battle-side.right .battle-wins{justify-self:end;}
+    .battle-rate{grid-area:rate;}
+    .battle-footer{font-size:.64rem;gap:.45rem;}
+  }
   .notes-box{
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.05);
@@ -1871,24 +1912,42 @@ function renderStats(){
   const eW=plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return p.winner==='Elizabeth'&&(!g||passesGlobal(g));}).length;
   const tot=jW+eW;
   const pct=tot>0?(jW/tot*100):50;
+  const diff=tot?jW-eW:0;
+  const knotPct=Math.max(16, Math.min(84, 50 + (tot ? (diff / tot) * 34 : 0)));
+  const johnRate=tot>0?Math.round(jW/tot*100):0;
+  const lizRate=tot>0?Math.round(eW/tot*100):0;
+  const leadText = diff > 0 ? `John leads by ${diff}` : diff < 0 ? `Elizabeth leads by ${Math.abs(diff)}` : 'Even match';
+  const leadClass = diff === 0 ? 'tie' : '';
   document.getElementById('win-stats').innerHTML=`
-    <div class="pcard">
-      <div class="pname john">John</div>
-      <div class="pwins">${jW}</div>
-      <div class="psub">Wins</div>
-      <div style="color:var(--text3);font-size:.75rem;margin-top:.28rem;">${tot>0?Math.round(jW/tot*100):0}% win rate</div>
-    </div>
-    <div class="pcard">
-      <div class="pname liz">Elizabeth</div>
-      <div class="pwins">${eW}</div>
-      <div class="psub">Wins</div>
-      <div style="color:var(--text3);font-size:.75rem;margin-top:.28rem;">${tot>0?Math.round(eW/tot*100):0}% win rate</div>
-    </div>
-    <div class="pcard" style="grid-column:1/-1;">
-      <div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.45rem;font-family:'DM Mono',monospace;">Head to Head (excl. coop/ties)</div>
-      <div class="bar-wrap"><div class="bar" id="hbar" style="width:${pct}%"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:.71rem;color:var(--text3);margin-top:.28rem;font-family:'DM Mono',monospace;">
-        <span>John ${jW}</span><span>${plays.length} total logged plays</span><span>${eW} Elizabeth</span>
+    <div class="pcard battle-card">
+      <div class="battle-label">Head to Head (excl. coop/ties)</div>
+      <div class="battle-stage">
+        <div class="battle-flash"></div>
+        <div class="battle-vs">VS</div>
+        <div class="battle-row">
+          <div class="battle-side left">
+            <div class="battle-dino john"></div>
+            <div class="battle-name">John</div>
+            <div class="battle-wins john">${jW}</div>
+            <div class="battle-rate">${johnRate}% win rate</div>
+          </div>
+          <div class="battle-meter">
+            <div class="battle-meter-text">Battle Meter</div>
+            <div class="battle-meter-bar"><div class="battle-meter-fill" style="width:${pct}%"></div></div>
+            <div class="battle-lead ${leadClass}">${leadText}</div>
+          </div>
+          <div class="battle-side right">
+            <div class="battle-dino liz"></div>
+            <div class="battle-name">Elizabeth</div>
+            <div class="battle-wins liz">${eW}</div>
+            <div class="battle-rate">${lizRate}% win rate</div>
+          </div>
+        </div>
+      </div>
+      <div class="battle-footer">
+        <span>John ${jW}</span>
+        <span class="center">${plays.length} total logged plays</span>
+        <span>${eW} Elizabeth</span>
       </div>
     </div>`;
   const map={};
