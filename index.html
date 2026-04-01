@@ -261,7 +261,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='body' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f7f8ff'/%3E%3Cstop offset='1' stop-color='%23bcc8e8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='12' y='18' width='40' height='24' rx='12' fill='url(%23body)' stroke='%23293055' stroke-width='4'/%3E%3Cpath d='M22 26h8M26 22v8' stroke='%23293055' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='40' cy='26' r='3' fill='%23ff6b6b'/%3E%3Ccircle cx='45' cy='31' r='3' fill='%23ffd166'/%3E%3Ccircle cx='35' cy='31' r='3' fill='%236effc1'/%3E%3Crect x='18' y='42' width='28' height='4' rx='2' fill='%23385d9a' fill-opacity='.55'/%3E%3C/svg%3E");
   }
   .nav-tab[data-tab='settings']::before{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffcf70'/%3E%3Cstop offset='1' stop-color='%23ff8c42'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M32 12l4 2 5-2 4 5 6 1v6l4 4-4 4v6l-6 1-4 5-5-2-4 2-4-2-5 2-4-5-6-1v-6l-4-4 4-4v-6l6-1 4-5 5 2z' fill='url(%23g)' stroke='%23612f10' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23fff4cc' stroke='%23612f10' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23612f10'/%3E%3C/svg%3E");
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffd27a'/%3E%3Cstop offset='1' stop-color='%23ff9f45'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='17' fill='url(%23g)' stroke='%23612f10' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23fff4cc' stroke='%23612f10' stroke-width='4'/%3E%3Cg fill='%23612f10'%3E%3Crect x='30' y='6' width='4' height='10' rx='2'/%3E%3Crect x='30' y='48' width='4' height='10' rx='2'/%3E%3Crect x='48' y='30' width='10' height='4' rx='2'/%3E%3Crect x='6' y='30' width='10' height='4' rx='2'/%3E%3Crect x='43.5' y='12' width='4' height='10' rx='2' transform='rotate(45 45.5 17)'/%3E%3Crect x='16.5' y='42' width='4' height='10' rx='2' transform='rotate(45 18.5 47)'/%3E%3Crect x='43.5' y='42' width='4' height='10' rx='2' transform='rotate(135 45.5 47)'/%3E%3Crect x='16.5' y='12' width='4' height='10' rx='2' transform='rotate(135 18.5 17)'/%3E%3C/g%3E%3C/svg%3E");
   }
   .nav-tab:hover{color:var(--text2);border-color:rgba(102,217,255,.16);}
   .nav-tab.active{
@@ -864,7 +864,8 @@
     <div class="form-row">
       <div class="fg" style="flex:2;min-width:170px;">
         <label>Game</label>
-        <select class="fc" id="log-game"></select>
+        <input class="fc" id="log-game" list="log-game-list" placeholder="Start typing a game title..." autocomplete="off">
+        <datalist id="log-game-list"></datalist>
       </div>
       <div class="fg" style="max-width:138px;">
         <label>Date</label>
@@ -1001,6 +1002,25 @@
       <button class="btn btn-outline" onclick="syncNow()">↺ Sync Now</button>
       <span id="sync-msg" style="font-size:.76rem;color:var(--text3);"></span>
     </div>
+  </div>
+
+  <div class="sbox">
+    <div class="stitle">BoardGameGeek Data</div>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.7;margin-bottom:.75rem;">If you enable BGG-powered enrichment in your Google Apps Script, keep the matching logic server-side, cache results, and include BoardGameGeek attribution in the public app.</p>
+<a href="https://boardgamegeek.com" target="_blank" rel="noreferrer" style="display:inline-flex;align-items:center;">
+  <img
+    src="powered-by-bgg.png"
+    alt="Powered by BoardGameGeek"
+    style="height:40px;width:auto;display:block;"
+  >
+</a>
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:2.15rem;height:2.15rem;border-radius:999px;background:linear-gradient(180deg,#ffe37a,#ffb84d);color:#2e1800;font-family:var(--pixel-font);font-size:.72rem;box-shadow:0 0 14px rgba(255,209,102,.18);">BGG</span>
+      <span style="display:flex;flex-direction:column;gap:.14rem;">
+        <span style="font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);">Powered by</span>
+        <span style="font-family:var(--pixel-font);font-size:.72rem;line-height:1.3;color:var(--gold);">BoardGameGeek</span>
+      </span>
+    </a>
+    <p style="font-size:.74rem;color:var(--text3);line-height:1.7;margin-top:.7rem;">For strict production compliance, replace this temporary badge with BGG's official linked "Powered by BGG" logo asset from their logo pack.</p>
   </div>
 
   <div class="sbox" style="opacity:0.75;">
@@ -1651,17 +1671,28 @@ function closeModal(){document.getElementById('moverlay').classList.remove('open
 // ═══════════════════════════════════════
 // PLAY LOGGING
 // ═══════════════════════════════════════
+function resolveLogGameName(value){
+  const raw=(value||'').trim();
+  if(!raw) return '';
+  const exact=GAMES.find(g=>!g.exp && g.n===raw && passesGlobal(g));
+  if(exact) return exact.n;
+  const ci=GAMES.find(g=>!g.exp && g.n.toLowerCase()===raw.toLowerCase() && passesGlobal(g));
+  if(ci) return ci.n;
+  return '';
+}
+
 async function logPlay(){
-  const game=document.getElementById('log-game').value;
+  const game=resolveLogGameName(document.getElementById('log-game').value);
   const date=document.getElementById('log-date').value;
   const winner=document.getElementById('log-winner').value;
   const notes=document.getElementById('log-notes').value;
-  if(!game||!date||!winner){showToast('Fill in game, date & winner!','#c45c3c');return;}
+  if(!game||!date||!winner){showToast('Choose a game from search, plus date & winner.','#c45c3c');return;}
   const jRat = document.getElementById('log-jrat')?.value||'';
   const eRat = document.getElementById('log-erat')?.value||'';
   const wasUnplayed = !GAMES.find(x=>x.n===game)?.played;
   const p={game,date,winner,notes,jRat,eRat};
   plays.push(p);savePlays();markPlayed(game);
+  document.getElementById('log-game').value='';
   document.getElementById('log-winner').value='';
   document.getElementById('log-notes').value='';
   document.getElementById('log-jrat').value='';
@@ -1700,11 +1731,12 @@ async function delPlay(idx,name){
 }
 
 function renderPlays(){
-  const sel=document.getElementById('log-game');
-  if(sel){
-    const cur=sel.value;
-    sel.innerHTML=GAMES.filter(g=>!g.exp&&passesGlobal(g)).map(g=>`<option value="${g.n}">${g.n}</option>`).join('');
-    if(cur)sel.value=cur;
+  const input=document.getElementById('log-game');
+  const gameList=document.getElementById('log-game-list');
+  if(input&&gameList){
+    const cur=input.value;
+    gameList.innerHTML=GAMES.filter(g=>!g.exp&&passesGlobal(g)).map(g=>`<option value="${g.n}"></option>`).join('');
+    if(cur)input.value=cur;
   }
   document.getElementById('log-date').valueAsDate=new Date();
   const list=document.getElementById('play-log-list');
