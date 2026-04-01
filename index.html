@@ -1314,7 +1314,10 @@ let filters = {shelf:[],status:null,shelfAll:false};
 let picks = {shelf:null,played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
 // Global filters (set in Sync tab, applied everywhere)
-let globalFilters = {eKnows:'1', year:''}; // default: Ready to Play = Yes
+let globalFilters = JSON.parse(localStorage.getItem('bgv-global-filters') || '{"eKnows":"1","year":""}');
+if (typeof globalFilters !== 'object' || globalFilters === null) globalFilters = {eKnows:'1', year:''};
+globalFilters.eKnows = globalFilters.eKnows ?? '1';
+globalFilters.year = globalFilters.year ?? '';
 let twoPlayerMode = 'good'; // 'best' = Best At contains 2, 'good' = BGG Comm contains 2 or 1-
 let twoPlayerExcludedShelves = new Set([]); // Kids always excluded via logic
 let twoPlayerExcludedGames = new Set(JSON.parse(localStorage.getItem('bgv-2p-excl') || '[]'));
@@ -1383,6 +1386,7 @@ function toggleExcluded() {
 function applyGlobalFilters() {
   globalFilters.eKnows = document.getElementById('gf-eknows')?.value || '';
   globalFilters.year   = document.getElementById('gf-year')?.value || '';
+  saveGlobalFilters();
   const active = globalFilters.eKnows || globalFilters.year;
   const msg = document.getElementById('gf-active-msg');
   if (msg) msg.style.display = active ? 'block' : 'none';
@@ -1442,6 +1446,7 @@ function supportsPlayerCount(g, n) {
 
 function savePlays(){localStorage.setItem('bgv-plays',JSON.stringify(plays));}
 function saveCfg(){localStorage.setItem('bgv-cfg',JSON.stringify(cfg));}
+function saveGlobalFilters(){localStorage.setItem('bgv-global-filters', JSON.stringify(globalFilters));}
 
 // ═══════════════════════════════════════
 // SHELF BADGE CLASS
@@ -2272,12 +2277,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   populateYearFilter();
   cfg.invested = ''; // always fetch fresh on load, never use stale cache
   saveCfg();
-  // Set Ready to Play dropdown to default Yes
+
   const gfEl = document.getElementById('gf-eknows');
-  if (gfEl) gfEl.value = '1';
-  // Update the active filter banner
+  const gfYearEl = document.getElementById('gf-year');
+  if (gfEl) gfEl.value = globalFilters.eKnows || '';
+  if (gfYearEl) gfYearEl.value = globalFilters.year || '';
+
   const msg = document.getElementById('gf-active-msg');
-  if (msg) msg.style.display = 'block';
+  if (msg) msg.style.display = (globalFilters.eKnows || globalFilters.year) ? 'block' : 'none';
+
   renderCollection();
   renderStats();
   if(cfg.gamesUrl)syncNow();
