@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-dx-v5';
+const CACHE_NAME = 'game-vault-dx-v6';
 const APP_SHELL = [
   './',
   './index.html',
@@ -49,17 +49,6 @@ async function networkFirst(request) {
   }
 }
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(request, response.clone());
-  }
-  return response;
-}
-
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
@@ -74,6 +63,6 @@ self.addEventListener('fetch', event => {
   }
 
   if (isSameOrigin) {
-    event.respondWith(cacheFirst(event.request));
+    event.respondWith(networkFirst(event.request));
   }
 });

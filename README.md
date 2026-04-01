@@ -118,6 +118,45 @@ Or serve it locally:
 python3 -m http.server
 ```
 
+## Local Testing Tips
+
+For a beginner-friendly step-by-step checklist, see [TESTING.md](/Users/johnseggman/Codex/TESTING.md).
+
+For normal development, prefer a local web server over opening the file directly:
+
+```bash
+./dev-preview.sh
+```
+
+Then open [http://localhost:4173](http://localhost:4173) on your Mac.
+
+For iPhone PWA / service worker testing over HTTPS, use:
+
+```bash
+./dev-preview.sh --tunnel
+```
+
+That starts the local server and, if `cloudflared` is installed, prints a public `https://...trycloudflare.com` URL you can open in Safari on your iPhone.
+
+Useful habits while iterating:
+
+- Hard refresh after changes so the browser does not reuse a stale HTML document
+- Keep DevTools open and inspect the Application tab when checking service worker or cache behavior
+- Test the installed PWA separately from the regular browser tab, because they can hold different cached state
+- If Safari and Chrome on iPhone both look stale, remember they share the same WebKit engine and often the same underlying cache behavior
+
+For iPhone testing on the same Wi-Fi, you can also open your Mac's local server from the phone with:
+
+```text
+http://YOUR-MAC-LAN-IP:4173
+```
+
+Note: that is helpful for regular browser testing, but full PWA and service worker behavior on iPhone is most reliable on a real HTTPS host such as GitHub Pages or a secure tunnel.
+
+If `./dev-preview.sh --tunnel` says `cloudflared` is missing, install it first and rerun. Current install docs:
+
+- [Cloudflare Tunnel downloads](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
+
 Then open `index.html` in your browser.
 
 ## Google Sheets Setup
