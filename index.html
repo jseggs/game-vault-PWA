@@ -610,20 +610,29 @@
   .plays-wrap{max-height:none;overflow:visible;margin-bottom:.7rem;}
   .pentry{
     display:grid;
-    grid-template-columns:1fr auto;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:
+      'meta del'
+      'sub del'
+      'notes notes';
     align-items:start;
-    gap:.45rem .75rem;
+    gap:.4rem .75rem;
     background:rgba(8,13,24,.88);
     border:1px solid rgba(102,217,255,.1);
     border-radius:16px;
-    padding:.8rem;
+    padding:.72rem .8rem;
     margin-bottom:.45rem;
     font-size:.8rem;
   }
+  .pmeta{grid-area:meta;display:flex;flex-wrap:wrap;align-items:baseline;gap:.45rem .7rem;min-width:0;}
+  .psub{grid-area:sub;display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .45rem;min-width:0;}
+  .pgame{color:var(--text);font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .pdate{color:var(--cyan);font-size:.7rem;min-width:0;}
   .pwinner{color:var(--amber);font-weight:700;}
-  .pnotes{color:var(--text2);font-size:.75rem;grid-column:1 / -1;line-height:1.55;}
+  .pnotes{grid-area:notes;color:var(--text2);font-size:.75rem;line-height:1.5;margin-top:.05rem;}
   .pdel{
+    grid-area:del;
+    align-self:center;
     margin-left:auto;background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--text3);cursor:pointer;
     font-size:.85rem;padding:.3rem .45rem;border-radius:10px;transition:all .15s ease;
   }
@@ -1840,13 +1849,17 @@ function renderPlays(){
   const sorted=[...filteredPlays].map((p,i)=>({...p,_i:plays.indexOf(p)})).sort((a,b)=>new Date(b.date)-new Date(a.date));
   list.innerHTML=`<div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.65rem;font-family:'DM Mono',monospace;">All Plays — ${filteredPlays.length}${filteredPlays.length!==plays.length?' (filtered, '+plays.length+' total)':''}</div>`+
     sorted.map(p=>`<div class="pentry">
-      <span class="pdate">${p.date}</span>
-      <span class="pwinner" style="flex:2;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.game}">${p.game}</span>
-      <span class="pwinner" style="flex:0 0 auto;color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'};">${p.winner}</span>
-      ${p.jRat?`<span class="badge" style="flex:0 0 auto;">J:${p.jRat}</span>`:''}
-      ${p.eRat?`<span class="badge" style="flex:0 0 auto;">E:${p.eRat}</span>`:''}
-      <span class="pnotes" style="flex:1;">${p.notes||''}</span>
+      <div class="pmeta">
+        <span class="pdate">${p.date}</span>
+        <span class="pgame" title="${p.game}">${p.game}</span>
+      </div>
       <button class="pdel" onclick="delPlay(${p._i},null)">✕</button>
+      <div class="psub">
+        <span class="pwinner" style="color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'};">${p.winner}</span>
+        ${p.jRat?`<span class="badge">J:${p.jRat}</span>`:''}
+        ${p.eRat?`<span class="badge">E:${p.eRat}</span>`:''}
+      </div>
+      ${p.notes?`<div class="pnotes">${p.notes}</div>`:''}
     </div>`).join('');
 }
 
