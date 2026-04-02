@@ -1,174 +1,52 @@
-# J & E Game Vault
+# Game Vault
 
-A retro-arcade-themed static web app / PWA for managing a board game collection, picking what to play, logging sessions, and syncing data with Google Sheets.
+An open-source retro-arcade board game collection tracker and installable PWA. It helps households and game groups browse their collection, pick what to play, log sessions, and see lightweight stats while keeping their data in Google Sheets.
+
+[Setup Guide](/Users/johnseggman/Codex/SETUP.md) | [Customization Guide](/Users/johnseggman/Codex/CUSTOMIZE.md) | [Testing Guide](/Users/johnseggman/Codex/TESTING.md)
+
+Support the project:
+- Ko-fi: `https://ko-fi.com/YOUR_NAME`
+- Buy Me a Coffee: `https://buymeacoffee.com/YOUR_NAME`
+- GitHub Sponsors: `https://github.com/sponsors/YOUR_GITHUB`
+- Venmo (optional extra): `https://venmo.com/u/YOUR_HANDLE`
 
 ## What It Does
 
-- Browses a curated game collection with search, shelf filters, and play-status filters
-- Shows collection stats such as total games, expansions, played vs. unplayed, and effective dollars spent
-- Includes a random game picker with filters for shelf, history, expansions, co-op, and player count
-- Logs plays with winner, notes, and separate John/Elizabeth ratings
-- Tracks head-to-head stats, per-game records, and a dedicated 2-player shortlist
-- Supports Google Sheets sync for games, plays, exclusions, and summary stats
+- Browse a board game collection with search, shelf filters, and play status filters
+- Pick a random game with filters for shelves, history, expansions, co-op, and player count
+- Log plays with participants, winner, notes, and per-player ratings
+- Render player names from a `Players` sheet instead of hardcoded household names
+- Show per-game records, lightweight winner stats, and a dedicated 2-player shortlist
+- Install on desktop or phone as a PWA
 
-## Project Structure
+## How It Works
 
-There is one live app file:
+Game Vault is still a static app:
 
-- `index.html`: the canonical app entrypoint for local use, hosting, and GitHub Pages
+- `index.html` contains the app UI, styling, and logic
+- `service-worker.js` handles offline caching and update behavior
+- Google Sheets acts as the user-owned data source
+- A narrow hosted BGG enrichment service can be used by the companion Google Sheets script
 
-Supporting PWA files:
+Users are expected to:
 
-- `manifest.webmanifest`: install metadata for the app
-- `service-worker.js`: offline app-shell caching
-- `app-icon-192.png`, `app-icon-512.png`, `app-icon-maskable-512.png`: installable app icons
+1. Copy the starter Google Sheet template
+2. Fill in the `Players` tab with `Player #` and `Name`
+3. Add/import games in the `Games` tab
+4. Use the `Game Vault -> BGG Sync` menu in Google Sheets
+5. Publish `Games`, `Plays`, and `Players` tabs as CSV
+6. Paste those CSV URLs into the PWA settings
 
-Archived historical files live in `archive/` and should not be edited for normal app changes.
+If you open the app before connecting your sheets, it starts in a built-in sample mode with starter players, games, and plays so you can explore the flow first.
 
-The live app is still mostly self-contained:
+## Public Data Model
 
-- HTML defines the navigation and all app sections
-- CSS provides the visual design and responsive behavior
-- JavaScript handles state, filtering, logging, stats, and sync
-- A built-in `DEFAULT_GAMES` dataset serves as the local fallback collection
+### `Players`
 
-## Main Features
+- `Player #`
+- `Name`
 
-### Collection
-
-- Search by game name or category
-- Filter by shelf: `2-Player`, `Adult`, `Family`, `Party`, `Kids`, `Solo`
-- Filter by status: all, played, unplayed, base-only
-- Open a modal for game details, ratings, notes, win/loss history, and quick play logging
-
-### Pick a Game
-
-- Randomizer for choosing a game to play
-- Filters for shelf, already played vs. never played, base-only vs. expansions, co-op only, and exact player count
-
-### Play Log
-
-- Add plays with date, winner, notes, and individual ratings
-- Delete previously logged plays
-- Automatically marks a game as played after the first logged session
-
-### Stats
-
-- Head-to-head win totals for John and Elizabeth
-- Per-game play counts and leader tracking
-- Separate 2-player recommendations view
-- Ability to exclude specific games from the 2-player shortlist
-
-### Google Sheets Sync
-
-- Loads games from a published CSV sheet
-- Optionally loads plays from a second published CSV sheet
-- Optionally writes play adds/deletes and exclusion changes back through a Google Apps Script endpoint
-- Optionally loads summary stats such as effective dollars spent from a stats sheet
-
-## Data Model
-
-Each game record includes fields such as:
-
-- name
-- shelf
-- player counts
-- best player count
-- solo support
-- BGG score
-- category
-- played status
-- John / Elizabeth ratings
-- expansion flag
-- "E knows?" readiness flag
-- year bought
-- notes
-- excluded flag for 2-player recommendations
-
-Play records are stored separately with:
-
-- date
-- game
-- winner
-- notes
-- John rating
-- Elizabeth rating
-
-## Storage
-
-The app uses browser `localStorage` for:
-
-- `bgv-plays`: logged plays
-- `bgv-cfg`: sync configuration and cached stats values
-- `bgv-2p-excl`: excluded games from the 2-player list
-
-If Google Sheets sync is configured, sheet data can override the local default collection on load.
-
-## How To Use
-
-Open the app directly in a browser:
-
-```bash
-open index.html
-```
-
-Or serve it locally:
-
-```bash
-python3 -m http.server
-```
-
-## Local Testing Tips
-
-For a beginner-friendly step-by-step checklist, see [TESTING.md](/Users/johnseggman/Codex/TESTING.md).
-
-For normal development, prefer a local web server over opening the file directly:
-
-```bash
-./dev-preview.sh
-```
-
-Then open [http://localhost:4173](http://localhost:4173) on your Mac.
-
-For iPhone PWA / service worker testing over HTTPS, use:
-
-```bash
-./dev-preview.sh --tunnel
-```
-
-That starts the local server and, if `cloudflared` is installed, prints a public `https://...trycloudflare.com` URL you can open in Safari on your iPhone.
-
-Useful habits while iterating:
-
-- Hard refresh after changes so the browser does not reuse a stale HTML document
-- Keep DevTools open and inspect the Application tab when checking service worker or cache behavior
-- Test the installed PWA separately from the regular browser tab, because they can hold different cached state
-- If Safari and Chrome on iPhone both look stale, remember they share the same WebKit engine and often the same underlying cache behavior
-
-For iPhone testing on the same Wi-Fi, you can also open your Mac's local server from the phone with:
-
-```text
-http://YOUR-MAC-LAN-IP:4173
-```
-
-Note: that is helpful for regular browser testing, but full PWA and service worker behavior on iPhone is most reliable on a real HTTPS host such as GitHub Pages or a secure tunnel.
-
-If `./dev-preview.sh --tunnel` says `cloudflared` is missing, install it first and rerun. Current install docs:
-
-- [Cloudflare Tunnel downloads](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
-
-Then open `index.html` in your browser.
-
-## Google Sheets Setup
-
-The app expects:
-
-- a `Games` sheet published as CSV
-- an optional `Plays` sheet published as CSV
-- an optional Apps Script web app for write-back operations
-- an optional stats sheet published as CSV
-
-Important sheet columns used by the code include:
+### `Games`
 
 - `Game`
 - `Shelf`
@@ -179,19 +57,56 @@ Important sheet columns used by the code include:
 - `BGG Score`
 - `BGG Category`
 - `Played`
-- `J Rating`
-- `E Rating`
 - `Expansion`
-- `E knows?`
-- `Potentially sell?`
-- `Year bought`
+- `Include`
+- `Exclude from 2P`
 - `Notes`
-- `Excluded`
+- `BGG Thumbnail`
+- `BGG URL`
 
-## Notes
+### `Plays`
 
-- `index.html` is the one file to edit for small text/UI/content updates
-- The app is currently framework-free and runs entirely in the browser
-- It depends on external Google Fonts and optional external CSV / Apps Script endpoints
-- CSV parsing and sync are implemented directly in the page script
-- Archived HTML snapshots are kept only for rollback/reference
+- `Date`
+- `Game`
+- `Participants`
+- `Winner Player #`
+- `Notes`
+- `P1 Rating`
+- `P2 Rating`
+- `P3 Rating`
+- `P4 Rating`
+- `P5 Rating`
+- `P6 Rating`
+
+## Local Preview
+
+Run a normal local preview:
+
+```bash
+cd /Users/johnseggman/Codex
+./dev-preview.sh
+```
+
+For an HTTPS preview tunnel:
+
+```bash
+./dev-preview.sh --tunnel
+```
+
+See [TESTING.md](/Users/johnseggman/Codex/TESTING.md) for the full step-by-step workflow.
+
+## Repo Structure
+
+- [index.html](/Users/johnseggman/Codex/index.html): main app
+- [service-worker.js](/Users/johnseggman/Codex/service-worker.js): PWA cache/update logic
+- [templates/google-sheets](/Users/johnseggman/Codex/templates/google-sheets): starter sheet headers/templates
+- [google-apps-script](/Users/johnseggman/Codex/google-apps-script): bound-script examples for Google Sheets
+- [services/bgg-enrichment](/Users/johnseggman/Codex/services/bgg-enrichment): hosted BGG enrichment service scaffold
+
+## BoardGameGeek
+
+This project is designed around a server-side BGG enrichment path. If you make the hosted enrichment service public, add the official “Powered by BGG” attribution and review BGG’s current XML API terms and registration requirements before deploying.
+
+## Contributing
+
+Small bug fixes, docs improvements, template updates, and UX polish are welcome. See [CONTRIBUTING.md](/Users/johnseggman/Codex/CONTRIBUTING.md).

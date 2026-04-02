@@ -399,6 +399,35 @@
   .filters-bar,
   .pctrls,
   .form-row{display:flex;flex-wrap:wrap;gap:.65rem;align-items:stretch;margin-bottom:.8rem;}
+  .player-chip-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.45rem;
+    min-height:2.65rem;
+  }
+  .player-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    padding:.55rem .8rem;
+    border-radius:14px;
+    border:1px solid var(--border2);
+    background:rgba(7,12,22,.9);
+    color:var(--text2);
+    font-size:.78rem;
+    font-family:var(--ui-font);
+  }
+  .player-chip input{
+    width:1rem;
+    height:1rem;
+    accent-color:var(--amber2);
+  }
+  .rating-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+    gap:.65rem;
+    margin-bottom:.8rem;
+  }
   .fgrp{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;width:100%;}
   .fsearch,
   .fc{
@@ -923,10 +952,10 @@
     .st td{border:none;padding:.3rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;}
     #stats-body td:nth-child(1)::before{content:'Game';}
     #stats-body td:nth-child(2)::before{content:'Plays';}
-    #stats-body td:nth-child(3)::before{content:'John W';}
-    #stats-body td:nth-child(4)::before{content:'Elizabeth W';}
-    #stats-body td:nth-child(5)::before{content:'Ties/Coop';}
-    #stats-body td:nth-child(6)::before{content:'Leader';}
+    #stats-body td:nth-child(3)::before{content:'Top Winner';}
+    #stats-body td:nth-child(4)::before{content:'Wins';}
+    #stats-body td:nth-child(5)::before{content:'Group Plays';}
+    #stats-body td:nth-child(6)::before{content:'Last Played';}
     #twoplayer-body td:nth-child(1)::before{content:'Game';}
     #twoplayer-body td:nth-child(2)::before{content:'Shelf';}
     #twoplayer-body td:nth-child(3)::before{content:'Best At';}
@@ -1075,7 +1104,7 @@
 <!-- PLAYS -->
 <div class="section" id="tab-plays" data-screen="Play Log">
   <div class="page-title">Arcade Session Log</div>
-  <div class="page-sub">Log every run, rivalry, co-op quest, and rating</div>
+  <div class="page-sub">Log every game night, group matchup, co-op quest, and rating</div>
   <div class="sbox">
     <div class="stitle">Log a Play</div>
     <div class="form-row">
@@ -1092,28 +1121,18 @@
     <div class="form-row">
       <div class="fg">
         <label>Winner</label>
-        <select class="fc" id="log-winner">
-          <option value="">— Select —</option>
-          <option value="John">John</option>
-          <option value="Elizabeth">Elizabeth</option>
-          <option value="Tie">Tie</option>
-          <option value="N/A (Coop)">N/A – Cooperative</option>
-          <option value="Other">Other</option>
-        </select>
+        <select class="fc" id="log-winner"></select>
       </div>
-      <div class="fg" style="max-width:100px;">
-        <label>J Rating (1-10)</label>
-        <input class="fc" type="number" id="log-jrat" min="1" max="10" placeholder="1-10">
-      </div>
-      <div class="fg" style="max-width:100px;">
-        <label>E Rating (1-10)</label>
-        <input class="fc" type="number" id="log-erat" min="1" max="10" placeholder="1-10">
+      <div class="fg" style="flex:2;">
+        <label>Participants</label>
+        <div class="player-chip-group" id="log-participants"></div>
       </div>
       <div class="fg">
         <label>Notes (optional)</label>
         <input class="fc" type="text" id="log-notes" placeholder="Quick notes...">
       </div>
     </div>
+    <div class="rating-grid" id="log-ratings"></div>
     <button class="btn btn-gold" onclick="logPlay()">Log Play</button>
   </div>
   <div id="play-log-list"></div>
@@ -1122,13 +1141,13 @@
 <!-- STATS -->
 <div class="section" id="tab-stats" data-screen="Scoreboard">
   <div class="page-title">Scoreboard + Records</div>
-  <div class="page-sub">Pixel scoreboard for every showdown, streak, and 2-player favorite</div>
+  <div class="page-sub">Pixel scoreboard for every showdown, squad, streak, and 2-player favorite</div>
   <div class="win-grid" id="win-stats"></div>
-  <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Per-Game Win Records</div>
+  <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Per-Game Records</div>
   <div class="twrap">
     <table class="st">
       <thead><tr>
-        <th>Game</th><th>Plays</th><th>John W</th><th>Elizabeth W</th><th>Ties/Coop</th><th>Leader</th>
+        <th>Game</th><th>Plays</th><th>Top Winner</th><th>Wins</th><th>Group Plays</th><th>Last Played</th>
       </tr></thead>
       <tbody id="stats-body"></tbody>
     </table>
@@ -1173,23 +1192,24 @@
 <!-- SETTINGS -->
 <div class="section" id="tab-settings" data-screen="Setup">
   <div class="page-title">Machine Setup</div>
-  <div class="page-sub">Tune the cabinet, sync the sheets, and keep the vault live across every screen</div>
+  <div class="page-sub">Copy the starter sheets, name your players, sync BGG details, and install the vault anywhere</div>
 
   <div class="sbox">
     <div class="stitle">How It Works</div>
     <p style="font-size:.82rem;color:var(--text2);line-height:1.7;margin-bottom:.9rem;">
-      Connect this dashboard to a Google Sheet so your <strong style="color:var(--text)">game list</strong> and <strong style="color:var(--text)">play log</strong> stay in sync. Add a new game to the sheet → refresh → it appears here. Log a play here → it writes back to the sheet.
+      Copy the starter Google Sheet, add your household or group players, publish the <strong style="color:var(--text)">Games</strong>, <strong style="color:var(--text)">Plays</strong>, and <strong style="color:var(--text)">Players</strong> tabs as CSV, then paste those links here. The app reads your sheets, but your data stays yours.
     </p>
     <div style="background:var(--bg3);border-radius:9px;padding:1rem 1.1rem;font-size:.8rem;color:var(--text2);line-height:2;border-left:3px solid var(--gold-dim);">
-      <strong style="color:var(--text);">Setup &mdash; your existing spreadsheet works as-is, no column changes needed:</strong><br>
-      1. Open <strong style="color:var(--text);">board_games_updated</strong> in Google Sheets (already in your Drive)<br>
-      2. Go to <strong style="color:var(--text);">File &rarr; Share &rarr; Publish to web</strong><br>
-      3. First dropdown: select the <strong style="color:var(--text);">Games</strong> tab &middot; Second: <strong style="color:var(--text);">Comma-separated values (.csv)</strong> &rarr; Publish &rarr; copy that URL<br>
-      4. Add a new tab named <strong style="color:var(--text);">Plays</strong> with four columns in row 1: <code style="font-family:'DM Mono',monospace;font-size:.74rem;color:var(--text);">Date | Game | Winner | Notes | J Rating | E Rating</code><br>
-      5. Back in Publish to web &mdash; publish the <strong style="color:var(--text);">Plays</strong> tab as CSV too &rarr; copy that URL<br>
-      6. Paste both URLs into the fields below and click <strong style="color:var(--text);">Save &amp; Sync</strong><br><br>
-      <strong style="color:var(--text);">Column mapping (your exact column names, no changes needed):</strong><br>
-      <span style="font-family:'DM Mono',monospace;font-size:.71rem;color:#c9a84c;">Game &middot; Shelf &middot; Players (Manufacturer) &middot; Best At &middot; Plays well at 2? - from chat &middot; Good solo option &middot; BGG Score &middot; BGG Category &middot; Played &middot; Rating &middot; Expansion &middot; E knows? &middot; Potentially sell? &middot; Notes</span>
+      <strong style="color:var(--text);">Beginner-friendly setup:</strong><br>
+      1. Copy the public <strong style="color:var(--text);">Game Vault template sheet</strong><br>
+      2. Fill in the <strong style="color:var(--text);">Players</strong> tab with `Player #` and each person’s name<br>
+      3. Add games manually or import them into <strong style="color:var(--text);">Games</strong><br>
+      4. Use the <strong style="color:var(--text);">Game Vault → BGG Sync</strong> menu in Google Sheets<br>
+      5. Publish the <strong style="color:var(--text);">Games</strong>, <strong style="color:var(--text);">Plays</strong>, and <strong style="color:var(--text);">Players</strong> tabs as CSV<br>
+      6. Paste those URLs into the fields below and click <strong style="color:var(--text);">Save &amp; Sync</strong><br>
+      7. Install the PWA on your phone if you want a homescreen app<br><br>
+      <strong style="color:var(--text);">Default public Plays columns:</strong><br>
+      <span style="font-family:'DM Mono',monospace;font-size:.71rem;color:#c9a84c;">Date &middot; Game &middot; Participants &middot; Winner Player # &middot; Notes &middot; P1 Rating &middot; P2 Rating &middot; P3 Rating &middot; P4 Rating &middot; P5 Rating &middot; P6 Rating</span>
     </div>
   </div>
 
@@ -1207,12 +1227,8 @@
       <input class="fc" id="cfg-plays" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=123&single=true&output=csv">
     </div></div>
     <div class="form-row"><div class="fg" style="flex:3;">
-      <label>Apps Script URL (optional, to write plays back to Sheets)</label>
-      <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec">
-    </div></div>
-    <div class="form-row"><div class="fg" style="flex:3;">
-      <label>Stats Sheet — CSV Publish URL <span style="color:var(--text3);font-weight:400;text-transform:none;">(optional — for live $ spent)</span></label>
-      <input class="fc" id="cfg-stats" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv">
+      <label>Players Sheet — CSV Publish URL</label>
+      <input class="fc" id="cfg-players" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=456&single=true&output=csv">
     </div></div>
     <div style="display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;margin-top:.2rem;">
       <button class="btn btn-gold" onclick="saveConfig()">Save & Sync</button>
@@ -1221,115 +1237,37 @@
     </div>
   </div>
 
-
-
-  <div class="sbox" style="opacity:0.75;">
-    <div class="stitle">Global Filter <span style="color:var(--text3);font-weight:400;text-transform:none;font-family:'DM Sans',sans-serif;font-size:.78rem;letter-spacing:0;">&nbsp;— applies across all tabs</span></div>
-    <div style="display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;">
-      <div class="fg" style="max-width:220px;">
-        <label>Ready to Play?</label>
-        <select class="fc" id="gf-eknows" onchange="applyGlobalFilters()">
-          <option value="">All games</option>
-          <option value="1">Yes</option>
-          <option value="0">No</option>
-        </select>
-      </div>
-      <div class="fg" style="max-width:220px;">
-        <label>Year bought</label>
-        <select class="fc" id="gf-year" onchange="applyGlobalFilters()">
-          <option value="">All years</option>
-          <option value="2026">2026</option>
-          <option value="before">Before 2026</option>
-        </select>
-      </div>
-    </div>
-    <div id="gf-active-msg" style="margin-top:.6rem;font-size:.75rem;color:var(--amber);font-family:'DM Mono',monospace;display:none;">
-      ⚠ Global filter active — collection, stats &amp; picker are filtered
+  <div class="sbox">
+    <div class="stitle" style="cursor:pointer;" onclick="toggleGuide()">▸ Public Template Guide <span style="color:var(--text3);">(click to expand)</span></div>
+    <div id="guide-body" style="display:none;margin-top:.8rem;">
+      <p style="font-size:.8rem;color:var(--text2);margin-bottom:.7rem;">Use the public template and companion bound script from this repo. The intended launch flow is:</p>
+      <pre style="background:var(--bg3);border-radius:8px;padding:1rem;font-size:.72rem;color:#a8d8a8;line-height:1.7;">1. Copy the public Google Sheets template
+2. Fill in the Players tab (Player # | Name)
+3. Add or import games into Games
+4. Use the "Game Vault → BGG Sync" spreadsheet menu
+5. Publish Games, Plays, and Players as CSV
+6. Paste those CSV URLs into this app
+7. Install the PWA for phone-friendly use</pre>
     </div>
   </div>
 
   <div class="sbox">
-    <div class="stitle" style="cursor:pointer;" onclick="toggleGuide()">▸ Apps Script for Writing Plays Back to Sheets <span style="color:var(--text3);">(click to expand)</span></div>
-    <div id="guide-body" style="display:none;margin-top:.8rem;">
-      <p style="font-size:.8rem;color:var(--text2);margin-bottom:.7rem;">In your Google Sheet, go to <strong style="color:var(--text);">Extensions → Apps Script</strong>, paste this, then <strong style="color:var(--text);">Deploy → New deployment → Web app</strong> (Execute as: Me, Access: Anyone):</p>
-      <pre style="background:var(--bg3);border-radius:8px;padding:1rem;font-size:.7rem;color:#a8d8a8;line-height:1.6;">function doPost(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var data = JSON.parse(e.postData.contents);
-
-  // Log play to Plays sheet
-  if (data.action === "add" || data.action === "delete") {
-    var playsSheet = ss.getSheetByName("Plays");
-    if (!playsSheet) {
-      playsSheet = ss.insertSheet("Plays");
-      playsSheet.appendRow(["Date","Game","Winner","Notes","J Rating","E Rating"]);
-    }
-    if (data.action === "add") {
-      playsSheet.appendRow([data.date, data.game, data.winner, data.notes || "", data.jRat || "", data.eRat || ""]);
-      // Mark game as Played + write ratings to Games sheet
-      if (data.markPlayed || data.jRat || data.eRat) {
-        var gamesSheet = ss.getSheetByName("Games");
-        if (gamesSheet) {
-          var gv = gamesSheet.getDataRange().getValues();
-          var headers = gv[0];
-          // Find columns by name — robust to column order changes
-          var playedCol  = headers.indexOf("Played")   + 1; // col J = 10
-          var jRatCol    = headers.indexOf("J Rating")  + 1; // col K = 11
-          var eRatCol    = headers.indexOf("E Rating")  + 1; // col L = 12
-          for (var i = 1; i < gv.length; i++) {
-            if (gv[i][0] === data.game) {
-              if (data.markPlayed && playedCol > 0) {
-                var cur = (gv[i][playedCol-1]||'').toString().toLowerCase();
-                if (cur !== 'yes') gamesSheet.getRange(i+1, playedCol).setValue("Yes");
-              }
-              if (data.jRat && jRatCol > 0) {
-                gamesSheet.getRange(i+1, jRatCol).setValue(parseFloat(data.jRat));
-              }
-              if (data.eRat && eRatCol > 0) {
-                gamesSheet.getRange(i+1, eRatCol).setValue(parseFloat(data.eRat));
-              }
-              break;
-            }
-          }
-        }
-      }
-    } else if (data.action === "delete") {
-      var v = playsSheet.getDataRange().getValues();
-      for (var i = v.length - 1; i >= 1; i--) {
-        if (v[i][0]==data.date && v[i][1]==data.game && v[i][2]==data.winner) {
-          playsSheet.deleteRow(i + 1); break;
-        }
-      }
-    }
-  }
-
-  // Update Excluded column (found by header name) in Games sheet
-  if (data.action === "exclude") {
-    var gamesSheet = ss.getSheetByName("Games");
-    if (gamesSheet) {
-      var gv = gamesSheet.getDataRange().getValues();
-      // Find or create the Excluded column
-      var headers = gv[0];
-      var exclCol = headers.indexOf('Excluded') + 1; // 1-based
-      if (exclCol === 0) {
-        // Column doesn't exist yet - add it after last column
-        exclCol = gv[0].length + 1;
-        gamesSheet.getRange(1, exclCol).setValue('Excluded');
-      }
-      for (var i = 1; i < gv.length; i++) {
-        if (gv[i][0] === data.game) {
-          gamesSheet.getRange(i + 1, exclCol).setValue(data.excluded ? 1 : '');
-          break;
-        }
-      }
-    }
-  }
-
-  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
-}
-function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
-}</pre>
+    <div class="stitle">Support The Project</div>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.7;margin-bottom:.9rem;">
+      If Game Vault helps your household or game night, you can support future improvements with a donation.
+    </p>
+    <div class="notes-box" style="margin-top:0;">
+      Replace the placeholder links in the app or README with your own:
+      <br>Ko-fi: <code>https://ko-fi.com/YOUR_NAME</code>
+      <br>Buy Me a Coffee: <code>https://buymeacoffee.com/YOUR_NAME</code>
+      <br>GitHub Sponsors: <code>https://github.com/sponsors/YOUR_GITHUB</code>
+      <br>Venmo (optional extra): <code>https://venmo.com/u/YOUR_HANDLE</code>
     </div>
+    <p style="font-size:.75rem;color:var(--text3);margin:.85rem 0 0;line-height:1.6;">
+      BoardGameGeek data sync should include the required
+      <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" style="color:var(--text2);">Powered by BGG</a>
+      attribution anywhere you publish the hosted enrichment service.
+    </p>
   </div>
 </div>
 </main>
@@ -1351,25 +1289,15 @@ function doGet(e) {
       <div class="fg" style="max-width:138px;"><label>Date</label><input type="date" class="fc" id="m-date"></div>
       <div class="fg">
         <label>Winner</label>
-        <select class="fc" id="m-winner">
-          <option value="">— Select —</option>
-          <option value="John">John</option>
-          <option value="Elizabeth">Elizabeth</option>
-          <option value="Tie">Tie</option>
-          <option value="N/A (Coop)">N/A – Cooperative</option>
-          <option value="Other">Other</option>
-        </select>
+        <select class="fc" id="m-winner"></select>
+      </div>
+      <div class="fg">
+        <label>Participants</label>
+        <div class="player-chip-group" id="m-participants"></div>
       </div>
     </div>
+    <div class="rating-grid" id="m-ratings"></div>
     <div class="form-row">
-      <div class="fg" style="max-width:90px;">
-        <label>J Rating</label>
-        <input class="fc" type="number" id="m-jrat" min="1" max="10" placeholder="1-10">
-      </div>
-      <div class="fg" style="max-width:90px;">
-        <label>E Rating</label>
-        <input class="fc" type="number" id="m-erat" min="1" max="10" placeholder="1-10">
-      </div>
       <div class="fg"><label>Notes</label><input class="fc" type="text" id="m-notes-in" placeholder="Optional..."></div>
     </div>
     <button class="btn btn-gold btn-sm" onclick="logModal()">Log Play</button>
@@ -1392,147 +1320,116 @@ function doGet(e) {
 
 <script>
 // ═══════════════════════════════════════════════
-// COMPLETE GAME DATA (108 games from your sheet)
+// STARTER DATA FOR FIRST-RUN DEMOS
 // ═══════════════════════════════════════════════
 const DEFAULT_GAMES = [
-  // 2-PLAYER (35 entries)
-  {n:"7 Wonders Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Air Land & Sea: Spies, Lies, & Supplies",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Military, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Agent Avenue",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.2,cat:"Card Game, Deduction, Spy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Azul Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Abstract Strategy, Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Bottom of the 9th",s:"2-Player",pl:"1–2",plBGG:"1-2",ba:"2",so:"Yes",bg:7.0,cat:"Dice Game, Sports, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Compile: Main 1",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Compile: Main 2",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Dice Throne: Season 2 - Gunslinger vs. Samurai",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Dice Rolling, Combat, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Flamecraft: Duals",s:"2-Player",pl:"2",plBGG:"1-2",ba:"2",so:"No",bg:7.4,cat:"Card Game, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Ironwood",s:"2-Player",pl:"2–4",plBGG:"1-2",ba:"2",so:"No",bg:7.6,cat:"Area Control, Fantasy, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"King of Tokyo Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Dice, Fighting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Lord of the Rings: Duel for Middle-Earth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Area Control, Fantasy",played:true,jRat:"9",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Lord of the Rings: Duel for Middle-Earth - Allies (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Area Control, Fantasy",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Lost Cities",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:"Like solitaire"},
-  {n:"Mind MGMT",s:"2-Player",pl:"2–5",plBGG:"1-5",ba:"3–4",so:"No",bg:8.0,cat:"Asymmetric, Deduction, Hidden Role",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Mindbug: First Contact",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"NFL Showdown",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:6.3,cat:"Sports, Dice Game",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"Me, Johnny, and Jack can play this"},
-  {n:"Radlands",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"In retrospect, bad purchase – FOMO got the best of me"},
-  {n:"Radlands Cult of Chrome Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.5,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Sky Team",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.2,cat:"Cooperative, Aviation",played:true,jRat:"9",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Splendor Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Economic, Abstract",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Realms",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Realms: Frontiers",s:"2-Player",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:7.8,cat:"Deck-Building, Sci-Fi, Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars X-Wing First Edition - 2x Core Sets - Force Awakens, Original; Heroes of the Resistance Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Wars X-Wing First Edition Tie Advanced Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: Battle of Hoth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.4,cat:"Wargame, Tactical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: The Deckbuilding Game",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:true,jRat:"8",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: The Deckbuilding Game - Mandalorian Faction Pack (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Summoner Wars",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:7.7,cat:"Card Game, Fantasy, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Undaunted: Normandy",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Wargame, Deck-Building, WWII",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Undaunted: Stalingrad",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Wargame, Deck-Building, Campaign",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched - Bruce Lee vs. Muhammad Ali",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:8.1,cat:"Card Game, Fighting",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched: Battle of Legends Vol. 2",s:"2-Player",pl:"2–4",plBGG:"2,4",ba:"2,4",so:"No",bg:8.2,cat:"Card Game, Fighting, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Watergate",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.9,cat:"Political, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  // ADULT (17)
-  {n:"7 Wonders",s:"Adult",pl:"2–7",plBGG:"3-7",ba:"4–5",so:"No",bg:7.7,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Been a long long time"},
-  {n:"Arcs",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:8.5,cat:"Strategy, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Cascadia",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2–3",so:"Yes",bg:7.8,cat:"Tile Placement, Nature",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Catan",s:"Adult",pl:"3–4",plBGG:"3-4",ba:"4",so:"No",bg:7.2,cat:"Negotiation, Territory Building, Resource Management",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Catan: Game of Thrones",s:"Adult",pl:"3–4",plBGG:"",ba:"4",so:"No",bg:7.1,cat:"Negotiation, Territory Building, Fantasy",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:false,year:"",excluded:false,notes:"Sell candidate"},
-  {n:"Clank!: Catacombs",s:"Adult",pl:"2–4",plBGG:"2-4, Best: 3",ba:"3–4",so:"No",bg:8.2,cat:"Deck-Building, Adventure, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Dominion",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.6,cat:"Deck-Building",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"Yes",bg:8.4,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium: Rise of Ix (Expansion)",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"No",bg:8.8,cat:"Strategy, Sci-Fi, Worker Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium: Uprising",s:"Adult",pl:"1–4",plBGG:"1-4,6",ba:"3–4",so:"No",bg:8.7,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Lost Ruins of Arnak",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:8.1,cat:"Deck-Building, Worker Placement, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Risk",s:"Adult",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:5.6,cat:"Area Control, Wargame",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Need to play with kids now"},
-  {n:"Space Base",s:"Adult",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:7.7,cat:"Dice Game, Engine Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Thief's Market - Retail + Promo Pack",s:"Adult",pl:"2–5",plBGG:"3-5, Best: 4",ba:"4",so:"No",bg:6.8,cat:"Set Collection, Negotiation, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Thunder Road: Vendetta",s:"Adult",pl:"2–5",plBGG:"3-4",ba:"4–5",so:"No",bg:7.9,cat:"Racing, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched Adventures: Tales to Amaze",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"No",bg:8.1,cat:"Cooperative, Miniatures, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  // FAMILY (25)
-  {n:"Antiquity Quest",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:6.6,cat:"Family, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Like canasta"},
-  {n:"Azul",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.8,cat:"Abstract Strategy, Tile Placement",played:true,jRat:"8",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Only played as 2-player"},
-  {n:"Bunny Kingdom",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:7.4,cat:"Area Control, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Play as 2-player next. Parents have this too."},
-  {n:"Carcassonne",s:"Family",pl:"2–5",plBGG:"2-5",ba:"2",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"At grandma's house"},
-  {n:"Cartographers: Heroes",s:"Family",pl:"1–100",plBGG:"1-10",ba:"1",so:"Yes",bg:7.7,cat:"Roll & Write, Fantasy, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Castle Combo",s:"Family",pl:"2–5",plBGG:"2-4",ba:"2",so:"No",bg:7.7,cat:"Card Drafting, Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Castle Panic",s:"Family",pl:"1–6",plBGG:"1-6",ba:"4",so:"No",bg:6.6,cat:"Cooperative, Tower Defense",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Cover Your Assets",s:"Family",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.4,cat:"Set Collection",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"J is over it. Good one with kids."},
-  {n:"Cover Your Kingdom",s:"Family",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.3,cat:"Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Forbidden Island",s:"Family",pl:"2–4",plBGG:"1-4",ba:"4",so:"No",bg:6.8,cat:"Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Kingdomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Kingdomino: Age of Giants (Expansion)",s:"Family",pl:"2–5",plBGG:"2-5",ba:"5",so:"No",bg:7.2,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Monopoly Deal",s:"Family",pl:"2–5",plBGG:"2-3+",ba:"3",so:"No",bg:6.4,cat:"Economic, Card Game",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
-  {n:"Queendomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.1,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Qwixx",s:"Family",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:6.9,cat:"Dice Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Santorini",s:"Family",pl:"2–4",plBGG:"2-3",ba:"2",so:"No",bg:7.6,cat:"Abstract Strategy, Mythology",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Scout",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:7.7,cat:"Ladder Climbing, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Sea Salt and Paper",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Set Collection, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Skip-Bo",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:5.4,cat:"Card Game, Classic",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
-  {n:"Splendor",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.4,cat:"Economic, Abstract",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Sushi Go",s:"Family",pl:"2–5",plBGG:"3-5",ba:"5",so:"No",bg:7.0,cat:"Card Drafting, Set Collection",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"The Crew: Mission Deep Sea",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:8.0,cat:"Cooperative, Trick-taking",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"The Lost Expedition Card Game",s:"Family",pl:"1–6",plBGG:"1-3",ba:"3",so:"Yes",bg:7.2,cat:"Cooperative, Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"The Quest for El Dorado",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Race, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Ticket to Ride",s:"Family",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.4,cat:"Network Building, Route",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Yahtzee",s:"Family",pl:"2–10",plBGG:"",ba:"4",so:"No",bg:5.6,cat:"Dice Game, Classic",played:true,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // PARTY (13)
-  {n:"6 Nimmt!",s:"Party",pl:"2–10",plBGG:"3-8",ba:"5–8",so:"No",bg:7.0,cat:"Card Game, Party",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Decrypto",s:"Party",pl:"3–8",plBGG:"4-8",ba:"4–6",so:"No",bg:7.8,cat:"Word Game, Party, Deduction",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Exploding Kittens",s:"Party",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:5.9,cat:"Card Game, Party, Humor",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Exploding Kittens: Good vs Evil",s:"Party",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.2,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Imploding Kittens (Expansion)",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:6.5,cat:"Card Game, Party",played:false,jRat:"5",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Love Letter",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:7.2,cat:"Card Game, Deduction",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Mantis",s:"Party",pl:"2–6",plBGG:"2-6",ba:"4–5",so:"No",bg:6.5,cat:"Card Game, Party, Set Collection",played:false,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Mountain Goats",s:"Party",pl:"2–5",plBGG:"2-4",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Mountain Goats: Big Mountain (Expansion)",s:"Party",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Power Hungry Pets",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.8,cat:"Card Game, Party, Humor",played:false,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Saboteur",s:"Party",pl:"3–10",plBGG:"",ba:"7",so:"No",bg:6.6,cat:"Card Game, Party, Deduction",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"The Resistance: Avalon",s:"Party",pl:"5–10",plBGG:"",ba:"7",so:"No",bg:7.7,cat:"Social Deduction, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Zombie Kittens",s:"Party",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.3,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // KIDS (11)
-  {n:"A Game of Cat and Mouth Pinball Game",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:7.1,cat:"Dexterity, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Bounce Off",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.8,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Chicken vs Hot Dog",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.0,cat:"Card Game, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Connect 4",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:5.8,cat:"Abstract Strategy, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Enchanted Forest",s:"Kids",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.7,cat:"Children's, Memory",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"HABA Rhino Hero",s:"Kids",pl:"2–5",plBGG:"",ba:"4",so:"No",bg:7.2,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"My First Stone Age",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:7.1,cat:"Children's, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Parcheesi",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.2,cat:"Race Game, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Race to the Treasure",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.8,cat:"Cooperative, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Throw Throw Burrito",s:"Kids",pl:"2–6",plBGG:"",ba:"4–6",so:"No",bg:6.2,cat:"Dexterity, Party",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Trouble",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:4.6,cat:"Children's Game, Race",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // SOLO (8)
-  {n:"Hadrian's Wall",s:"Solo",pl:"1–6",plBGG:"1",ba:"1",so:"Yes",bg:8.0,cat:"Roll & Write, Historical, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Imperium: Classics",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"2",so:"Yes",bg:7.6,cat:"Civilization, Deck-Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Legacy of Yu",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.7,cat:"Solo, Deck-Building, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Marvel Champions LCG - Core Set",s:"Solo",pl:"1–4",plBGG:"1-3",ba:"2",so:"Yes",bg:8.0,cat:"Cooperative, Card Game, Superhero",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Resist!",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.4,cat:"Card Game, Solo, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Solo Hero Series: Warp's Edge",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.6,cat:"Solo, Bag Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Sprawlopolis",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"1",so:"Yes",bg:7.5,cat:"Solo, Tile Laying, City Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Under Falling Skies",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.8,cat:"Solo, Sci-Fi, Dice Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
+  {n:"Sky Team",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.2,cat:"Cooperative, Aviation",played:true,exp:false,year:"2024",excluded:false,include:true,notes:"Excellent example of a focused 2-player showdown."},
+  {n:"Radlands",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Card Game, Tactical",played:true,exp:false,year:"2025",excluded:false,include:true,notes:"Quick tactical duels with strong head-to-head stats."},
+  {n:"Cascadia",s:"Family",pl:"1-4",plBGG:"1-4",ba:"2-3",so:"Yes",bg:7.8,cat:"Nature, Tile Placement",played:true,exp:false,year:"2024",excluded:false,include:true,notes:"Flexible family favorite with solo support."},
+  {n:"Ticket to Ride",s:"Family",pl:"2-5",plBGG:"2-5",ba:"4",so:"No",bg:7.4,cat:"Route Building, Family",played:true,exp:false,year:"2023",excluded:false,include:true,notes:"Great baseline game for group stats."},
+  {n:"Scout",s:"Party",pl:"2-5",plBGG:"3-5",ba:"4",so:"No",bg:7.7,cat:"Card Game, Ladder Climbing",played:false,exp:false,year:"2025",excluded:false,include:true,notes:"A clean sample for wishlist or unplayed status."},
+  {n:"Decrypto",s:"Party",pl:"3-8",plBGG:"4-8",ba:"4-6",so:"No",bg:7.8,cat:"Party, Word Game, Deduction",played:true,exp:false,year:"2024",excluded:false,include:true,notes:"Strong example of a 4-player party log."},
+  {n:"Marvel Champions",s:"Solo",pl:"1-4",plBGG:"1-3",ba:"1-2",so:"Yes",bg:8.0,cat:"Card Game, Cooperative, Superhero",played:false,exp:false,year:"2025",excluded:false,include:true,notes:"Useful example for solo-friendly collections."},
+  {n:"Dune: Imperium - Uprising",s:"Adult",pl:"1-4",plBGG:"1-4",ba:"3-4",so:"No",bg:8.7,cat:"Strategy, Deck Building, Worker Placement",played:false,exp:false,year:"2025",excluded:false,include:true,notes:"Heavy game sample for larger-group planning."},
+  {n:"Kingdomino",s:"Family",pl:"2-4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.4,cat:"Tile Placement, Family",played:true,exp:false,year:"2023",excluded:false,include:true,notes:"Good quick-play sample for ratings."},
+  {n:"Radlands: Cult of Chrome",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.5,cat:"Card Game, Expansion",played:false,exp:true,year:"2026",excluded:false,include:true,notes:"Sample expansion row for the collection view."}
+];
+
+const DEFAULT_PLAYERS = [
+  {number:"1",name:"Alex"},
+  {number:"2",name:"Casey"},
+  {number:"3",name:"Jordan"},
+  {number:"4",name:"Riley"}
+];
+
+const DEFAULT_PLAYS = [
+  {date:"2026-03-27",game:"Sky Team",participants:["1","2"],winnerType:"coop",winnerPlayer:"",notes:"Narrow runway, great finish.",ratings:{"1":"9","2":"9"}},
+  {date:"2026-03-24",game:"Radlands",participants:["1","2"],winnerType:"player",winnerPlayer:"1",notes:"Alex pulled off a late raider combo.",ratings:{"1":"8","2":"7"}},
+  {date:"2026-03-21",game:"Ticket to Ride",participants:["1","2","3","4"],winnerType:"player",winnerPlayer:"3",notes:"First full-group sample game.",ratings:{"1":"7","2":"8","3":"8","4":"7"}},
+  {date:"2026-03-18",game:"Kingdomino",participants:["1","2"],winnerType:"player",winnerPlayer:"2",notes:"Quick lunch-table rematch.",ratings:{"1":"7","2":"8"}},
+  {date:"2026-03-14",game:"Decrypto",participants:["1","2","3","4"],winnerType:"player",winnerPlayer:"4",notes:"Great table energy with teams rotating.",ratings:{"1":"8","2":"8","3":"7","4":"9"}}
 ];
 
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
 let GAMES = DEFAULT_GAMES.map(g=>({...g}));
-let plays = JSON.parse(localStorage.getItem('bgv-plays')||'[]');
+let PLAYERS = DEFAULT_PLAYERS.map(player => ({...player}));
+const storedPlays = localStorage.getItem('bgv-plays');
+let plays = storedPlays ? JSON.parse(storedPlays) : DEFAULT_PLAYS.map(play => ({...play}));
 let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
-// Hardcoded defaults — override if not already set by user
-if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
-if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
-if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
-if (!cfg.scriptUrl) cfg.scriptUrl = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
 let filters = {shelf:[],status:null,shelfInitialized:false};
 let picks = {shelf:[],played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
-// Global filters (set in Sync tab, applied everywhere)
-let globalFilters = JSON.parse(localStorage.getItem('bgv-global-filters') || '{"eKnows":"1","year":""}');
-if (typeof globalFilters !== 'object' || globalFilters === null) globalFilters = {eKnows:'1', year:''};
-globalFilters.eKnows = globalFilters.eKnows ?? '1';
-globalFilters.year = globalFilters.year ?? '';
 let twoPlayerMode = 'good'; // 'best' = Best At contains 2, 'good' = BGG Comm contains 2 or 1-
 let twoPlayerExcludedShelves = new Set([]); // Kids always excluded via logic
 let twoPlayerExcludedGames = new Set(JSON.parse(localStorage.getItem('bgv-2p-excl') || '[]'));
+
+const MAX_PLAYERS = 6;
+const RESULT_OPTIONS = [
+  { value: '', label: '— Select —' },
+  { value: 'tie', label: 'Tie' },
+  { value: 'coop', label: 'Cooperative / Shared Win' },
+  { value: 'other', label: 'Other / External Player' }
+];
+
+function normalizePlayers(players){
+  const seen = new Set();
+  const normalized = players
+    .map(player => ({
+      number: String(player.number || '').trim(),
+      name: String(player.name || '').trim()
+    }))
+    .filter(player => player.number && player.name && !seen.has(player.number) && seen.add(player.number))
+    .sort((a, b) => Number(a.number) - Number(b.number));
+  return normalized.length ? normalized.slice(0, MAX_PLAYERS) : Array.from({length: 2}, (_, idx) => ({ number: String(idx + 1), name: `Player ${idx + 1}` }));
+}
+
+function getPlayerName(number){
+  return PLAYERS.find(player => player.number === String(number))?.name || `Player ${number}`;
+}
+
+function getRatingKeys(){
+  return Array.from({length: MAX_PLAYERS}, (_, idx) => String(idx + 1));
+}
+
+function normalizePlayRecord(play){
+  const winnerRaw = String(play.winnerPlayer ?? play.winner ?? '').trim();
+  const ratings = {};
+  getRatingKeys().forEach(key => {
+    const raw = play.ratings?.[key] ?? play[`p${key}Rating`] ?? play[`P${key} Rating`] ?? '';
+    if (raw !== '') ratings[key] = String(raw);
+  });
+  let winnerPlayer = '';
+  let winnerType = 'player';
+  if (winnerRaw.toLowerCase() === 'tie') winnerType = 'tie';
+  else if (winnerRaw.toLowerCase().includes('coop')) winnerType = 'coop';
+  else if (winnerRaw.toLowerCase() === 'other') winnerType = 'other';
+  else if (PLAYERS.some(player => player.name.toLowerCase() === winnerRaw.toLowerCase())) {
+    winnerPlayer = PLAYERS.find(player => player.name.toLowerCase() === winnerRaw.toLowerCase()).number;
+  } else if (/^\d+$/.test(winnerRaw)) {
+    winnerPlayer = winnerRaw;
+  } else if (winnerRaw) {
+    winnerType = 'other';
+  }
+  const participants = Array.isArray(play.participants)
+    ? play.participants.map(String)
+    : String(play.participants || '')
+        .split(/[|,;]/)
+        .map(item => item.trim())
+        .filter(Boolean);
+  return {
+    date: String(play.date || ''),
+    game: String(play.game || ''),
+    participants,
+    winnerPlayer,
+    winnerType,
+    notes: String(play.notes || ''),
+    ratings
+  };
+}
+
+plays = plays.map(normalizePlayRecord).filter(play => play.date && play.game);
 
 function save2pExclusions() {
   localStorage.setItem('bgv-2p-excl', JSON.stringify([...twoPlayerExcludedGames]));
@@ -1559,28 +1456,13 @@ function set2pMode(mode, btn) {
 function excludeGame(name) {
   twoPlayerExcludedGames.add(name);
   save2pExclusions();
-  // Also update sheet if Apps Script is connected
-  if (cfg.scriptUrl) pushExclusion(name, true);
   renderTwoPlayer();
 }
 
 function includeGame(name) {
   twoPlayerExcludedGames.delete(name);
-  // Also clear sheet flag if Apps Script is connected
-  if (cfg.scriptUrl) pushExclusion(name, false);
-  // If the game has g.excluded=true from sheet, sync will clear it on next sync
   save2pExclusions();
   renderTwoPlayer();
-}
-
-async function pushExclusion(name, excluded) {
-  if (!cfg.scriptUrl) return;
-  try {
-    await fetch(cfg.scriptUrl, {
-      method: 'POST',
-      body: JSON.stringify({action: 'exclude', game: name, excluded: excluded})
-    });
-  } catch(e) {}
 }
 
 function toggleExcluded() {
@@ -1595,39 +1477,8 @@ function toggleExcluded() {
   }
 }
 
-function applyGlobalFilters() {
-  globalFilters.eKnows = document.getElementById('gf-eknows')?.value || '';
-  globalFilters.year   = document.getElementById('gf-year')?.value || '';
-  saveGlobalFilters();
-  const active = globalFilters.eKnows || globalFilters.year;
-  const msg = document.getElementById('gf-active-msg');
-  if (msg) msg.style.display = active ? 'block' : 'none';
-  updateInvestedCard();
-  renderCollection(); renderStats(); renderTwoPlayer();
-  if(document.getElementById('tab-plays').classList.contains('active')) renderPlays();
-}
-
 function passesGlobal(g) {
-  if (globalFilters.eKnows === '1' && !g.eKnows) return false;
-  if (globalFilters.eKnows === '0' && g.eKnows) return false;
-  if (globalFilters.year && g.year !== globalFilters.year) return false;
-  return true;
-}
-
-function updateInvestedCard() {
-  const el = document.getElementById('stat-invested');
-  if (!el) return;
-  const useEKnows = globalFilters.eKnows === '1' && cfg.eKnowsInvested;
-  el.textContent = '$' + (useEKnows ? cfg.eKnowsInvested : (cfg.invested || '…'));
-}
-
-function populateYearFilter() {
-  const sel = document.getElementById('gf-year');
-  if (!sel) return;
-  const years = [...new Set(GAMES.map(g=>g.year).filter(y=>y))].sort();
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">All years</option>' +
-    years.map(y => `<option value="${y}"${cur===y?' selected':''}>${y}</option>`).join('');
+  return g.include !== false;
 }
 
 function isCoop(g) {
@@ -1658,7 +1509,75 @@ function supportsPlayerCount(g, n) {
 
 function savePlays(){localStorage.setItem('bgv-plays',JSON.stringify(plays));}
 function saveCfg(){localStorage.setItem('bgv-cfg',JSON.stringify(cfg));}
-function saveGlobalFilters(){localStorage.setItem('bgv-global-filters', JSON.stringify(globalFilters));}
+
+function getSelectedParticipants(scope){
+  return [...document.querySelectorAll(`#${scope}-participants input:checked`)].map(input => input.value);
+}
+
+function setSelectedParticipants(scope, selected){
+  const set = new Set((selected || []).map(String));
+  document.querySelectorAll(`#${scope}-participants input`).forEach(input => {
+    input.checked = set.has(input.value);
+  });
+}
+
+function renderWinnerOptions(selectedValue = ''){
+  const playerOptions = PLAYERS.map(player => `<option value="${player.number}">${player.name}</option>`).join('');
+  return RESULT_OPTIONS.map(option => `<option value="${option.value}"${selectedValue === option.value ? ' selected' : ''}>${option.label}</option>`).join('') + playerOptions;
+}
+
+function renderParticipantChips(containerId){
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const scope = containerId.split('-')[0];
+  container.innerHTML = PLAYERS.map(player => `
+    <label class="player-chip">
+      <input type="checkbox" value="${player.number}" data-scope="${scope}">
+      <span>${player.name}</span>
+    </label>
+  `).join('');
+}
+
+function renderRatingInputs(containerId, values = {}){
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const prefix = containerId.split('-')[0];
+  container.innerHTML = PLAYERS.map(player => `
+    <div class="fg" style="max-width:130px;">
+      <label>${player.name} Rating</label>
+      <input class="fc" type="number" id="${prefix}-rating-${player.number}" min="1" max="10" placeholder="1-10" value="${escAttr(values[player.number] || '')}">
+    </div>
+  `).join('');
+}
+
+function getRatingValues(prefix){
+  const ratings = {};
+  PLAYERS.forEach(player => {
+    const value = document.getElementById(`${prefix}-rating-${player.number}`)?.value || '';
+    if (value !== '') ratings[player.number] = value;
+  });
+  return ratings;
+}
+
+function getWinnerLabel(play){
+  if (play.winnerType === 'tie') return 'Tie';
+  if (play.winnerType === 'coop') return 'Co-op';
+  if (play.winnerType === 'other') return 'Other';
+  if (play.winnerPlayer) return getPlayerName(play.winnerPlayer);
+  return '—';
+}
+
+function getWinnerColor(play){
+  if (play.winnerType === 'tie') return 'var(--gold)';
+  if (play.winnerType === 'coop') return 'var(--green)';
+  if (play.winnerType === 'other') return 'var(--text2)';
+  const colors = ['#7ab0d4','#d492c0','#ffd166','#6effc1','#ff8ad8','#66d9ff'];
+  return colors[Math.max(0, Number(play.winnerPlayer || '1') - 1) % colors.length];
+}
+
+function getParticipantNames(play){
+  return (play.participants || []).map(getPlayerName).join(', ');
+}
 
 // ═══════════════════════════════════════
 // SHELF BADGE CLASS
@@ -1860,53 +1779,44 @@ function renderCollection(){
   renderShelfControls();
   const filtered = getFiltered();
   const allBase = GAMES.filter(g=>!g.exp);
-  const kids = GAMES.filter(g=>hasShelfValue(g.s,'Kids')&&!g.exp);
-  const exps = GAMES.filter(g=>g.exp);
-  const played = allBase.filter(g=>g.played).length;
-
-  // Always use full GAMES for structural counts (subtitle), global filter for stats
-  const goodStuff = GAMES.filter(g=>!hasShelfValue(g.s,'Kids'));
-  // Subtitle respects global filter
-  const gfAll = GAMES.filter(g=>passesGlobal(g));
-  const gfKids = gfAll.filter(g=>hasShelfValue(g.s,'Kids'));
-  const gfGoodStuffBase = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&!g.exp);
-  const gfGoodStuffExp  = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&g.exp);
+  const publicGames = GAMES.filter(g=>passesGlobal(g));
+  const baseGames = publicGames.filter(g=>!g.exp);
+  const expansions = publicGames.filter(g=>g.exp);
+  const playedGames = publicGames.filter(g=>g.played).length;
+  const unplayedGames = publicGames.filter(g=>!g.played).length;
+  const playedPct = publicGames.length > 0 ? Math.round(playedGames / publicGames.length * 100) : 0;
   document.getElementById('col-sub').textContent =
-    `${gfGoodStuffBase.length} base games · ${gfGoodStuffExp.length} expansions · ${gfKids.length} children's · ${gfAll.length} total`;
-
-  // Stats respect global filter
-  const gfGoodStuff = GAMES.filter(g=>!hasShelfValue(g.s,'Kids') && passesGlobal(g));
-  const goodStuffBase = gfGoodStuff.filter(g=>!g.exp);
-  const goodStuffExps = gfGoodStuff.filter(g=>g.exp);
-  const goodStuffPlayed = gfGoodStuff.filter(g=>g.played).length;
-  const goodStuffUnplayed = gfGoodStuff.filter(g=>!g.played).length;
-  const goodStuffPct = gfGoodStuff.length > 0 ? Math.round(goodStuffPlayed / gfGoodStuff.length * 100) : 0;
+    `${baseGames.length} base games · ${expansions.length} expansions · ${publicGames.length} total`;
   document.getElementById('col-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${gfGoodStuff.length}</div><div class="stat-label">The Good Stuff</div><div style="font-size:.65rem;color:var(--text3);margin-top:.25rem;">excl. kids' games</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffBase.length}</div><div class="stat-label">Base Games</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffExps.length}</div><div class="stat-label">Expansions</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffPlayed}</div><div class="stat-label">Played</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffUnplayed}</div><div class="stat-label">Unplayed</div></div>
+    <div class="stat-card"><div class="stat-num">${publicGames.length}</div><div class="stat-label">Visible Games</div></div>
+    <div class="stat-card"><div class="stat-num">${baseGames.length}</div><div class="stat-label">Base Games</div></div>
+    <div class="stat-card"><div class="stat-num">${expansions.length}</div><div class="stat-label">Expansions</div></div>
+    <div class="stat-card"><div class="stat-num">${playedGames}</div><div class="stat-label">Played</div></div>
+    <div class="stat-card"><div class="stat-num">${unplayedGames}</div><div class="stat-label">Unplayed</div></div>
     <div class="stat-card">
-      <div class="stat-num">${goodStuffPct}<span style="font-size:1.2rem;color:var(--text3);">%</span></div>
-      <div class="stat-label">Base Games + Expansions</div>
+      <div class="stat-num">${playedPct}<span style="font-size:1.2rem;color:var(--text3);">%</span></div>
+      <div class="stat-label">Played Rate</div>
       <div style="margin-top:.5rem;height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;">
-        <div style="width:${goodStuffPct}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
+        <div style="width:${playedPct}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
       </div>
     </div>
     <div class="stat-card"><div class="stat-num">${plays.length}</div><div class="stat-label">Logged Plays</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Effective $ Spent</div></div>
+    <div class="stat-card"><div class="stat-num">${PLAYERS.length}</div><div class="stat-label">Configured Players</div></div>
   `;
 
   const grid = document.getElementById('game-grid');
   const countEl = document.getElementById('collection-count');
   if(countEl) countEl.textContent = `${filtered.length} game${filtered.length===1?'':'s'}`;
-  updateInvestedCard();
   if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
   grid.innerHTML = filtered.map(g=>{
     const gp = plays.filter(p=>p.game===g.n);
-    const jW = gp.filter(p=>p.winner==='John').length;
-    const eW = gp.filter(p=>p.winner==='Elizabeth').length;
+    const winsByPlayer = {};
+    gp.forEach(play => {
+      if (play.winnerType === 'player' && play.winnerPlayer) {
+        winsByPlayer[play.winnerPlayer] = (winsByPlayer[play.winnerPlayer] || 0) + 1;
+      }
+    });
+    const topWinner = Object.entries(winsByPlayer).sort((a,b) => b[1] - a[1])[0];
     const thumb = g.thumb ? `${g.bggUrl ? `<a class="game-thumb-wrap game-thumb-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">` : `<div class="game-thumb-wrap">`}<img class="game-thumb" src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} thumbnail" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-thumb-wrap').style.display='none'">${g.bggUrl ? `</a>` : `</div>`}` : '';
     return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" onclick="openModal(${JSON.stringify(g.n)})">
       <div class="game-head">
@@ -1926,9 +1836,8 @@ function renderCollection(){
         ${g.ba?`<span class="badge" style="font-size:.64rem;">⭐ Best: ${g.ba}</span>`:''}
         ${g.plBGG?`<span class="badge" style="font-size:.64rem;">👥 ${g.plBGG}p</span>`:''}
       </div>
-      ${(g.jRat||g.eRat)?`<div class="grating">${g.jRat?'J: '+g.jRat:''}${g.jRat&&g.eRat?' · ':''}${g.eRat?'E: '+g.eRat:''}</div>`:''}
       ${isCoop(g)?'<span class="badge bcoop" style="margin-top:.3rem;display:inline-block;">🤝 Co-op</span>':''}
-      ${gp.length?`<div class="gscore" style="margin-top:.3rem;">🎮 ${gp.length} play${gp.length>1?'s':''} · J:${jW}W E:${eW}W</div>`:''}
+      ${gp.length?`<div class="gscore" style="margin-top:.3rem;">🎮 ${gp.length} play${gp.length>1?'s':''}${topWinner?` · Top: ${getPlayerName(topWinner[0])} ${topWinner[1]}W`:''}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -1946,40 +1855,47 @@ function openModal(name){
     <div class="mfield"><label>BGG Score</label><div class="val">${g.bg}</div></div>
     <div class="mfield"><label>Players</label><div class="val">${g.pl}</div></div>
     <div class="mfield"><label>Best At</label><div class="val">${g.ba}</div></div>
-    <div class="mfield"><label>Good at 2P</label><div class="val">${g.p2||'—'}</div></div>
     <div class="mfield"><label>Solo Option</label><div class="val">${g.so||'—'}</div></div>
-    <div class="mfield"><label>J Rating</label><div class="val">${g.jRat||'—'}</div></div>
-    <div class="mfield"><label>E Rating</label><div class="val">${g.eRat||'—'}</div></div>
     <div class="mfield"><label>Type</label><div class="val">${g.exp?'Expansion':'Base Game'}</div></div>
+    <div class="mfield"><label>Included</label><div class="val">${g.include === false ? 'Hidden' : 'Visible'}</div></div>
   `;
   document.getElementById('m-notes').innerHTML = g.notes?`<div class="notes-box">${g.notes}</div>`:'';
   document.getElementById('m-date').valueAsDate = new Date();
+  document.getElementById('m-winner').innerHTML = renderWinnerOptions('');
+  renderParticipantChips('m-participants');
+  setSelectedParticipants('m', PLAYERS.slice(0, Math.min(2, PLAYERS.length)).map(player => player.number));
+  renderRatingInputs('m-ratings');
   refreshModalPlays(name);
   document.getElementById('moverlay').classList.add('open');
 }
 
 function refreshModalPlays(name){
   const gp = plays.filter(p=>p.game===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const jW = gp.filter(p=>p.winner==='John').length;
-  const eW = gp.filter(p=>p.winner==='Elizabeth').length;
-  const ot = gp.filter(p=>p.winner!=='John'&&p.winner!=='Elizabeth').length;
+  const wins = {};
+  gp.forEach(play => {
+    if (play.winnerType === 'player' && play.winnerPlayer) wins[play.winnerPlayer] = (wins[play.winnerPlayer] || 0) + 1;
+  });
+  const groupPlays = gp.filter(play => (play.participants || []).length > 2).length;
   document.getElementById('m-wl').innerHTML = gp.length
     ?`<div style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.8rem;margin-bottom:.3rem;">
         <span>🎮 <strong style="color:var(--text)">${gp.length}</strong> plays</span>
-        <span>John: <strong style="color:#7ab0d4">${jW}W</strong></span>
-        <span>Elizabeth: <strong style="color:#d492c0">${eW}W</strong></span>
-        ${ot?`<span>Other: <strong style="color:var(--text3)">${ot}</strong></span>`:''}
+        ${Object.entries(wins).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([playerNumber, count]) => `<span>${getPlayerName(playerNumber)}: <strong style="color:${getWinnerColor({winnerType:'player', winnerPlayer:playerNumber})}">${count}W</strong></span>`).join('')}
+        ${groupPlays?`<span>Group plays: <strong style="color:var(--text3)">${groupPlays}</strong></span>`:''}
       </div>`
     :'<div style="color:var(--text3);font-size:.79rem;margin-bottom:.3rem;">No plays logged yet.</div>';
   document.getElementById('m-plays').innerHTML = gp.length
     ? gp.map(p=>{
-        const ri = plays.findIndex(x=>x.date===p.date&&x.game===p.game&&x.winner===p.winner&&x.notes===p.notes);
+        const ri = plays.findIndex(x=>x.date===p.date&&x.game===p.game&&x.winnerPlayer===p.winnerPlayer&&x.winnerType===p.winnerType&&x.notes===p.notes);
         return `<div class="pentry">
-          <span class="pdate">${p.date}</span>
-          <span class="pwinner" style="color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'}">${p.winner}</span>
-          ${p.jRat?`<span class="badge">J:${p.jRat}</span>`:''}
-          ${p.eRat?`<span class="badge">E:${p.eRat}</span>`:''}
-          <span class="pnotes">${p.notes||''}</span>
+          <div class="pmeta">
+            <span class="pdate">${p.date}</span>
+            <span class="pgame">${getWinnerLabel(p)}</span>
+          </div>
+          <div class="psub">
+            <span class="pwinner" style="color:${getWinnerColor(p)}">${getParticipantNames(p) || 'Participants not set'}</span>
+            ${Object.entries(p.ratings || {}).map(([playerNumber, value]) => `<span class="badge">${getPlayerName(playerNumber)}: ${value}</span>`).join('')}
+          </div>
+          ${p.notes?`<span class="pnotes">${p.notes}</span>`:''}
           <button class="pdel" onclick="delPlay(${ri},'${name.replace(/'/g,"\\'")}')" title="Delete">✕</button>
         </div>`;
       }).join('')
@@ -2005,50 +1921,51 @@ function resolveLogGameName(value){
 async function logPlay(){
   const game=resolveLogGameName(document.getElementById('log-game').value);
   const date=document.getElementById('log-date').value;
-  const winner=document.getElementById('log-winner').value;
+  const winnerValue=document.getElementById('log-winner').value;
+  const participants = getSelectedParticipants('log');
   const notes=document.getElementById('log-notes').value;
-  if(!game||!date||!winner){showToast('Choose a game from search, plus date & winner.','#c45c3c');return;}
-  const jRat = document.getElementById('log-jrat')?.value||'';
-  const eRat = document.getElementById('log-erat')?.value||'';
-  const wasUnplayed = !GAMES.find(x=>x.n===game)?.played;
-  const p={game,date,winner,notes,jRat,eRat};
+  if(!game||!date||!winnerValue){showToast('Choose a game, date, and winner.','#c45c3c');return;}
+  if(!participants.length){showToast('Pick at least one participant.','#c45c3c');return;}
+  const winnerType = ['tie','coop','other'].includes(winnerValue) ? winnerValue : 'player';
+  const winnerPlayer = winnerType === 'player' ? winnerValue : '';
+  const p=normalizePlayRecord({game,date,winnerPlayer,winnerType,participants,notes,ratings:getRatingValues('log')});
   plays.push(p);savePlays();markPlayed(game);
   document.getElementById('log-game').value='';
   document.getElementById('log-winner').value='';
   document.getElementById('log-notes').value='';
-  document.getElementById('log-jrat').value='';
-  document.getElementById('log-erat').value='';
-  renderPlays();renderCollection();
-  await push(p, wasUnplayed);showToast('Play logged! 🎮');
+  setSelectedParticipants('log', []);
+  renderRatingInputs('log-ratings');
+  renderPlays();renderCollection();renderStats();
+  showToast('Play logged! 🎮');
 }
 
 async function logModal(){
   if(!activeModal)return;
   const date=document.getElementById('m-date').value;
-  const winner=document.getElementById('m-winner').value;
+  const winnerValue=document.getElementById('m-winner').value;
+  const participants = getSelectedParticipants('m');
   const notes=document.getElementById('m-notes-in').value;
-  if(!date||!winner){showToast('Select date & winner!','#c45c3c');return;}
-  const jRat = document.getElementById('m-jrat')?.value||'';
-  const eRat = document.getElementById('m-erat')?.value||'';
-  const wasUnplayed = !GAMES.find(x=>x.n===activeModal)?.played;
-  const p={game:activeModal,date,winner,notes,jRat,eRat};
+  if(!date||!winnerValue){showToast('Select date and winner!','#c45c3c');return;}
+  if(!participants.length){showToast('Pick at least one participant.','#c45c3c');return;}
+  const winnerType = ['tie','coop','other'].includes(winnerValue) ? winnerValue : 'player';
+  const winnerPlayer = winnerType === 'player' ? winnerValue : '';
+  const p=normalizePlayRecord({game:activeModal,date,winnerPlayer,winnerType,participants,notes,ratings:getRatingValues('m')});
   plays.push(p);savePlays();markPlayed(activeModal);
   document.getElementById('m-winner').value='';
   document.getElementById('m-notes-in').value='';
-  document.getElementById('m-jrat').value='';
-  document.getElementById('m-erat').value='';
-  refreshModalPlays(activeModal);renderCollection();
-  await push(p, wasUnplayed);showToast('Play logged! 🎮');
+  setSelectedParticipants('m', []);
+  renderRatingInputs('m-ratings');
+  refreshModalPlays(activeModal);renderCollection();renderStats();
+  showToast('Play logged! 🎮');
 }
 
 function markPlayed(name){const g=GAMES.find(x=>x.n===name);if(g)g.played=true;}
 
 async function delPlay(idx,name){
-  const p=plays[idx];
   plays.splice(idx,1);savePlays();
   if(name&&document.getElementById('moverlay').classList.contains('open'))refreshModalPlays(name);
   renderPlays();renderStats();renderCollection();
-  await pushDel(p);showToast('Deleted.','#c45c3c');
+  showToast('Deleted.','#c45c3c');
 }
 
 function renderPlays(){
@@ -2077,9 +1994,9 @@ function renderPlays(){
       </div>
       <button class="pdel" onclick="delPlay(${p._i},null)">✕</button>
       <div class="psub">
-        <span class="pwinner" style="color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'};">${p.winner}</span>
-        ${p.jRat?`<span class="badge">J:${p.jRat}</span>`:''}
-        ${p.eRat?`<span class="badge">E:${p.eRat}</span>`:''}
+        <span class="pwinner" style="color:${getWinnerColor(p)};">${getWinnerLabel(p)}</span>
+        ${(p.participants || []).length ? `<span class="badge">Players: ${getParticipantNames(p)}</span>` : ''}
+        ${Object.entries(p.ratings || {}).map(([playerNumber, value]) => `<span class="badge">${getPlayerName(playerNumber)}: ${value}</span>`).join('')}
       </div>
       ${p.notes?`<div class="pnotes">${p.notes}</div>`:''}
     </div>`).join('');
@@ -2089,16 +2006,31 @@ function renderPlays(){
 // STATS
 // ═══════════════════════════════════════
 function renderStats(){
-  const jW=plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return p.winner==='John'&&(!g||passesGlobal(g));}).length;
-  const eW=plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return p.winner==='Elizabeth'&&(!g||passesGlobal(g));}).length;
-  const tot=jW+eW;
-  const pct=tot>0?(jW/tot*100):50;
-  const diff=tot?jW-eW:0;
-  const knotPct=Math.max(16, Math.min(84, 50 + (tot ? (diff / tot) * 34 : 0)));
-  const johnRate=tot>0?Math.round(jW/tot*100):0;
-  const lizRate=tot>0?Math.round(eW/tot*100):0;
-  const leadText = diff > 0 ? `John leads by ${diff}` : diff < 0 ? `Elizabeth leads by ${Math.abs(diff)}` : 'Even match';
+  const eligiblePlays = plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return !g || passesGlobal(g);});
+  const featured = PLAYERS.slice(0, 2);
+  const headToHeadPlays = featured.length === 2
+    ? eligiblePlays.filter(play => {
+        const participants = [...new Set(play.participants || [])];
+        return participants.length === 2 &&
+          participants.includes(featured[0].number) &&
+          participants.includes(featured[1].number);
+      })
+    : [];
+  const leftWins = headToHeadPlays.filter(play => play.winnerType === 'player' && play.winnerPlayer === featured[0]?.number).length;
+  const rightWins = headToHeadPlays.filter(play => play.winnerType === 'player' && play.winnerPlayer === featured[1]?.number).length;
+  const tot = leftWins + rightWins;
+  const pct = tot > 0 ? (leftWins / tot * 100) : 50;
+  const diff = tot ? leftWins - rightWins : 0;
+  const leftRate = tot > 0 ? Math.round(leftWins / tot * 100) : 0;
+  const rightRate = tot > 0 ? Math.round(rightWins / tot * 100) : 0;
+  const leadText = diff > 0 ? `${featured[0]?.name || 'Player 1'} leads by ${diff}` : diff < 0 ? `${featured[1]?.name || 'Player 2'} leads by ${Math.abs(diff)}` : 'Even match';
   const leadClass = diff === 0 ? 'tie' : '';
+  const playerTotals = {};
+  eligiblePlays.forEach(play => {
+    if (play.winnerType === 'player' && play.winnerPlayer) {
+      playerTotals[play.winnerPlayer] = (playerTotals[play.winnerPlayer] || 0) + 1;
+    }
+  });
   document.getElementById('win-stats').innerHTML=`
     <div class="pcard battle-card">
       <div class="battle-label">Head to Head (excl. coop/ties)</div>
@@ -2108,9 +2040,9 @@ function renderStats(){
         <div class="battle-row">
           <div class="battle-side left">
             <div class="battle-dino john"></div>
-            <div class="battle-name">John</div>
-            <div class="battle-wins john">${jW}</div>
-            <div class="battle-rate">${johnRate}% win rate</div>
+            <div class="battle-name">${featured[0]?.name || 'Player 1'}</div>
+            <div class="battle-wins john">${leftWins}</div>
+            <div class="battle-rate">${leftRate}% win rate</div>
           </div>
           <div class="battle-meter">
             <div class="battle-meter-text">Battle Meter</div>
@@ -2119,41 +2051,44 @@ function renderStats(){
           </div>
           <div class="battle-side right">
             <div class="battle-dino liz"></div>
-            <div class="battle-name">Elizabeth</div>
-            <div class="battle-wins liz">${eW}</div>
-            <div class="battle-rate">${lizRate}% win rate</div>
+            <div class="battle-name">${featured[1]?.name || 'Player 2'}</div>
+            <div class="battle-wins liz">${rightWins}</div>
+            <div class="battle-rate">${rightRate}% win rate</div>
           </div>
         </div>
       </div>
       <div class="battle-footer">
-        <span>John ${jW}</span>
-        <span class="center">${plays.length} total logged plays</span>
-        <span>${eW} Elizabeth</span>
+        <span>${featured[0]?.name || 'Player 1'} ${leftWins}</span>
+        <span class="center">${headToHeadPlays.length} featured 2-player plays</span>
+        <span>${rightWins} ${featured[1]?.name || 'Player 2'}</span>
       </div>
-    </div>`;
+    </div>
+    <div class="stat-card"><div class="stat-num">${eligiblePlays.length}</div><div class="stat-label">Logged Plays</div></div>
+    <div class="stat-card"><div class="stat-num">${Object.keys(playerTotals).length}</div><div class="stat-label">Winning Players</div></div>`;
   const map={};
-  plays.forEach(p=>{
+  eligiblePlays.forEach(p=>{
     const g = GAMES.find(x=>x.n===p.game);
-    if(g && !passesGlobal(g)) return; // respect global filter
-    if(!map[p.game])map[p.game]={n:0,j:0,e:0,t:0};
+    if(g && !passesGlobal(g)) return;
+    if(!map[p.game])map[p.game]={n:0,winners:{},group:0,last:''};
     map[p.game].n++;
-    if(p.winner==='John')map[p.game].j++;
-    else if(p.winner==='Elizabeth')map[p.game].e++;
-    else map[p.game].t++;
+    if (p.winnerType === 'player' && p.winnerPlayer) {
+      map[p.game].winners[p.winnerPlayer] = (map[p.game].winners[p.winnerPlayer] || 0) + 1;
+    }
+    if ((p.participants || []).length > 2) map[p.game].group++;
+    if (!map[p.game].last || new Date(p.date) > new Date(map[p.game].last)) map[p.game].last = p.date;
   });
   const rows=Object.entries(map).sort((a,b)=>b[1].n-a[1].n);
   const tb=document.getElementById('stats-body');
   if(!rows.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.8rem;">No plays yet.</td></tr>';return;}
   tb.innerHTML=rows.map(([name,d])=>{
-    const ldr=d.j>d.e?'John':d.e>d.j?'Elizabeth':'Tied';
-    const lc=ldr==='John'?'wj':ldr==='Elizabeth'?'we':'wn';
+    const topWinner = Object.entries(d.winners).sort((a,b)=>b[1]-a[1])[0];
     return `<tr>
       <td title="${name}">${name.length>42?name.slice(0,40)+'…':name}</td>
       <td>${d.n}</td>
-      <td><span class="wp wj">${d.j}</span></td>
-      <td><span class="wp we">${d.e}</span></td>
-      <td>${d.t}</td>
-      <td><span class="wp ${lc}">${ldr}</span></td>
+      <td>${topWinner ? getPlayerName(topWinner[0]) : '—'}</td>
+      <td>${topWinner ? topWinner[1] : 0}</td>
+      <td>${d.group}</td>
+      <td>${d.last || '—'}</td>
     </tr>`;
   }).join('');
   renderTwoPlayer();
@@ -2337,18 +2272,39 @@ function mapGameRow(r) {
     bg:   parseFloat(r['BGG Score'])||0,
     cat:  r['BGG Category']||'',
     played:(r['Played']||'').trim().toLowerCase()==='yes',
-    jRat: r['J Rating']||'',
-    eRat: r['E Rating']||'',
     exp:  isOne(r['Expansion'])||(r['Expansion']||'').toLowerCase()==='yes',
-    eKnows: isOne(r['E knows?']),
-    sell: isOne(r['Potentially sell?']),
     age:  r['Age']||'',
     year: r['Year bought']||'',
     notes:r['Notes']||'',
-    excluded:(r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1),
+    include: !(String(r['Include'] ?? '1').trim() === '0'),
+    excluded:(r['Exclude from 2P']==='1'||r['Exclude from 2P']==='1.0'||parseFloat(r['Exclude from 2P'])===1||r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1),
     thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim(),
     bggUrl:(r['BGG URL']||'').toString().trim()
   };
+}
+
+function mapPlayersRow(r){
+  return {
+    number: String(r['Player #'] || r['Player'] || '').trim(),
+    name: String(r['Name'] || '').trim()
+  };
+}
+
+function mapPlayRow(r){
+  const ratings = {};
+  getRatingKeys().forEach(key => {
+    const raw = r[`P${key} Rating`] ?? r[`Player ${key} Rating`] ?? '';
+    if (String(raw).trim() !== '') ratings[key] = String(raw).trim();
+  });
+  return normalizePlayRecord({
+    date: r['Date'] || '',
+    game: r['Game'] || '',
+    participants: r['Participants'] || '',
+    winnerPlayer: r['Winner Player #'] || r['Winner'] || '',
+    winnerType: '',
+    notes: r['Notes'] || '',
+    ratings
+  });
 }
 
 async function syncNow(){
@@ -2370,28 +2326,16 @@ async function syncNow(){
     // Accept the data if we find "Game" column (with or without extra cols)
     const gameCol = foundCols.find(k => k.trim() === 'Game');
     if(rows.length && gameCol){
-      // Re-key if column had whitespace
       const normalized = rows.map(r => {
         const out = {};
         Object.keys(r).forEach(k => { out[k.trim()] = r[k]; });
-        // Explicitly remove stray columns outside the named table
-        delete out['Ratings'];
         return out;
       });
       GAMES = normalized.map(mapGameRow).filter(g=>g.n.trim());
-      // Sum Total column from game rows as a fallback
-      try {
-        let totalSpent = 0;
-        rows.forEach(r => { const v=parseFloat(r['Total']); if(!isNaN(v)&&v>0) totalSpent+=v; });
-        if(totalSpent > 0) { cfg.totalSpent = totalSpent.toFixed(2); saveCfg(); }
-      } catch(e2) {}
-      // Fetch Stats sheet for sold/effective values
-      if(cfg.statsUrl) fetchStats();
       msg.textContent=`✓ ${GAMES.length} games loaded from Sheets`;
       document.getElementById('sync-badge').className='sstatus st-sheets';
       document.getElementById('sync-badge').textContent='● Google Sheets';
-      populateYearFilter();
-      renderCollection();renderPlays();
+      renderCollection();renderPlays();renderStats();
     } else {
       msg.textContent=`⚠ "Game" column not found. Columns seen: ${foundCols.slice(0,5).join(', ')}`;
     }
@@ -2407,93 +2351,48 @@ async function syncNow(){
         const dateCol = cols2.find(k=>k.trim()==='Date');
         if(rows2.length && dateCol){
           const norm2 = rows2.map(r=>{const o={};Object.keys(r).forEach(k=>{o[k.trim()]=r[k];});return o;});
-          plays = norm2.filter(r=>r.Date&&r.Game).map(r=>({date:r.Date,game:r.Game,winner:r.Winner||r.Wimmer||'',notes:r.Notes||''}));
-          savePlays();renderPlays();
+          plays = norm2.filter(r=>r.Date&&r.Game).map(mapPlayRow);
+          savePlays();renderPlays();renderStats();renderCollection();
         }
       }
     }catch(e2){ console.error('Plays sync error:', e2); }
   }
-}
 
-async function push(p, wasUnplayed){
-  if(!cfg.scriptUrl)return;
-  try{
-    await fetch(cfg.scriptUrl,{
-      method:'POST',
-      body:JSON.stringify({action:'add', markPlayed: wasUnplayed===true, ...p})
-    });
-  }catch(e){}
-}
-async function pushDel(p){
-  if(!cfg.scriptUrl)return;
-  try{await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'delete',...p})});}catch(e){}
-}
-
-async function fetchStats(){
-  const el = document.getElementById('stat-invested');
-  try {
-    if (el) el.textContent = '…';
-    const txt = await fetchCSV(cfg.statsUrl);
-    if (!txt) {
-      if (el) el.textContent = 'check URL';
-      return;
+  if(cfg.playersUrl){
+    try{
+      const playerTxt = await fetchCSV(cfg.playersUrl);
+      if (playerTxt) {
+        const cleanPlayers = playerTxt.replace(/^\uFEFF/,'').trim();
+        const playerRows = parseCSV(cleanPlayers).map(r => {
+          const out = {};
+          Object.keys(r).forEach(k => { out[k.trim()] = r[k]; });
+          return out;
+        });
+        PLAYERS = normalizePlayers(playerRows.map(mapPlayersRow));
+        plays = plays.map(normalizePlayRecord);
+        renderPlayerControls();
+        renderCollection();
+        renderPlays();
+        renderStats();
+      }
+    } catch (e3) {
+      console.error('Players sync error:', e3);
     }
-    const clean = txt.replace(/^\uFEFF/,'').trim();
-    console.log('Stats CSV raw:', clean.slice(0,200));
-    const rows = parseCSV(clean);
-    console.log('Stats rows:', rows);
-    const statsMap = {};
-    rows.forEach(r => {
-      const key = (r['Key']||r['key']||Object.values(r)[0]||'').toString().trim().toLowerCase();
-      const raw = (r['Value']||r['value']||Object.values(r)[1]||'').toString().trim();
-      const val = raw.replace(/[$,\s]/g, '');
-      if (key) statsMap[key] = val;
-    });
-    console.log('Stats map:', statsMap);
-    // Store e knows effective separately
-    if (statsMap['e knows effective'] && !isNaN(parseFloat(statsMap['e knows effective']))) {
-      cfg.eKnowsInvested = Math.round(parseFloat(statsMap['e knows effective'])).toLocaleString('en-US');
-    }
-    // Main effective value
-    let finalVal = null;
-    if (statsMap['effective'] && !isNaN(parseFloat(statsMap['effective']))) {
-      finalVal = parseFloat(statsMap['effective']);
-    } else if (statsMap['spent'] && statsMap['sold']) {
-      finalVal = parseFloat(statsMap['spent']) - parseFloat(statsMap['sold']);
-    } else if (cfg.totalSpent && statsMap['sold']) {
-      finalVal = parseFloat(cfg.totalSpent) - parseFloat(statsMap['sold']);
-    }
-    if (finalVal !== null && !isNaN(finalVal)) {
-      cfg.invested = Math.round(finalVal).toLocaleString('en-US');
-      saveCfg();
-      updateInvestedCard();
-    } else {
-      if (el) el.textContent = 'parse err';
-      console.warn('Could not parse stats. Map:', statsMap);
-    }
-  } catch(e) {
-    if (el) el.textContent = 'error';
-    console.error('Stats fetch error:', e);
   }
 }
 
 function saveConfig(){
   cfg.gamesUrl=document.getElementById('cfg-games').value.trim();
   cfg.playsUrl=document.getElementById('cfg-plays').value.trim();
-  cfg.scriptUrl=document.getElementById('cfg-script').value.trim();
-  const newStatsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
-  if(newStatsUrl !== cfg.statsUrl) cfg.invested = ''; // clear stale cache
-  cfg.statsUrl=newStatsUrl;
+  cfg.playersUrl=document.getElementById('cfg-players')?.value.trim()||'';
   saveCfg();showToast('Config saved!');
   if(cfg.gamesUrl)syncNow();
-  if(cfg.statsUrl)fetchStats();
 }
 
 function loadCfgUI(){
   if(cfg.gamesUrl){const el=document.getElementById('cfg-games');if(el)el.value=cfg.gamesUrl;}
   if(cfg.playsUrl){const el=document.getElementById('cfg-plays');if(el)el.value=cfg.playsUrl;}
-  if(cfg.scriptUrl){const el=document.getElementById('cfg-script');if(el)el.value=cfg.scriptUrl;}
-  if(cfg.statsUrl){const el=document.getElementById('cfg-stats');if(el)el.value=cfg.statsUrl;}
+  if(cfg.playersUrl){const el=document.getElementById('cfg-players');if(el)el.value=cfg.playersUrl;}
   if(cfg.gamesUrl){
     document.getElementById('sync-badge').className='sstatus st-sheets';
     document.getElementById('sync-badge').textContent='● Google Sheets';
@@ -2502,6 +2401,17 @@ function loadCfgUI(){
 function toggleGuide(){
   const b=document.getElementById('guide-body');
   b.style.display=b.style.display==='none'?'block':'none';
+}
+
+function renderPlayerControls(){
+  document.getElementById('log-winner').innerHTML = renderWinnerOptions('');
+  document.getElementById('m-winner').innerHTML = renderWinnerOptions('');
+  renderParticipantChips('log-participants');
+  renderParticipantChips('m-participants');
+  setSelectedParticipants('log', PLAYERS.slice(0, Math.min(2, PLAYERS.length)).map(player => player.number));
+  setSelectedParticipants('m', PLAYERS.slice(0, Math.min(2, PLAYERS.length)).map(player => player.number));
+  renderRatingInputs('log-ratings');
+  renderRatingInputs('m-ratings');
 }
 
 // ═══════════════════════════════════════
@@ -2541,22 +2451,12 @@ function applyPendingUpdate(){
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
   loadCfgUI();
-  populateYearFilter();
-  cfg.invested = ''; // always fetch fresh on load, never use stale cache
   saveCfg();
-
-  const gfEl = document.getElementById('gf-eknows');
-  const gfYearEl = document.getElementById('gf-year');
-  if (gfEl) gfEl.value = globalFilters.eKnows || '';
-  if (gfYearEl) gfYearEl.value = globalFilters.year || '';
-
-  const msg = document.getElementById('gf-active-msg');
-  if (msg) msg.style.display = (globalFilters.eKnows || globalFilters.year) ? 'block' : 'none';
-
+  renderPlayerControls();
   renderCollection();
   renderStats();
+  renderPlays();
   if(cfg.gamesUrl)syncNow();
-  if(cfg.statsUrl)fetchStats();
 
   document.getElementById('update-banner-refresh')?.addEventListener('click', applyPendingUpdate);
   document.getElementById('update-banner-dismiss')?.addEventListener('click', dismissUpdateBanner);
