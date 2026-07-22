@@ -542,6 +542,27 @@
   .gscore{font-size:.72rem;color:var(--text3);margin-top:.34rem;line-height:1.6;}
   .gscore span{color:var(--amber);font-weight:600;}
   .grating{font-size:.73rem;color:var(--text2);margin-top:.35rem;}
+  .rating-strip{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem;}
+  .rating-chip{display:inline-flex;align-items:center;gap:.38rem;padding:.32rem .58rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);font-family:var(--mono);font-size:.67rem;color:var(--text2);}
+  .rating-chip strong{font-family:var(--pixel-font);font-size:.72rem;line-height:1;color:var(--amber);}
+  .rating-chip.john{border-color:rgba(102,217,255,.3);background:rgba(102,217,255,.1);}
+  .rating-chip.elizabeth{border-color:rgba(255,138,216,.3);background:rgba(255,138,216,.1);}
+  .rating-editor{margin:.85rem 0 1.15rem;padding:1rem;border:1px solid rgba(255,209,102,.2);border-radius:16px;background:linear-gradient(135deg, rgba(255,209,102,.075), rgba(102,217,255,.045));}
+  .rating-editor-head{display:flex;justify-content:space-between;gap:.8rem;align-items:center;margin-bottom:.75rem;}
+  .rating-editor-title{font-family:var(--pixel-font);font-size:.72rem;color:var(--amber);line-height:1.45;}
+  .rating-editor-sub{font-family:var(--mono);font-size:.61rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+  .favorites-grid{display:grid;grid-template-columns:1fr;gap:.8rem;margin:0 0 1.2rem;}
+  .favorites-card{padding:1rem;border-radius:18px;border:1px solid var(--border);background:linear-gradient(180deg, rgba(18,27,45,.98), rgba(10,16,28,.98));position:relative;overflow:hidden;}
+  .favorites-card::before{content:'';position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg, transparent, var(--cyan), transparent);opacity:.65;}
+  .favorites-card.elizabeth::before{background:linear-gradient(90deg, transparent, var(--pink), transparent);}
+  .favorites-title{font-family:var(--pixel-font);font-size:.74rem;color:var(--text);margin-bottom:.75rem;line-height:1.5;}
+  .favorite-row{display:grid;grid-template-columns:1.7rem minmax(0,1fr) auto;gap:.55rem;align-items:center;padding:.55rem .15rem;border-top:1px solid rgba(255,255,255,.055);cursor:pointer;}
+  .favorite-row:first-child{border-top:0;}
+  .favorite-row:hover .favorite-name{color:var(--green);}
+  .favorite-rank{font-family:var(--pixel-font);font-size:.65rem;color:var(--text3);text-align:center;}
+  .favorite-name{min-width:0;font-weight:700;font-size:.82rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s ease;}
+  .favorite-score{font-family:var(--pixel-font);font-size:.67rem;color:var(--amber);padding:.28rem .45rem;border-radius:9px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);}
+  .favorites-empty{font-family:var(--mono);font-size:.7rem;color:var(--text3);padding:.45rem 0;}
   .pick-box{
     text-align:center;
     padding:1.15rem;
@@ -953,6 +974,7 @@
     .stats-row{grid-template-columns:repeat(4, minmax(0, 1fr));}
     .win-grid{grid-template-columns:1fr 1fr;}
     .game-grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    .favorites-grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
     .moverlay{align-items:center;padding:1rem;}
     .modal{max-width:780px;width:min(94vw, 780px);border-radius:24px;max-height:90vh;padding:1.35rem 1.35rem 1.5rem;}
     .mgrid{grid-template-columns:repeat(2, minmax(0, 1fr));}
@@ -1124,6 +1146,8 @@
   <div class="page-title">Scoreboard + Records</div>
   <div class="page-sub">Pixel scoreboard for every showdown, streak, and 2-player favorite</div>
   <div class="win-grid" id="win-stats"></div>
+  <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Player Favorites</div>
+  <div class="favorites-grid" id="player-favorites"></div>
   <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Per-Game Win Records</div>
   <div class="twrap">
     <table class="st">
@@ -1255,6 +1279,7 @@
       <pre style="background:var(--bg3);border-radius:8px;padding:1rem;font-size:.7rem;color:#a8d8a8;line-height:1.6;">function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
+  var result = {status:"ok"};
 
   // Log play to Plays sheet
   if (data.action === "add" || data.action === "delete") {
@@ -1302,6 +1327,26 @@
     }
   }
 
+  // Update ratings without logging a play
+  if (data.action === "rate") {
+    result.ratingsUpdated = false;
+    var gamesSheet = ss.getSheetByName("Games");
+    if (gamesSheet) {
+      var gv = gamesSheet.getDataRange().getValues();
+      var headers = gv[0];
+      var jRatCol = headers.indexOf("J Rating") + 1;
+      var eRatCol = headers.indexOf("E Rating") + 1;
+      for (var i = 1; i &lt; gv.length; i++) {
+        if ((gv[i][0] || "").toString().trim() === (data.game || "").toString().trim()) {
+          if (data.jRat !== "" &amp;&amp; jRatCol &gt; 0) gamesSheet.getRange(i + 1, jRatCol).setValue(parseFloat(data.jRat));
+          if (data.eRat !== "" &amp;&amp; eRatCol &gt; 0) gamesSheet.getRange(i + 1, eRatCol).setValue(parseFloat(data.eRat));
+          result.ratingsUpdated = true;
+          break;
+        }
+      }
+    }
+  }
+
   // Update Excluded column (found by header name) in Games sheet
   if (data.action === "exclude") {
     var gamesSheet = ss.getSheetByName("Games");
@@ -1324,7 +1369,7 @@
     }
   }
 
-  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
 }
 function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
@@ -1342,6 +1387,17 @@ function doGet(e) {
     <div class="mcat" id="m-cat"></div>
     <div class="mgrid" id="m-grid"></div>
     <div id="m-notes"></div>
+    <div class="rating-editor">
+      <div class="rating-editor-head">
+        <div class="rating-editor-title">Rate This Game</div>
+        <div class="rating-editor-sub">No play required</div>
+      </div>
+      <div class="form-row" style="margin-bottom:.65rem;">
+        <div class="fg" style="max-width:110px;"><label>J Rating</label><input class="fc" type="number" id="m-rate-j" min="1" max="10" step="0.5" placeholder="1-10"></div>
+        <div class="fg" style="max-width:110px;"><label>E Rating</label><input class="fc" type="number" id="m-rate-e" min="1" max="10" step="0.5" placeholder="1-10"></div>
+      </div>
+      <button class="btn btn-outline btn-sm" id="m-rate-save" onclick="saveGameRatings()">Save Ratings</button>
+    </div>
     <div class="msec">Win / Loss Record</div>
     <div id="m-wl"></div>
     <div class="msec">Play History</div>
@@ -1855,6 +1911,21 @@ function getFiltered(){
   });
 }
 
+function numericRating(value){
+  const rating = parseFloat(value);
+  return Number.isFinite(rating) ? rating : null;
+}
+
+function renderRatingBadges(game){
+  const jRating = numericRating(game.jRat);
+  const eRating = numericRating(game.eRat);
+  if(jRating === null && eRating === null) return '';
+  return `<div class="rating-strip">
+    ${jRating !== null ? `<span class="rating-chip john">J rating <strong>${jRating}</strong></span>` : ''}
+    ${eRating !== null ? `<span class="rating-chip elizabeth">E rating <strong>${eRating}</strong></span>` : ''}
+  </div>`;
+}
+
 function renderCollection(){
   normalizeShelfSelections();
   renderShelfControls();
@@ -1926,7 +1997,7 @@ function renderCollection(){
         ${g.ba?`<span class="badge" style="font-size:.64rem;">⭐ Best: ${g.ba}</span>`:''}
         ${g.plBGG?`<span class="badge" style="font-size:.64rem;">👥 ${g.plBGG}p</span>`:''}
       </div>
-      ${(g.jRat||g.eRat)?`<div class="grating">${g.jRat?'J: '+g.jRat:''}${g.jRat&&g.eRat?' · ':''}${g.eRat?'E: '+g.eRat:''}</div>`:''}
+      ${renderRatingBadges(g)}
       ${isCoop(g)?'<span class="badge bcoop" style="margin-top:.3rem;display:inline-block;">🤝 Co-op</span>':''}
       ${gp.length?`<div class="gscore" style="margin-top:.3rem;">🎮 ${gp.length} play${gp.length>1?'s':''} · J:${jW}W E:${eW}W</div>`:''}
     </div>`;
@@ -1941,6 +2012,8 @@ function openModal(name){
   activeModal = name;
   document.getElementById('m-name').textContent = g.n;
   document.getElementById('m-cat').textContent = g.cat;
+  document.getElementById('m-rate-j').value = g.jRat || '';
+  document.getElementById('m-rate-e').value = g.eRat || '';
   document.getElementById('m-grid').innerHTML = `
     <div class="mfield"><label>Shelf</label><div class="val">${g.s}</div></div>
     <div class="mfield"><label>BGG Score</label><div class="val">${g.bg}</div></div>
@@ -2019,7 +2092,8 @@ async function logPlay(){
   document.getElementById('log-jrat').value='';
   document.getElementById('log-erat').value='';
   renderPlays();renderCollection();
-  await push(p, wasUnplayed);showToast('Play logged! 🎮');
+  const syncResult = await push(p, wasUnplayed);
+  showPlaySyncToast(syncResult);
 }
 
 async function logModal(){
@@ -2038,7 +2112,49 @@ async function logModal(){
   document.getElementById('m-jrat').value='';
   document.getElementById('m-erat').value='';
   refreshModalPlays(activeModal);renderCollection();
-  await push(p, wasUnplayed);showToast('Play logged! 🎮');
+  const syncResult = await push(p, wasUnplayed);
+  showPlaySyncToast(syncResult);
+}
+
+async function saveGameRatings(){
+  if(!activeModal) return;
+  const jInput = document.getElementById('m-rate-j');
+  const eInput = document.getElementById('m-rate-e');
+  const button = document.getElementById('m-rate-save');
+  const jRat = jInput.value.trim();
+  const eRat = eInput.value.trim();
+  const valid = value => value === '' || (Number(value) >= 1 && Number(value) <= 10);
+
+  if(!jRat && !eRat){
+    showToast('Enter at least one rating.','#c45c3c');
+    return;
+  }
+  if(!valid(jRat) || !valid(eRat)){
+    showToast('Ratings must be between 1 and 10.','#c45c3c');
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Saving...';
+  const result = await postToSheets({action:'rate',game:activeModal,jRat,eRat});
+  button.disabled = false;
+  button.textContent = 'Save Ratings';
+
+  if(!result.ok || result.data?.ratingsUpdated !== true){
+    console.error('Rating writeback failed:', result.error || result.data);
+    showToast('Ratings were not saved to Sheets.','#c45c3c');
+    return;
+  }
+
+  const game = GAMES.find(g => g.n === activeModal);
+  if(game){
+    if(jRat) game.jRat = jRat;
+    if(eRat) game.eRat = eRat;
+  }
+  renderCollection();
+  renderStats();
+  openModal(activeModal);
+  showToast('Ratings saved! ★');
 }
 
 function markPlayed(name){const g=GAMES.find(x=>x.n===name);if(g)g.played=true;}
@@ -2131,6 +2247,7 @@ function renderStats(){
         <span>${eW} Elizabeth</span>
       </div>
     </div>`;
+  renderPlayerFavorites();
   const map={};
   plays.forEach(p=>{
     const g = GAMES.find(x=>x.n===p.game);
@@ -2157,6 +2274,36 @@ function renderStats(){
     </tr>`;
   }).join('');
   renderTwoPlayer();
+}
+
+function renderPlayerFavorites(){
+  const container = document.getElementById('player-favorites');
+  if(!container) return;
+
+  const ranked = key => GAMES
+    .filter(g => !g.exp && passesGlobal(g) && numericRating(g[key]) !== null)
+    .sort((a,b) => numericRating(b[key]) - numericRating(a[key]) || a.n.localeCompare(b.n))
+    .slice(0,5);
+
+  const renderList = (games,key) => games.length
+    ? games.map((game,index) => `<div class="favorite-row" data-game="${escAttr(game.n)}" onclick="openModal(this.dataset.game)">
+        <span class="favorite-rank">${index + 1}</span>
+        <span class="favorite-name">${game.n}</span>
+        <span class="favorite-score">${numericRating(game[key])}</span>
+      </div>`).join('')
+    : '<div class="favorites-empty">No ratings yet.</div>';
+
+  const johnGames = ranked('jRat');
+  const elizabethGames = ranked('eRat');
+  container.innerHTML = `
+    <div class="favorites-card">
+      <div class="favorites-title">John's Top Games</div>
+      ${renderList(johnGames,'jRat')}
+    </div>
+    <div class="favorites-card elizabeth">
+      <div class="favorites-title">Elizabeth's Top Games</div>
+      ${renderList(elizabethGames,'eRat')}
+    </div>`;
 }
 
 function renderTwoPlayer() {
@@ -2252,6 +2399,7 @@ function renderTwoPlayer() {
 // ═══════════════════════════════════════
 function pickRandom(){
   const pool=GAMES.filter(g=>{
+    if(g.excluded) return false;
     if(!passesGlobal(g)) return false;
     if(picks.exp==='no'&&g.exp)return false;
     if(picks.shelf.length && !picks.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
@@ -2325,7 +2473,10 @@ async function fetchCSV(url) {
 }
 
 function mapGameRow(r) {
-  const isOne = v => v==='1'||v==='1.0'||parseFloat(v)===1;
+  const isOne = value => {
+    const normalized = String(value ?? '').trim();
+    return normalized === '1' || normalized === '1.0' || Number(normalized) === 1;
+  };
   const plBGG = (r['Players (BGG Comm)']||'').toString().trim();
   return {
     n:    r['Game']||'',
@@ -2345,7 +2496,7 @@ function mapGameRow(r) {
     age:  r['Age']||'',
     year: r['Year bought']||'',
     notes:r['Notes']||'',
-    excluded:(r['Excluded']==='1'||r['Excluded']==='1.0'||parseFloat(r['Excluded'])===1),
+    excluded:isOne(r['Excluded']),
     thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim(),
     bggUrl:(r['BGG URL']||'').toString().trim()
   };
@@ -2391,7 +2542,7 @@ async function syncNow(){
       document.getElementById('sync-badge').className='sstatus st-sheets';
       document.getElementById('sync-badge').textContent='● Google Sheets';
       populateYearFilter();
-      renderCollection();renderPlays();
+      renderCollection();renderPlays();renderStats();
     } else {
       msg.textContent=`⚠ "Game" column not found. Columns seen: ${foundCols.slice(0,5).join(', ')}`;
     }
@@ -2408,25 +2559,54 @@ async function syncNow(){
         if(rows2.length && dateCol){
           const norm2 = rows2.map(r=>{const o={};Object.keys(r).forEach(k=>{o[k.trim()]=r[k];});return o;});
           plays = norm2.filter(r=>r.Date&&r.Game).map(r=>({date:r.Date,game:r.Game,winner:r.Winner||r.Wimmer||'',notes:r.Notes||''}));
-          savePlays();renderPlays();
+          savePlays();renderPlays();renderStats();
         }
       }
     }catch(e2){ console.error('Plays sync error:', e2); }
   }
 }
 
-async function push(p, wasUnplayed){
-  if(!cfg.scriptUrl)return;
+function showPlaySyncToast(result){
+  if(result.ok){
+    showToast('Play logged + synced! 🎮');
+    return;
+  }
+  console.error('Sheets writeback failed:', result.error);
+  showToast('Play saved locally — Sheet sync failed', '#c45c3c');
+}
+
+async function postToSheets(payload){
+  if(!cfg.scriptUrl){
+    return {ok:false,error:'No Apps Script URL configured'};
+  }
   try{
-    await fetch(cfg.scriptUrl,{
+    const response = await fetch(cfg.scriptUrl,{
       method:'POST',
-      body:JSON.stringify({action:'add', markPlayed: wasUnplayed===true, ...p})
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload),
+      redirect:'follow'
     });
-  }catch(e){}
+    const raw = await response.text();
+    let result;
+    try{
+      result = JSON.parse(raw);
+    }catch(e){
+      throw new Error(`Apps Script returned non-JSON (${response.status})`);
+    }
+    if(!response.ok || result.status !== 'ok'){
+      throw new Error(result.message || `Apps Script returned ${response.status}`);
+    }
+    return {ok:true,data:result};
+  }catch(error){
+    return {ok:false,error:error.message || String(error)};
+  }
+}
+
+async function push(p, wasUnplayed){
+  return postToSheets({action:'add',markPlayed:wasUnplayed===true,...p});
 }
 async function pushDel(p){
-  if(!cfg.scriptUrl)return;
-  try{await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'delete',...p})});}catch(e){}
+  return postToSheets({action:'delete',...p});
 }
 
 async function fetchStats(){

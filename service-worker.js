@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-dx-v6';
+const CACHE_NAME = 'game-vault-dx-v9';
 const APP_SHELL = [
   './',
   './index.html',
