@@ -998,6 +998,7 @@
 </style>
 
 <link rel="stylesheet" href="v2/cabinet.css">
+<script src="v2/bgg-images.js"></script>
 
 <meta name="theme-color" content="#090d0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1018,12 +1019,18 @@
 <span class="cabinet-screw screw-br" aria-hidden="true"></span>
 
 <nav>
-  <div class="nav-brand">
-    <span class="brand-mark" aria-hidden="true"></span>
-    <span class="brand-copy">
-      <span class="brand-title">GAME VAULT</span>
-      <span class="brand-sub">Board Game Collection</span>
-    </span>
+  <div class="brand-zone">
+    <div class="nav-brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-copy">
+        <span class="brand-title">GAME VAULT</span>
+        <span class="brand-sub">Board Game Collection</span>
+      </span>
+    </div>
+    <div class="brand-plaque" aria-hidden="true">
+      <strong>J + E</strong>
+      <span>Home Collection</span>
+    </div>
   </div>
   <div class="nav-tabs">
     <div class="nav-tab active" data-tab="collection" data-short="COLL" aria-label="Collection">Collection</div>
@@ -1033,8 +1040,8 @@
     <div class="nav-tab" data-tab="settings" data-short="SET" aria-label="Settings">Settings</div>
   </div>
   <div class="cabinet-id" aria-hidden="true">
-    <span class="cabinet-id-copy">PLAYER SELECT<br><strong>READY</strong></span>
-    <span class="cabinet-id-dino"></span>
+    <span class="cabinet-id-copy">INSERT<br>COIN TO<br><strong>PLAY</strong></span>
+    <img class="cabinet-id-dino" src="green-t-rex.png" alt="">
   </div>
 </nav>
 
@@ -1053,14 +1060,16 @@
     <div class="fgrp" id="collection-shelf-group">
       <span class="fgrp-lbl">Shelf</span>
     </div>
-    <div class="fgrp status-group">
-      <span class="fgrp-lbl">Status</span>
-      <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
-      <button class="fbtn" onclick="setFilter('status','played',this)">Played</button>
-      <button class="fbtn" onclick="setFilter('status','unplayed',this)">Unplayed</button>
-      <button class="fbtn" onclick="setFilter('status','base',this)">Base Only</button>
-      <span class="fgrp-lbl" id="collection-count" style="margin-left:.55rem;color:var(--green);min-width:4.5rem;text-align:right;">0 games</span>
-    </div>
+    <details class="status-menu">
+      <summary><span>More filters</span><strong id="collection-count">0 games</strong></summary>
+      <div class="fgrp status-group">
+        <span class="fgrp-lbl">Status</span>
+        <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
+        <button class="fbtn" onclick="setFilter('status','played',this)">Played</button>
+        <button class="fbtn" onclick="setFilter('status','unplayed',this)">Unplayed</button>
+        <button class="fbtn" onclick="setFilter('status','base',this)">Base Only</button>
+      </div>
+    </details>
   </div>
   <div class="game-grid" id="game-grid"></div>
   <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:1rem;padding-top:.7rem;border-top:1px solid rgba(102,217,255,.08);">
@@ -1961,6 +1970,17 @@ function renderRatingBadges(game){
   </div>`;
 }
 
+function handleCoverError(img){
+  const fallback = img.dataset.fallback;
+  if(fallback && img.src !== fallback){
+    img.dataset.fallback = '';
+    img.src = fallback;
+    return;
+  }
+  img.closest('.game-cover')?.classList.add('cover-missing');
+  img.style.display = 'none';
+}
+
 function renderCollection(){
   normalizeShelfSelections();
   renderShelfControls();
@@ -1987,18 +2007,12 @@ function renderCollection(){
   const goodStuffUnplayed = gfGoodStuff.filter(g=>!g.played).length;
   const goodStuffPct = gfGoodStuff.length > 0 ? Math.round(goodStuffPlayed / gfGoodStuff.length * 100) : 0;
   document.getElementById('col-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${goodStuffBase.length}</div><div class="stat-label">Base Games</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffExps.length}</div><div class="stat-label">Expansions</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffPlayed}</div><div class="stat-label">Played</div></div>
-    <div class="stat-card"><div class="stat-num">${goodStuffUnplayed}</div><div class="stat-label">Unplayed</div></div>
-    <div class="stat-card">
-      <div class="stat-num">${goodStuffPct}<span style="font-size:1.2rem;color:var(--text3);">%</span></div>
-      <div class="stat-label">Base Games + Expansions</div>
-      <div style="margin-top:.5rem;height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;">
-        <div style="width:${goodStuffPct}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
-      </div>
-    </div>
-    <div class="stat-card"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Effective $ Spent</div></div>
+    <div class="stat-card stat-base"><span class="stat-icon" aria-hidden="true"></span><div class="stat-copy"><div class="stat-num">${goodStuffBase.length}</div><div class="stat-label">Base Games</div></div></div>
+    <div class="stat-card stat-expansions"><span class="stat-icon" aria-hidden="true"></span><div class="stat-copy"><div class="stat-num">${goodStuffExps.length}</div><div class="stat-label">Expansions</div></div></div>
+    <div class="stat-card stat-played"><span class="stat-icon" aria-hidden="true"></span><div class="stat-copy"><div class="stat-num">${goodStuffPlayed}</div><div class="stat-label">Played</div></div></div>
+    <div class="stat-card stat-unplayed"><span class="stat-icon" aria-hidden="true"></span><div class="stat-copy"><div class="stat-num">${goodStuffUnplayed}</div><div class="stat-label">Unplayed</div></div></div>
+    <div class="stat-card stat-percent"><span class="stat-icon" aria-hidden="true"></span><div class="stat-copy"><div class="stat-num">${goodStuffPct}<span class="stat-suffix">%</span></div><div class="stat-label">Collection Played</div></div></div>
+    <div class="stat-card stat-value"><span class="stat-icon" aria-hidden="true"></span><div class="stat-copy"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Value</div></div></div>
   `;
 
   const grid = document.getElementById('game-grid');
@@ -2010,31 +2024,24 @@ function renderCollection(){
     const gp = plays.filter(p=>p.game===g.n);
     const jW = gp.filter(p=>p.winner==='John').length;
     const eW = gp.filter(p=>p.winner==='Elizabeth').length;
-    const cover = g.thumb
-      ? `${g.bggUrl ? `<a class="game-cover game-cover-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="Open ${escAttr(g.n)} on BoardGameGeek">` : `<div class="game-cover">`}<img src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-cover').classList.add('cover-missing');this.style.display='none'">${g.bggUrl ? `</a>` : `</div>`}`
+    const highResCover = g.image || (g.bggId && window.BGG_IMAGE_MAP ? window.BGG_IMAGE_MAP[g.bggId] : '');
+    const coverSrc = highResCover || g.thumb;
+    const cover = coverSrc
+      ? `${g.bggUrl ? `<a class="game-cover game-cover-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="Open ${escAttr(g.n)} on BoardGameGeek">` : `<div class="game-cover">`}<img src="${escAttr(coverSrc)}" data-fallback="${escAttr(highResCover ? g.thumb : '')}" alt="${escAttr(g.n)} cover" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleCoverError(this)">${g.bggUrl ? `</a>` : `</div>`}`
       : `<div class="game-cover game-cover-empty"><span>Cover not indexed</span></div>`;
     return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" data-game="${escAttr(g.n)}" role="button" tabindex="0" onclick="openModal(this.dataset.game)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal(this.dataset.game)}">
       <span class="cartridge-index">${String(index+1).padStart(3,'0')}</span>
       ${cover}
       <div class="game-card-body">
-        <div class="game-head">
-          <div class="game-main">
-            <div class="gname">${g.n}</div>
-          </div>
+        <div class="game-card-title-row">
+          <div class="gname">${g.n}</div>
+          <span class="card-options" aria-hidden="true"></span>
         </div>
-        <div class="game-data-row">
-          <span class="game-score">BGG <strong>${g.bg || '—'}</strong></span>
-          ${g.plBGG?`<span>Players ${g.plBGG}</span>`:''}
-          ${g.ba?`<span>Best ${g.ba}</span>`:''}
+        <div class="game-card-metrics">
+          <span class="card-metric metric-score"><strong>${g.bg || '—'}</strong></span>
+          ${g.plBGG?`<span class="card-metric metric-players">${g.plBGG}</span>`:''}
+          ${g.ba?`<span class="card-metric metric-best">${g.ba}</span>`:''}
         </div>
-        <div class="gmeta">
-          <span class="badge ${sBadge(g.s)}">${g.s}</span>
-          ${g.played?'<span class="badge bplayed">Played</span>':''}
-          ${g.exp?'<span class="badge bexp">Expansion</span>':''}
-          ${g.so==='Yes'?'<span class="badge">Solo</span>':''}
-          ${isCoop(g)?'<span class="badge bcoop">Co-op</span>':''}
-        </div>
-        ${g.cat?`<div class="game-category">${g.cat}</div>`:''}
         <div class="game-card-footer">
           ${renderRatingBadges(g)}
           ${gp.length?`<div class="play-count">${gp.length} play${gp.length>1?'s':''} · J ${jW} / E ${eW}</div>`:''}
@@ -2547,6 +2554,8 @@ function mapGameRow(r) {
     year: r['Year bought']||'',
     notes:r['Notes']||'',
     excluded:isOne(r['Excluded']),
+    bggId:(r['BGG ID']||'').toString().trim(),
+    image:(r['BGG Image']||r['Image']||'').toString().trim(),
     thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim(),
     bggUrl:(r['BGG URL']||'').toString().trim()
   };
