@@ -1011,6 +1011,12 @@
 <div class="arcade-bg" aria-hidden="true"></div>
 <div class="scanline" aria-hidden="true"></div>
 
+<div class="cabinet-frame">
+<span class="cabinet-screw screw-tl" aria-hidden="true"></span>
+<span class="cabinet-screw screw-tr" aria-hidden="true"></span>
+<span class="cabinet-screw screw-bl" aria-hidden="true"></span>
+<span class="cabinet-screw screw-br" aria-hidden="true"></span>
+
 <nav>
   <div class="nav-brand">
     <span class="brand-mark" aria-hidden="true"></span>
@@ -1026,20 +1032,28 @@
     <div class="nav-tab" data-tab="stats" data-short="STAT" aria-label="Stats">Stats</div>
     <div class="nav-tab" data-tab="settings" data-short="SET" aria-label="Settings">Settings</div>
   </div>
+  <div class="cabinet-id" aria-hidden="true">
+    <span class="cabinet-id-copy">PLAYER SELECT<br><strong>READY</strong></span>
+    <span class="cabinet-id-dino"></span>
+  </div>
 </nav>
 
 <main class="app-shell">
 <!-- COLLECTION -->
 <div class="section active" id="tab-collection" data-screen="Collection">
-  <div class="page-title">Collection</div>
-  <div class="page-sub" id="col-sub">Loading...</div>
-  <div class="stats-row" id="col-stats"></div>
+  <div class="collection-hero">
+    <div class="collection-title-block">
+      <div class="page-title">Collection</div>
+      <div class="page-sub" id="col-sub">Loading...</div>
+    </div>
+    <div class="stats-row" id="col-stats"></div>
+  </div>
   <div class="filters-bar">
     <input class="fsearch" type="text" id="search-input" placeholder="Search name or category..." oninput="renderCollection()">
     <div class="fgrp" id="collection-shelf-group">
       <span class="fgrp-lbl">Shelf</span>
     </div>
-    <div class="fgrp">
+    <div class="fgrp status-group">
       <span class="fgrp-lbl">Status</span>
       <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
       <button class="fbtn" onclick="setFilter('status','played',this)">Played</button>
@@ -1404,6 +1418,12 @@ function normalizePlayText_(value) {
   </div>
 </div>
 </main>
+
+<div class="cabinet-footer" aria-hidden="true">
+  <span>GAME VAULT</span>
+  <span>COLLECT / PLAY / REMEMBER</span>
+</div>
+</div>
 
 <!-- MODAL -->
 <div class="moverlay" id="moverlay" onclick="maybeClose(event)">
@@ -1822,7 +1842,7 @@ function renderShelfControls(){
   const collectionGroup = document.getElementById('collection-shelf-group');
   if(collectionGroup){
     collectionGroup.innerHTML = `<span class="fgrp-lbl">Shelf</span>
-      <button class="fbtn ${filters.shelf.length===0?'active':''}" onclick="selectAllShelves()">All</button>
+      <button class="fbtn filter-all ${filters.shelf.length===0?'active':''}" onclick="selectAllShelves()">All</button>
       ${shelves.map(shelf => `<button class="fbtn ${filters.shelf.some(sel => sel.toLowerCase() === shelf.toLowerCase())?'active':''}" data-shelf="${escAttr(shelf)}" onclick="handleShelfFilterClick(this)">${shelf}</button>`).join('')}`;
   }
   const pickerGroup = document.getElementById('picker-shelf-group');
@@ -1957,8 +1977,7 @@ function renderCollection(){
   const gfKids = gfAll.filter(g=>hasShelfValue(g.s,'Kids'));
   const gfGoodStuffBase = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&!g.exp);
   const gfGoodStuffExp  = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&g.exp);
-  document.getElementById('col-sub').textContent =
-    `${gfGoodStuffBase.length} base games · ${gfGoodStuffExp.length} expansions · ${gfKids.length} children's · ${gfAll.length} total`;
+  document.getElementById('col-sub').textContent = `${gfAll.length} games`;
 
   // Stats respect global filter
   const gfGoodStuff = GAMES.filter(g=>!hasShelfValue(g.s,'Kids') && passesGlobal(g));
@@ -1968,7 +1987,6 @@ function renderCollection(){
   const goodStuffUnplayed = gfGoodStuff.filter(g=>!g.played).length;
   const goodStuffPct = gfGoodStuff.length > 0 ? Math.round(goodStuffPlayed / gfGoodStuff.length * 100) : 0;
   document.getElementById('col-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${gfGoodStuff.length}</div><div class="stat-label">The Good Stuff</div><div style="font-size:.65rem;color:var(--text3);margin-top:.25rem;">excl. kids' games</div></div>
     <div class="stat-card"><div class="stat-num">${goodStuffBase.length}</div><div class="stat-label">Base Games</div></div>
     <div class="stat-card"><div class="stat-num">${goodStuffExps.length}</div><div class="stat-label">Expansions</div></div>
     <div class="stat-card"><div class="stat-num">${goodStuffPlayed}</div><div class="stat-label">Played</div></div>
@@ -1980,7 +1998,6 @@ function renderCollection(){
         <div style="width:${goodStuffPct}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
       </div>
     </div>
-    <div class="stat-card"><div class="stat-num">${plays.length}</div><div class="stat-label">Logged Plays</div></div>
     <div class="stat-card"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Effective $ Spent</div></div>
   `;
 
@@ -1989,32 +2006,40 @@ function renderCollection(){
   if(countEl) countEl.textContent = `${filtered.length} game${filtered.length===1?'':'s'}`;
   updateInvestedCard();
   if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
-  grid.innerHTML = filtered.map(g=>{
+  grid.innerHTML = filtered.map((g,index)=>{
     const gp = plays.filter(p=>p.game===g.n);
     const jW = gp.filter(p=>p.winner==='John').length;
     const eW = gp.filter(p=>p.winner==='Elizabeth').length;
-    const thumb = g.thumb ? `${g.bggUrl ? `<a class="game-thumb-wrap game-thumb-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">` : `<div class="game-thumb-wrap">`}<img class="game-thumb" src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} thumbnail" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-thumb-wrap').style.display='none'">${g.bggUrl ? `</a>` : `</div>`}` : '';
+    const cover = g.thumb
+      ? `${g.bggUrl ? `<a class="game-cover game-cover-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="Open ${escAttr(g.n)} on BoardGameGeek">` : `<div class="game-cover">`}<img src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} cover" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-cover').classList.add('cover-missing');this.style.display='none'">${g.bggUrl ? `</a>` : `</div>`}`
+      : `<div class="game-cover game-cover-empty"><span>Cover not indexed</span></div>`;
     return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" data-game="${escAttr(g.n)}" role="button" tabindex="0" onclick="openModal(this.dataset.game)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal(this.dataset.game)}">
-      <div class="game-head">
-        <div class="game-main">
-          <div class="gname">${g.n}</div>
-          <div class="gmeta">
-            <span class="badge ${sBadge(g.s)}">${g.s}</span>
-            ${g.played?'<span class="badge bplayed">Played</span>':''}
-            ${g.exp?'<span class="badge bexp">Expansion</span>':''}
-            ${g.so==='Yes'?'<span class="badge">🧍 Solo</span>':''}
+      <span class="cartridge-index">${String(index+1).padStart(3,'0')}</span>
+      ${cover}
+      <div class="game-card-body">
+        <div class="game-head">
+          <div class="game-main">
+            <div class="gname">${g.n}</div>
           </div>
         </div>
-        ${thumb}
+        <div class="game-data-row">
+          <span class="game-score">BGG <strong>${g.bg || '—'}</strong></span>
+          ${g.plBGG?`<span>Players ${g.plBGG}</span>`:''}
+          ${g.ba?`<span>Best ${g.ba}</span>`:''}
+        </div>
+        <div class="gmeta">
+          <span class="badge ${sBadge(g.s)}">${g.s}</span>
+          ${g.played?'<span class="badge bplayed">Played</span>':''}
+          ${g.exp?'<span class="badge bexp">Expansion</span>':''}
+          ${g.so==='Yes'?'<span class="badge">Solo</span>':''}
+          ${isCoop(g)?'<span class="badge bcoop">Co-op</span>':''}
+        </div>
+        ${g.cat?`<div class="game-category">${g.cat}</div>`:''}
+        <div class="game-card-footer">
+          ${renderRatingBadges(g)}
+          ${gp.length?`<div class="play-count">${gp.length} play${gp.length>1?'s':''} · J ${jW} / E ${eW}</div>`:''}
+        </div>
       </div>
-      <div class="gscore" style="margin-bottom:.25rem;">BGG <span>${g.bg}</span>${g.cat?` · ${g.cat}`:''}</div>
-      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
-        ${g.ba?`<span class="badge" style="font-size:.64rem;">Best: ${g.ba}</span>`:''}
-        ${g.plBGG?`<span class="badge" style="font-size:.64rem;">Players: ${g.plBGG}</span>`:''}
-      </div>
-      ${renderRatingBadges(g)}
-      ${isCoop(g)?'<span class="badge bcoop" style="margin-top:.3rem;display:inline-block;">Co-op</span>':''}
-      ${gp.length?`<div class="gscore" style="margin-top:.3rem;">${gp.length} play${gp.length>1?'s':''} · J:${jW}W E:${eW}W</div>`:''}
     </div>`;
   }).join('');
 }
