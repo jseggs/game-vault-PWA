@@ -1231,8 +1231,9 @@
       <input class="fc" id="cfg-plays" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=123&single=true&output=csv">
     </div></div>
     <div class="form-row"><div class="fg" style="flex:3;">
-      <label>Apps Script URL (optional, to write plays back to Sheets)</label>
+      <label>Apps Script Web App URL (required to save plays, ratings, and exclusions)</label>
       <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec">
+      <span id="script-connection-status" style="display:block;margin-top:.45rem;font-family:var(--mono);font-size:.68rem;color:var(--text3);"></span>
     </div></div>
     <div class="form-row"><div class="fg" style="flex:3;">
       <label>Stats Sheet — CSV Publish URL <span style="color:var(--text3);font-weight:400;text-transform:none;">(optional — for live $ spent)</span></label>
@@ -1599,7 +1600,11 @@ let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
 if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
 if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
 if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
-if (!cfg.scriptUrl) cfg.scriptUrl = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
+const RETIRED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
+if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
+  cfg.scriptUrl = '';
+  localStorage.setItem('bgv-cfg',JSON.stringify(cfg));
+}
 let filters = {shelf:[],status:null,shelfInitialized:false};
 let picks = {shelf:[],played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
@@ -2164,7 +2169,7 @@ async function saveGameRatings(){
 
   if(!result.ok || result.data?.ratingsUpdated !== true){
     console.error('Rating writeback failed:', result.error || result.data);
-    showToast('Ratings were not saved to Sheets.','#c45c3c');
+    showToast(result.error || result.data?.message || 'Ratings were not saved to Sheets.','#c45c3c');
     return;
   }
 
@@ -2188,7 +2193,7 @@ async function delPlay(idx,name){
   const result = await pushDel(p);
   if(!result.ok || result.data?.playDeleted !== true){
     console.error('Play deletion failed:', result.error || result.data);
-    showToast(result.data?.message || 'Play was not deleted from Sheets.','#c45c3c');
+    showToast(result.error || result.data?.message || 'Play was not deleted from Sheets.','#c45c3c');
     return;
   }
   const currentIdx=plays.indexOf(p);
@@ -2604,7 +2609,7 @@ function showPlaySyncToast(result){
     return;
   }
   console.error('Sheets writeback failed:', result.error);
-  showToast('Play saved locally — Sheet sync failed', '#c45c3c');
+  showToast(result.error || 'Play saved locally — Sheet sync failed', '#c45c3c');
 }
 
 async function postToSheets(payload){
@@ -2623,7 +2628,10 @@ async function postToSheets(payload){
     try{
       result = JSON.parse(raw);
     }catch(e){
-      throw new Error(`Apps Script returned non-JSON (${response.status})`);
+      const looksLikeHtml = raw.trim().startsWith('<');
+      throw new Error(looksLikeHtml
+        ? 'Apps Script deployment URL is invalid or not shared with Anyone.'
+        : `Apps Script returned non-JSON (${response.status})`);
     }
     if(!response.ok || result.status !== 'ok'){
       throw new Error(result.message || `Apps Script returned ${response.status}`);
@@ -2689,7 +2697,7 @@ async function fetchStats(){
   }
 }
 
-function saveConfig(){
+async function saveConfig(){
   cfg.gamesUrl=document.getElementById('cfg-games').value.trim();
   cfg.playsUrl=document.getElementById('cfg-plays').value.trim();
   cfg.scriptUrl=document.getElementById('cfg-script').value.trim();
@@ -2697,8 +2705,29 @@ function saveConfig(){
   if(newStatsUrl !== cfg.statsUrl) cfg.invested = ''; // clear stale cache
   cfg.statsUrl=newStatsUrl;
   saveCfg();showToast('Config saved!');
+  await verifyScriptConnection();
   if(cfg.gamesUrl)syncNow();
   if(cfg.statsUrl)fetchStats();
+}
+
+async function verifyScriptConnection(){
+  const status=document.getElementById('script-connection-status');
+  if(!status) return;
+  if(!cfg.scriptUrl){
+    status.textContent='No active Apps Script deployment configured.';
+    status.style.color='var(--red)';
+    return;
+  }
+  status.textContent='Testing write connection...';
+  status.style.color='var(--text3)';
+  const result=await postToSheets({action:'ping'});
+  if(result.ok){
+    status.textContent='✓ Apps Script write connection ready';
+    status.style.color='var(--green)';
+  }else{
+    status.textContent='⚠ '+result.error;
+    status.style.color='var(--red)';
+  }
 }
 
 function loadCfgUI(){
@@ -2710,6 +2739,7 @@ function loadCfgUI(){
     document.getElementById('sync-badge').className='sstatus st-sheets';
     document.getElementById('sync-badge').textContent='● Google Sheets';
   }
+  verifyScriptConnection();
 }
 function toggleGuide(){
   const b=document.getElementById('guide-body');
