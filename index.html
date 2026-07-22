@@ -1318,12 +1318,19 @@
         }
       }
     } else if (data.action === "delete") {
+      result.playDeleted = false;
       var v = playsSheet.getDataRange().getValues();
+      var playTimeZone = ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone();
       for (var i = v.length - 1; i >= 1; i--) {
-        if (v[i][0]==data.date && v[i][1]==data.game && v[i][2]==data.winner) {
-          playsSheet.deleteRow(i + 1); break;
+        if (normalizePlayDate_(v[i][0], playTimeZone) === normalizePlayDate_(data.date, playTimeZone) &amp;&amp;
+            normalizePlayText_(v[i][1]) === normalizePlayText_(data.game) &amp;&amp;
+            normalizePlayText_(v[i][2]) === normalizePlayText_(data.winner)) {
+          playsSheet.deleteRow(i + 1);
+          result.playDeleted = true;
+          break;
         }
       }
+      if (!result.playDeleted) result.message = "No matching play was found in the Plays sheet.";
     }
   }
 
@@ -1373,6 +1380,21 @@
 }
 function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
+}
+function normalizePlayDate_(value, timeZone) {
+  if (value instanceof Date &amp;&amp; !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, timeZone, "yyyy-MM-dd");
+  }
+  var text = String(value || "").trim();
+  var iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[1] + "-" + iso[2] + "-" + iso[3];
+  var slash = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slash) return slash[3] + "-" + ("0" + slash[1]).slice(-2) + "-" + ("0" + slash[2]).slice(-2);
+  var parsed = new Date(text);
+  return isNaN(parsed.getTime()) ? text : Utilities.formatDate(parsed, timeZone, "yyyy-MM-dd");
+}
+function normalizePlayText_(value) {
+  return String(value || "").trim().toLowerCase();
 }</pre>
     </div>
   </div>
@@ -2161,10 +2183,20 @@ function markPlayed(name){const g=GAMES.find(x=>x.n===name);if(g)g.played=true;}
 
 async function delPlay(idx,name){
   const p=plays[idx];
-  plays.splice(idx,1);savePlays();
+  if(!p) return;
+  showToast('Deleting from Google Sheets...');
+  const result = await pushDel(p);
+  if(!result.ok || result.data?.playDeleted !== true){
+    console.error('Play deletion failed:', result.error || result.data);
+    showToast(result.data?.message || 'Play was not deleted from Sheets.','#c45c3c');
+    return;
+  }
+  const currentIdx=plays.indexOf(p);
+  if(currentIdx>=0) plays.splice(currentIdx,1);
+  savePlays();
   if(name&&document.getElementById('moverlay').classList.contains('open'))refreshModalPlays(name);
   renderPlays();renderStats();renderCollection();
-  await pushDel(p);showToast('Deleted.','#c45c3c');
+  showToast('Play deleted from Sheets.','#c45c3c');
 }
 
 function renderPlays(){
