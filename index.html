@@ -2001,7 +2001,7 @@ function renderCollection(){
     const jW = gp.filter(p=>p.winner==='John').length;
     const eW = gp.filter(p=>p.winner==='Elizabeth').length;
     const thumb = g.thumb ? `${g.bggUrl ? `<a class="game-thumb-wrap game-thumb-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">` : `<div class="game-thumb-wrap">`}<img class="game-thumb" src="${escAttr(g.thumb)}" alt="${escAttr(g.n)} thumbnail" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.game-thumb-wrap').style.display='none'">${g.bggUrl ? `</a>` : `</div>`}` : '';
-    return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" onclick="openModal(${JSON.stringify(g.n)})">
+    return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" data-game="${escAttr(g.n)}" role="button" tabindex="0" onclick="openModal(this.dataset.game)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal(this.dataset.game)}">
       <div class="game-head">
         <div class="game-main">
           <div class="gname">${g.n}</div>
