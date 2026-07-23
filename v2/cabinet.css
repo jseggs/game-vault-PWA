@@ -2349,3 +2349,15 @@ pre {
     font-size: 0.46rem;
   }
 }
+
+/* Preserve the mockup's physical scale when browsers expose an ultra-wide
+   effective viewport (for example, a large display or reduced browser zoom). */
+@media (min-width: 2200px) {
+  html {
+    font-size: clamp(18px, 0.78vw, 21px);
+  }
+
+  .cabinet-frame {
+    border-width: 12px;
+  }
+}

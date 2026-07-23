@@ -1028,8 +1028,8 @@
       </span>
     </div>
     <div class="brand-plaque" aria-hidden="true">
-      <strong>J + E</strong>
-      <span>Home Collection</span>
+      <strong id="brand-game-count">--</strong>
+      <span>Games Indexed</span>
     </div>
   </div>
   <div class="nav-tabs">
@@ -1998,6 +1998,8 @@ function renderCollection(){
   const gfGoodStuffBase = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&!g.exp);
   const gfGoodStuffExp  = gfAll.filter(g=>!hasShelfValue(g.s,'Kids')&&g.exp);
   document.getElementById('col-sub').textContent = `${gfAll.length} games`;
+  const brandGameCount = document.getElementById('brand-game-count');
+  if(brandGameCount) brandGameCount.textContent = GAMES.length;
 
   // Stats respect global filter
   const gfGoodStuff = GAMES.filter(g=>!hasShelfValue(g.s,'Kids') && passesGlobal(g));
@@ -2024,7 +2026,10 @@ function renderCollection(){
     const gp = plays.filter(p=>p.game===g.n);
     const jW = gp.filter(p=>p.winner==='John').length;
     const eW = gp.filter(p=>p.winner==='Elizabeth').length;
-    const highResCover = g.image || (g.bggId && window.BGG_IMAGE_MAP ? window.BGG_IMAGE_MAP[g.bggId] : '');
+    const coverNameKey = String(g.n || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const highResCover = g.image
+      || (g.bggId && window.BGG_IMAGE_MAP ? window.BGG_IMAGE_MAP[g.bggId] : '')
+      || (window.BGG_IMAGE_NAME_MAP ? window.BGG_IMAGE_NAME_MAP[coverNameKey] : '');
     const coverSrc = highResCover || g.thumb;
     const cover = coverSrc
       ? `${g.bggUrl ? `<a class="game-cover game-cover-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="Open ${escAttr(g.n)} on BoardGameGeek">` : `<div class="game-cover">`}<img src="${escAttr(coverSrc)}" data-fallback="${escAttr(highResCover ? g.thumb : '')}" alt="${escAttr(g.n)} cover" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleCoverError(this)">${g.bggUrl ? `</a>` : `</div>`}`
@@ -2677,7 +2682,7 @@ async function fetchStats(){
     if (el) el.textContent = '…';
     const txt = await fetchCSV(cfg.statsUrl);
     if (!txt) {
-      if (el) el.textContent = 'check URL';
+      if (el) el.textContent = '—';
       return;
     }
     const clean = txt.replace(/^\uFEFF/,'').trim();
