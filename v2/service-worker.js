@@ -1,14 +1,23 @@
-const CACHE_NAME = 'game-vault-cabinet-v5';
+const CACHE_NAME = 'game-vault-cabinet-v7';
 const APP_SHELL = [
   './',
   './index.html',
   './cabinet.css',
   './bgg-images.js',
   './manifest.webmanifest',
+  './assets/ui-icons.svg',
+  './assets/cabinet-trex.png',
   '../app-icon-192.png',
   '../app-icon-512.png',
   '../app-icon-maskable-512.png',
   '../green-t-rex.png',
+  '../Velociraptor-cyan.png',
+  '../Ankylosaurus-blue.png',
+  '../Brachiosaurus-yellow.png',
+  '../Pterodactyl-light-blue.png',
+  '../Spinosaurus-pink.png',
+  '../Stegosaurus-purple.png',
+  '../Triceratops.png',
   '../powered-by-bgg-rgb.svg'
 ];
 
@@ -39,7 +48,8 @@ async function networkFirst(request) {
   } catch (error) {
     const cached = await caches.match(request);
     if (cached) return cached;
-    return caches.match('./index.html');
+    if (request.mode === 'navigate') return caches.match('./index.html');
+    return new Response('', {status: 504, statusText: 'Offline'});
   }
 }
 

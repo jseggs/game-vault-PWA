@@ -8,10 +8,20 @@ function doPost(e) {
     var playsSheet = ss.getSheetByName('Plays');
     if (!playsSheet) {
       playsSheet = ss.insertSheet('Plays');
-      playsSheet.appendRow(['Date', 'Game', 'Winner', 'Notes', 'J Rating', 'E Rating']);
+      playsSheet.appendRow(['Date', 'Game', 'Winner', 'Notes', 'J Rating', 'E Rating', 'Play ID']);
     }
     if (data.action === 'add') {
-      playsSheet.appendRow([data.date, data.game, data.winner, data.notes || '', data.jRat || '', data.eRat || '']);
+      var playId = data.id || Utilities.getUuid();
+      appendPlayRow_(playsSheet, {
+        'Date': data.date,
+        'Game': data.game,
+        'Winner': data.winner,
+        'Notes': data.notes || '',
+        'J Rating': data.jRat || '',
+        'E Rating': data.eRat || '',
+        'Play ID': playId
+      });
+      result.playId = playId;
 
       // Mark game as Played and write ratings to Games sheet.
       if (data.markPlayed || data.jRat || data.eRat) {
@@ -38,13 +48,23 @@ function doPost(e) {
     } else {
       result.playDeleted = false;
       var playValues = playsSheet.getDataRange().getValues();
+      var playHeaders = playValues[0];
+      var playIdCol = playHeaders.indexOf('Play ID');
+      var notesCol = playHeaders.indexOf('Notes');
+      var playJRatingCol = playHeaders.indexOf('J Rating');
+      var playERatingCol = playHeaders.indexOf('E Rating');
       var playTimeZone = ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone();
       for (var playRow = playValues.length - 1; playRow >= 1; playRow--) {
-        if (
+        var idMatches = data.id && playIdCol >= 0 &&
+          normalizePlayText_(playValues[playRow][playIdCol]) === normalizePlayText_(data.id);
+        var legacyMatches =
           normalizePlayDate_(playValues[playRow][0], playTimeZone) === normalizePlayDate_(data.date, playTimeZone) &&
           normalizePlayText_(playValues[playRow][1]) === normalizePlayText_(data.game) &&
-          normalizePlayText_(playValues[playRow][2]) === normalizePlayText_(data.winner)
-        ) {
+          normalizePlayText_(playValues[playRow][2]) === normalizePlayText_(data.winner) &&
+          (notesCol < 0 || normalizePlayText_(playValues[playRow][notesCol]) === normalizePlayText_(data.notes)) &&
+          (playJRatingCol < 0 || normalizePlayText_(playValues[playRow][playJRatingCol]) === normalizePlayText_(data.jRat)) &&
+          (playERatingCol < 0 || normalizePlayText_(playValues[playRow][playERatingCol]) === normalizePlayText_(data.eRat));
+        if (idMatches || (!data.id && legacyMatches)) {
           playsSheet.deleteRow(playRow + 1);
           result.playDeleted = true;
           break;
@@ -132,4 +152,18 @@ function normalizePlayDate_(value, timeZone) {
 
 function normalizePlayText_(value) {
   return String(value || '').trim().toLowerCase();
+}
+
+function appendPlayRow_(sheet, valuesByHeader) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  Object.keys(valuesByHeader).forEach(function(header) {
+    if (headers.indexOf(header) === -1) {
+      headers.push(header);
+      sheet.getRange(1, headers.length).setValue(header);
+    }
+  });
+  var row = headers.map(function(header) {
+    return Object.prototype.hasOwnProperty.call(valuesByHeader, header) ? valuesByHeader[header] : '';
+  });
+  sheet.appendRow(row);
 }

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="collection" viewBox="0 0 24 24">
+      <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+    </symbol>
+    <symbol id="picker" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="7"/>
+      <circle cx="12" cy="12" r="2.5"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+    </symbol>
+    <symbol id="plays" viewBox="0 0 24 24">
+      <path d="M6 3h9l3 3v15H6z"/>
+      <path d="M15 3v4h4M9 11h6M9 15h6"/>
+    </symbol>
+    <symbol id="stats" viewBox="0 0 24 24">
+      <path d="M4 20V11h4v9M10 20V5h4v15M16 20v-7h4v7M2 20h20"/>
+    </symbol>
+    <symbol id="settings" viewBox="0 0 24 24">
+      <path d="M9.7 3.4 10.5 2h3l.8 1.4 1.5.6 1.6-.4 2.1 2.1-.4 1.6.6 1.5 1.4.8v3l-1.4.8-.6 1.5.4 1.6-2.1 2.1-1.6-.4-1.5.6-.8 1.4h-3l-.8-1.4-1.5-.6-1.6.4-2.1-2.1.4-1.6-.6-1.5-1.4-.8v-3l1.4-.8.6-1.5-.4-1.6 2.1-2.1 1.6.4z"/>
+      <circle cx="12" cy="11.1" r="3.2"/>
+    </symbol>
+    <symbol id="search" viewBox="0 0 24 24">
+      <circle cx="10.5" cy="10.5" r="6.5"/>
+      <path d="m15.5 15.5 5 5"/>
+    </symbol>
+    <symbol id="base" viewBox="0 0 24 24">
+      <path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>
+    </symbol>
+    <symbol id="expansion" viewBox="0 0 24 24">
+      <path d="M9 3h6v5h5v6h-5v5H9v-5H4V8h5z"/>
+    </symbol>
+    <symbol id="played" viewBox="0 0 24 24">
+      <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>
+    </symbol>
+    <symbol id="unplayed" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/>
+    </symbol>
+    <symbol id="percent" viewBox="0 0 24 24">
+      <path d="M12 3v9h9A9 9 0 1 1 12 3z"/>
+      <path d="M15 3.6a9 9 0 0 1 5.4 5.4H15z"/>
+    </symbol>
+    <symbol id="value" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M15.5 8.5c-.6-1-1.8-1.5-3.4-1.5-1.8 0-3.1.8-3.1 2.1 0 1.5 1.4 1.9 3.5 2.3 2 .4 3.2 1 3.2 2.6 0 1.7-1.5 2.8-3.7 2.8-1.8 0-3.3-.6-4-1.8M12 5.2v13.6"/>
+    </symbol>
+    <symbol id="users" viewBox="0 0 24 24">
+      <circle cx="8.5" cy="8" r="3"/>
+      <circle cx="16.5" cy="8.7" r="2.5"/>
+      <path d="M3 20v-2.1c0-3.2 2-5 5.5-5s5.5 1.8 5.5 5V20M14 14c4 0 6 1.6 6 4.7V20"/>
+    </symbol>
+    <symbol id="home" viewBox="0 0 24 24">
+      <path d="m3 11 9-8 9 8v10h-6v-6H9v6H3z"/>
+    </symbol>
+    <symbol id="party" viewBox="0 0 24 24">
+      <path d="m5 20 4-13 8 8zM13 5l2-2M17 8l4-1M16 12l4 2"/>
+      <circle cx="19" cy="3" r="1"/>
+    </symbol>
+    <symbol id="kids" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M8 10h.1M16 10h.1M8.5 14.5c2 2 5 2 7 0"/>
+    </symbol>
+    <symbol id="solo" viewBox="0 0 24 24">
+      <circle cx="12" cy="7" r="3"/>
+      <path d="M6 21v-3c0-4 2.2-6 6-6s6 2 6 6v3z"/>
+    </symbol>
+    <symbol id="grid" viewBox="0 0 24 24">
+      <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+    </symbol>
+    <symbol id="chevron" viewBox="0 0 24 24">
+      <path d="m9 5 7 7-7 7"/>
+    </symbol>
+    <symbol id="close" viewBox="0 0 24 24">
+      <path d="M5 5l14 14M19 5 5 19"/>
+    </symbol>
+  </defs>
+</svg>

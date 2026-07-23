@@ -392,7 +392,8 @@ function writeBggDataToRow_(sheet, headers, row, title, match, data, options) {
   });
 }
 
-function fetchBggXml_(path, params) {
+function fetchBggXml_(path, params, attempt) {
+  attempt = Number(attempt || 0);
   const token = PropertiesService.getScriptProperties().getProperty('BGG_API_TOKEN');
   if (!token) {
     throw new Error('Missing Script Property BGG_API_TOKEN');
@@ -414,8 +415,11 @@ function fetchBggXml_(path, params) {
   });
   const code = response.getResponseCode();
   if (code === 202 || code === 429 || code === 500 || code === 503) {
-    Utilities.sleep(5500);
-    return fetchBggXml_(path, params);
+    if (attempt >= 3) {
+      throw new Error('BGG request did not become ready after 4 attempts (' + code + '): ' + url);
+    }
+    Utilities.sleep(5500 * (attempt + 1));
+    return fetchBggXml_(path, params, attempt + 1);
   }
   if (code >= 400) {
     throw new Error('BGG request failed (' + code + '): ' + url);
