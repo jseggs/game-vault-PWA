@@ -60,7 +60,7 @@
   </div>
   <div class="cabinet-id" aria-hidden="true">
     <span class="cabinet-id-copy">INSERT<br>COIN TO<br><strong>PLAY</strong></span>
-    <img class="cabinet-id-dino" src="v2/assets/cabinet-trex.png" alt="">
+    <img class="cabinet-id-dino" src="green-t-rex.png" alt="">
   </div>
 </nav>
 
@@ -87,12 +87,17 @@
         <span>More filters</span>
         <svg class="ui-icon" aria-hidden="true"><use href="v2/assets/ui-icons.svg#chevron"></use></svg>
       </summary>
-      <div class="fgrp status-group">
-        <span class="fgrp-lbl">Status</span>
-        <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
-        <button class="fbtn" onclick="setFilter('status','played',this)">Played</button>
-        <button class="fbtn" onclick="setFilter('status','unplayed',this)">Unplayed</button>
-        <button class="fbtn" onclick="setFilter('status','base',this)">Base Only</button>
+      <div class="status-panel">
+        <div class="fgrp status-group">
+          <span class="fgrp-lbl">Played</span>
+          <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
+          <button class="fbtn" onclick="setFilter('status','played',this)">Played</button>
+          <button class="fbtn" onclick="setFilter('status','unplayed',this)">Unplayed</button>
+        </div>
+        <div class="fgrp type-group">
+          <span class="fgrp-lbl">Type</span>
+          <button class="fbtn" onclick="toggleBaseOnly(this)">Base Games</button>
+        </div>
       </div>
     </details>
   </div>
@@ -292,6 +297,13 @@
               <option value="">All games</option>
               <option value="1">Yes</option>
               <option value="0">No</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Include kids' games?</label>
+            <select class="fc" id="gf-kids" onchange="applyGlobalFilters()">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
             </select>
           </div>
           <div class="fg">
@@ -652,7 +664,7 @@ if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
   cfg.scriptUrl = '';
   localStorage.setItem('bgv-cfg',JSON.stringify(cfg));
 }
-let filters = {shelf:[],status:null};
+let filters = {shelf:[],status:null,baseOnly:false};
 let picks = {shelf:[],played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
 const UI_ICON_SPRITE = 'v2/assets/ui-icons.svg';
@@ -672,9 +684,10 @@ const DEFAULT_PLAYER_PROFILES = {
 };
 let playerProfiles = normalizePlayerProfiles(cfg.playerProfiles);
 // Global filters (set in Sync tab, applied everywhere)
-let globalFilters = JSON.parse(localStorage.getItem('bgv-global-filters') || '{"eKnows":"1","year":""}');
-if (typeof globalFilters !== 'object' || globalFilters === null) globalFilters = {eKnows:'1', year:''};
+let globalFilters = JSON.parse(localStorage.getItem('bgv-global-filters') || '{"eKnows":"1","kids":"0","year":""}');
+if (typeof globalFilters !== 'object' || globalFilters === null) globalFilters = {eKnows:'1', kids:'0', year:''};
 globalFilters.eKnows = globalFilters.eKnows ?? '1';
+globalFilters.kids = globalFilters.kids ?? '0';
 globalFilters.year = globalFilters.year ?? '';
 let twoPlayerMode = 'good'; // 'best' = Best At contains 2, 'good' = BGG Comm contains 2 or 1-
 let twoPlayerExcludedShelves = new Set([]);
@@ -747,9 +760,10 @@ function toggleExcluded() {
 
 function applyGlobalFilters() {
   globalFilters.eKnows = document.getElementById('gf-eknows')?.value || '';
+  globalFilters.kids   = document.getElementById('gf-kids')?.value || '0';
   globalFilters.year   = document.getElementById('gf-year')?.value || '';
   saveGlobalFilters();
-  const active = globalFilters.eKnows || globalFilters.year;
+  const active = globalFilters.eKnows || globalFilters.kids === '0' || globalFilters.year;
   const msg = document.getElementById('gf-active-msg');
   if (msg) msg.style.display = active ? 'block' : 'none';
   updateInvestedCard();
@@ -760,6 +774,7 @@ function applyGlobalFilters() {
 function passesGlobal(g) {
   if (globalFilters.eKnows === '1' && !g.eKnows) return false;
   if (globalFilters.eKnows === '0' && g.eKnows) return false;
+  if (globalFilters.kids === '0' && hasShelfValue(g.s, 'Kids')) return false;
   if (globalFilters.year === 'before') {
     const year=parseInt(g.year,10);
     if(!Number.isFinite(year)||year>=2026) return false;
@@ -1018,6 +1033,13 @@ function setFilter(k,v,btn){
 
   renderCollection();
 }
+
+function toggleBaseOnly(btn){
+  filters.baseOnly = !filters.baseOnly;
+  btn.classList.toggle('active', filters.baseOnly);
+  renderCollection();
+}
+
 function setPick(k,v,btn){
   if(k==='shelf'){
     const key = String(v || '').toLowerCase();
@@ -1049,7 +1071,7 @@ function getFiltered(){
     if(filters.shelf.length && !filters.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
     if(filters.status==='played' && !g.played) return false;
     if(filters.status==='unplayed' && g.played) return false;
-    if(filters.status==='base' && g.exp) return false;
+    if(filters.baseOnly && g.exp) return false;
     return true;
   });
 }
@@ -1963,12 +1985,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   saveCfg();
 
   const gfEl = document.getElementById('gf-eknows');
+  const gfKidsEl = document.getElementById('gf-kids');
   const gfYearEl = document.getElementById('gf-year');
   if (gfEl) gfEl.value = globalFilters.eKnows || '';
+  if (gfKidsEl) gfKidsEl.value = globalFilters.kids || '0';
   if (gfYearEl) gfYearEl.value = globalFilters.year || '';
 
   const msg = document.getElementById('gf-active-msg');
-  if (msg) msg.style.display = (globalFilters.eKnows || globalFilters.year) ? 'block' : 'none';
+  if (msg) msg.style.display = (globalFilters.eKnows || globalFilters.kids === '0' || globalFilters.year) ? 'block' : 'none';
 
   renderCollection();
   renderStats();

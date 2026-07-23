@@ -255,13 +255,22 @@ nav {
 .modal::before,
 .twrap::before {
   position: absolute;
-  inset: 0;
+  inset: 1px;
   z-index: 5;
   padding: 1px;
   pointer-events: none;
   content: "";
-  background: linear-gradient(135deg, var(--frame-color, rgba(195,166,106,.38)), rgba(44,56,50,.75) 42%, var(--frame-color, rgba(195,166,106,.38)));
-  clip-path: inherit;
+  background: var(--frame-color, rgba(195,166,106,.52));
+  clip-path: polygon(
+    calc(var(--cut) - 1px) 0,
+    calc(100% - var(--cut) + 1px) 0,
+    100% calc(var(--cut) - 1px),
+    100% calc(100% - var(--cut) + 1px),
+    calc(100% - var(--cut) + 1px) 100%,
+    calc(var(--cut) - 1px) 100%,
+    0 calc(100% - var(--cut) + 1px),
+    0 calc(var(--cut) - 1px)
+  );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -411,7 +420,16 @@ nav {
   height: 68px;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 0 8px rgba(232,69,49,.35));
+  filter:
+    brightness(0)
+    saturate(100%)
+    invert(38%)
+    sepia(93%)
+    saturate(3099%)
+    hue-rotate(345deg)
+    brightness(102%)
+    contrast(88%)
+    drop-shadow(0 0 8px rgba(232,69,49,.35));
 }
 
 .app-shell {
@@ -727,7 +745,7 @@ nav {
   transform: rotate(90deg);
 }
 
-.status-menu .status-group {
+.status-menu .status-panel {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -738,6 +756,16 @@ nav {
   border: 1px solid rgba(195,166,106,.3);
   background: #050a08;
   box-shadow: 0 16px 32px rgba(0,0,0,.55);
+}
+
+.status-panel .fgrp {
+  flex-wrap: wrap;
+}
+
+.status-panel .type-group {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(195,166,106,.18);
 }
 
 .game-grid {
@@ -2058,7 +2086,7 @@ pre {
   .status-menu {
     margin-left: auto;
   }
-  .status-menu .status-group {
+  .status-menu .status-panel {
     position: fixed;
     right: 10px;
     bottom: 84px;
