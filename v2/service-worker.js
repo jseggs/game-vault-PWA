@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-cabinet-v8';
+const CACHE_NAME = 'game-vault-cabinet-v9';
 const APP_SHELL = [
   './',
   './index.html',

@@ -1368,19 +1368,37 @@ select.fc {
   filter: blur(7px);
 }
 
-.battle-dino {
+.battle-avatar {
   position: relative;
   z-index: 1;
-  display: block;
   width: min(100%, 255px);
   height: 180px;
+}
+
+.battle-avatar::after,
+.roster-avatar::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  content: "";
+  opacity: .76;
+  background: var(--fighter-accent, var(--roster-accent));
+  -webkit-mask: var(--avatar-image) center / contain no-repeat;
+  mask: var(--avatar-image) center / contain no-repeat;
+}
+
+.battle-dino {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   object-position: center bottom;
   image-rendering: pixelated;
-  filter: drop-shadow(0 9px 0 rgba(0,0,0,.3)) drop-shadow(0 0 17px var(--fighter-accent));
+  filter: grayscale(1) brightness(.86) contrast(1.22) drop-shadow(0 9px 0 rgba(0,0,0,.3)) drop-shadow(0 0 17px var(--fighter-accent));
 }
 
-.battle-dino.john {
+.battle-avatar.john {
   transform: scaleX(-1);
 }
 
@@ -1656,12 +1674,20 @@ select.fc {
   background: #050a08;
 }
 
-.roster-player img {
+.roster-avatar {
+  position: relative;
   width: 68px;
   height: 58px;
+  --fighter-accent: var(--roster-accent);
+}
+
+.roster-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--roster-accent), transparent 50%));
+  filter: grayscale(1) brightness(.86) contrast(1.2) drop-shadow(0 0 8px color-mix(in srgb, var(--roster-accent), transparent 50%));
 }
 
 .roster-player strong,
@@ -1717,6 +1743,75 @@ select.fc {
 
 .st tr:hover td {
   background: rgba(53,168,157,.035);
+}
+
+.twoplayer-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 14px;
+  border-top: 1px solid var(--red);
+  border-bottom: 1px solid rgba(195,166,106,.24);
+}
+
+.twoplayer-stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  min-height: 92px;
+  padding: 15px 18px;
+  border-right: 1px solid rgba(195,166,106,.2);
+  background: rgba(8,15,12,.95);
+}
+
+.twoplayer-stat:last-child {
+  border-right: 0;
+}
+
+.twoplayer-stat-number {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(2rem, 2.8vw, 3rem);
+  font-weight: 800;
+  line-height: .8;
+  white-space: nowrap;
+}
+
+.twoplayer-stat.played .twoplayer-stat-number,
+.twoplayer-stat.progress .twoplayer-stat-number {
+  color: var(--teal);
+}
+
+.twoplayer-stat-number small {
+  color: var(--ink-soft);
+  font-size: .48em;
+}
+
+.twoplayer-stat-label {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.twoplayer-progress {
+  grid-column: 1 / -1;
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  background: #101713;
+}
+
+.twoplayer-progress i {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+  transition: width .35s ease;
 }
 
 .wj { color: var(--teal); }
@@ -2127,22 +2222,149 @@ pre {
   .pentry { grid-template-columns: 1fr; }
   .battle-card { padding: 0; }
   .battle-stage {
-    grid-template-columns: 1fr 92px 1fr;
-    min-height: 260px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 300px;
   }
-  .battle-side { padding: 12px 8px 14px; }
+  .battle-side { padding: 12px 14px 14px; }
+  .battle-side.left { padding-right: 42px; }
+  .battle-side.right { padding-left: 42px; }
   .fighter-hud { padding: 7px; }
   .fighter-hud strong { font-size: 1.3rem; }
   .fighter-art { min-height: 120px; }
-  .battle-dino { width: 140px; height: 120px; }
+  .battle-avatar { width: 140px; height: 120px; }
   .fighter-score strong { font-size: 2.35rem; }
   .fighter-score span { font-size: .84rem; }
   .fighter-score small { font-size: .48rem; }
+  .battle-center {
+    position: absolute;
+    top: 56%;
+    left: 50%;
+    z-index: 5;
+    width: 92px;
+    transform: translate(-50%,-50%);
+  }
   .battle-vs { width: 58px; height: 58px; font-size: 1.8rem; }
   .battle-meter-bar { width: 82px; }
   .battle-lead { font-size: .47rem; }
   .battle-footer { padding-inline: 9px; font-size: .48rem; }
   .favorites-grid { grid-template-columns: 1fr; }
+  .records-table {
+    display: block;
+    min-width: 0;
+  }
+  .records-table thead {
+    display: none;
+  }
+  .records-table tbody {
+    display: grid;
+    gap: 8px;
+  }
+  .records-table tr {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    padding: 13px;
+    border: 1px solid rgba(195,166,106,.2);
+    background: rgba(7,14,11,.96);
+  }
+  .records-table td {
+    display: grid;
+    gap: 3px;
+    padding: 0;
+    border: 0;
+    font-family: var(--mono);
+    font-size: .68rem;
+  }
+  .records-table td::before {
+    color: var(--brass-dark);
+    content: attr(data-label);
+    font-size: .49rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .records-table td:first-child {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .records-table td:last-child {
+    grid-column: 1 / -1;
+  }
+  .twoplayer-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .twoplayer-stat {
+    min-height: 86px;
+    padding: 13px;
+    border-bottom: 1px solid rgba(195,166,106,.18);
+  }
+  .twoplayer-stat:nth-child(2) { border-right: 0; }
+  .twoplayer-stat:nth-child(n+3) { border-bottom: 0; }
+  .twoplayer-stat-number { font-size: 2.25rem; }
+  .twoplayer-table {
+    display: block;
+    min-width: 0;
+  }
+  .twoplayer-table thead {
+    display: none;
+  }
+  .twoplayer-table tbody {
+    display: grid;
+    gap: 8px;
+  }
+  .twoplayer-table tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px 12px;
+    padding: 13px 46px 13px 13px;
+    border: 1px solid rgba(195,166,106,.2);
+    background: rgba(7,14,11,.96);
+  }
+  .twoplayer-table td {
+    padding: 0;
+    border: 0;
+  }
+  .twoplayer-table td:first-child {
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .twoplayer-table td:nth-child(2) {
+    justify-self: end;
+  }
+  .twoplayer-table td:nth-child(3),
+  .twoplayer-table td:nth-child(4) {
+    color: var(--muted);
+    font-size: .66rem;
+  }
+  .twoplayer-table td:nth-child(3)::before,
+  .twoplayer-table td:nth-child(4)::before {
+    margin-right: 5px;
+    color: var(--brass-dark);
+    content: attr(data-label) ":";
+    font-family: var(--mono);
+    font-size: .52rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .twoplayer-action {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
   .moverlay { align-items: end; padding: 0; }
   .modal {
     width: 100%;
@@ -2168,14 +2390,25 @@ pre {
   .game-cover { min-height: 145px; }
   .gname { font-size: .88rem; }
   .battle-stage {
-    grid-template-columns: 1fr 70px 1fr;
-    min-height: 238px;
+    min-height: 276px;
   }
   .fighter-hud > span:last-child { display: none; }
   .fighter-art { min-height: 105px; }
-  .battle-dino { width: 115px; height: 105px; }
+  .battle-avatar { width: 115px; height: 105px; }
+  .battle-side { padding-inline: 8px; }
+  .battle-side.left { padding-right: 34px; }
+  .battle-side.right { padding-left: 34px; }
+  .battle-center { width: 72px; }
   .fighter-score small { display: none; }
   .battle-footer span:nth-child(2) { display: none; }
+  .twoplayer-stat {
+    grid-template-columns: auto 1fr;
+    gap: 9px;
+    min-height: 78px;
+    padding: 11px;
+  }
+  .twoplayer-stat-number { font-size: 2rem; }
+  .twoplayer-stat-label { font-size: .5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -206,9 +206,9 @@
   <div class="favorites-grid" id="player-favorites"></div>
   <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Per-Game Win Records</div>
   <div class="twrap">
-    <table class="st">
+    <table class="st records-table">
       <thead><tr>
-        <th>Game</th><th>Plays</th><th>John W</th><th>Elizabeth W</th><th>Ties/Coop</th><th>Leader</th>
+        <th>Game</th><th>Plays</th><th id="stats-player-one-head">Player 1 W</th><th id="stats-player-two-head">Player 2 W</th><th>Ties/Coop</th><th>Leader</th>
       </tr></thead>
       <tbody id="stats-body"></tbody>
     </table>
@@ -224,9 +224,9 @@
       <button class="fbtn active" id="2p-mode-good" onclick="set2pMode('good',this)">Good at 2</button>
     </div>
   </div>
-  <div class="stats-row" id="twoplayer-stats"></div>
+  <div class="twoplayer-summary" id="twoplayer-stats"></div>
   <div class="twrap">
-    <table class="st">
+    <table class="st twoplayer-table">
       <thead><tr>
         <th>Game</th><th>Shelf</th><th>Best At</th><th>Status</th><th style="width:40px;"></th>
       </tr></thead>
@@ -261,7 +261,7 @@
         Data Connections
         <span id="sync-badge" class="sstatus st-local">● Local Storage</span>
       </div>
-      <p class="settings-intro">Published CSV feeds load your collection, plays, and stats. The Apps Script deployment handles secure write-back.</p>
+      <p class="settings-intro">Published CSV feeds load your collection, plays, stats, and player avatars. The Apps Script deployment handles secure write-back.</p>
       <div class="form-row"><div class="fg">
         <label>Games CSV URL</label>
         <input class="fc" id="cfg-games" placeholder="Published Games sheet URL">
@@ -278,6 +278,11 @@
       <div class="form-row"><div class="fg">
         <label>Stats CSV URL</label>
         <input class="fc" id="cfg-stats" placeholder="Published Stats sheet URL">
+      </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Players CSV URL</label>
+        <input class="fc" id="cfg-players" placeholder="Published Players sheet URL">
+        <span id="players-connection-status" class="connection-status"></span>
       </div></div>
       <div class="settings-actions">
         <button class="btn btn-gold" onclick="saveConfig()">Save &amp; Sync</button>
@@ -317,10 +322,10 @@
       </section>
 
       <section class="sbox">
-        <div class="stitle">Dino Duel Roster</div>
-        <p class="settings-intro">Optional rows in the Stats sheet control each fighter. Supported keys: <code>John Dino</code>, <code>John Color</code>, <code>Elizabeth Dino</code>, and <code>Elizabeth Color</code>.</p>
+        <div class="stitle">Player Avatars</div>
+        <p class="settings-intro">The published Players sheet controls each fighter. Player #1 and #2 supply the display name, dinosaur, and color used throughout the app.</p>
         <div class="roster-preview" id="roster-preview"></div>
-        <p class="settings-note">Dinosaurs: T-Rex, Velociraptor, Triceratops, Ankylosaurus, Brachiosaurus, Pterodactyl, Spinosaurus, Stegosaurus. Colors use six-digit hex values.</p>
+        <p class="settings-note">Dinosaurs: T-Rex, Velociraptor, Triceratops, Ankylosaurus, Brachiosaurus, Pterodactyl, Spinosaurus, Stegosaurus. Colors: cyan, gold, pink, purple, lime, orange, teal, or red.</p>
       </section>
     </div>
   </div>
@@ -659,6 +664,7 @@ let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
 if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
 if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
 if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
+cfg.playersUrl = cfg.playersUrl || '';
 const RETIRED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
 if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
   cfg.scriptUrl = '';
@@ -677,6 +683,16 @@ const DINO_ROSTER = {
   pterodactyl: {label:'Pterodactyl', asset:'Pterodactyl-light-blue.png', accent:'#76b6d6'},
   spinosaurus: {label:'Spinosaurus', asset:'Spinosaurus-pink.png', accent:'#d65f78'},
   stegosaurus: {label:'Stegosaurus', asset:'Stegosaurus-purple.png', accent:'#8b67ad'}
+};
+const PLAYER_COLOR_PALETTE = {
+  cyan:'#36b8c4',
+  gold:'#d5ad52',
+  pink:'#df6596',
+  purple:'#8b67ad',
+  lime:'#8fcf37',
+  orange:'#ed7a32',
+  teal:'#2aa197',
+  red:'#e9513d'
 };
 const DEFAULT_PLAYER_PROFILES = {
   john: {name:'John', dino:'velociraptor', color:'#36b8c4'},
@@ -843,6 +859,8 @@ function normalizeDinoKey(value, fallback){
 
 function normalizeProfileColor(value, fallback){
   const color = String(value || '').trim();
+  const namedColor = PLAYER_COLOR_PALETTE[color.toLowerCase()];
+  if(namedColor) return namedColor;
   return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
 }
 
@@ -870,10 +888,57 @@ function renderBattleRosterSettings(){
     const fallback=key==='john'?'velociraptor':'triceratops';
     const dino=DINO_ROSTER[profile.dino]||DINO_ROSTER[fallback];
     return `<div class="roster-player" style="--roster-accent:${escAttr(profile.color)}">
-      <img src="${dino.asset}" alt="">
+      <div class="roster-avatar" style="--avatar-image:url('../${dino.asset}')">
+        <img src="${dino.asset}" alt="">
+      </div>
       <div><strong>${escAttr(profile.name)}</strong><span>${dino.label}</span></div>
     </div>`;
   }).join('');
+}
+
+function playerSlotFromWinner(value){
+  const normalized=String(value||'').trim().toLowerCase();
+  if(!normalized) return '';
+  const compact=normalized.replace(/[^a-z0-9]/g,'');
+  const p1Name=playerProfiles.john.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const p2Name=playerProfiles.elizabeth.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(['1','p1','player1','john'].includes(compact)||compact===p1Name) return 'john';
+  if(['2','p2','player2','elizabeth','liz'].includes(compact)||compact===p2Name) return 'elizabeth';
+  return '';
+}
+
+function winnerDisplayName(value){
+  const slot=playerSlotFromWinner(value);
+  if(slot) return playerProfiles[slot].name;
+  return String(value||'');
+}
+
+function winnerColor(value){
+  const slot=playerSlotFromWinner(value);
+  return slot ? playerProfiles[slot].color : 'var(--brass)';
+}
+
+function updatePlayerLabels(){
+  const p1=playerProfiles.john.name;
+  const p2=playerProfiles.elizabeth.name;
+  document.querySelectorAll('#log-winner option[value="John"],#m-winner option[value="John"]').forEach(option=>{option.textContent=p1;});
+  document.querySelectorAll('#log-winner option[value="Elizabeth"],#m-winner option[value="Elizabeth"]').forEach(option=>{option.textContent=p2;});
+  const labels=[
+    ['log-jrat',`${p1} rating (1-10)`],
+    ['log-erat',`${p2} rating (1-10)`],
+    ['m-rate-j',`${p1} rating`],
+    ['m-rate-e',`${p2} rating`],
+    ['m-jrat',`${p1} rating`],
+    ['m-erat',`${p2} rating`]
+  ];
+  labels.forEach(([id,text])=>{
+    const label=document.getElementById(id)?.closest('.fg')?.querySelector('label');
+    if(label) label.textContent=text;
+  });
+  const p1Head=document.getElementById('stats-player-one-head');
+  const p2Head=document.getElementById('stats-player-two-head');
+  if(p1Head) p1Head.textContent=`${p1} W`;
+  if(p2Head) p2Head.textContent=`${p2} W`;
 }
 
 // ═══════════════════════════════════════
@@ -1086,8 +1151,8 @@ function renderRatingBadges(game){
   const eRating = numericRating(game.eRat);
   if(jRating === null && eRating === null) return '';
   return `<div class="rating-strip">
-    ${jRating !== null ? `<span class="rating-chip john">J rating <strong>${jRating}</strong></span>` : ''}
-    ${eRating !== null ? `<span class="rating-chip elizabeth">E rating <strong>${eRating}</strong></span>` : ''}
+    ${jRating !== null ? `<span class="rating-chip john">${escAttr(playerProfiles.john.name)} <strong>${jRating}</strong></span>` : ''}
+    ${eRating !== null ? `<span class="rating-chip elizabeth">${escAttr(playerProfiles.elizabeth.name)} <strong>${eRating}</strong></span>` : ''}
   </div>`;
 }
 
@@ -1127,8 +1192,8 @@ function renderCollection(){
   if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
   grid.innerHTML = filtered.map((g,index)=>{
     const gp = plays.filter(p=>p.game===g.n);
-    const jW = gp.filter(p=>p.winner==='John').length;
-    const eW = gp.filter(p=>p.winner==='Elizabeth').length;
+    const jW = gp.filter(p=>playerSlotFromWinner(p.winner)==='john').length;
+    const eW = gp.filter(p=>playerSlotFromWinner(p.winner)==='elizabeth').length;
     const coverNameKey = String(g.n || '').trim().toLowerCase().replace(/\s+/g, ' ');
     const highResCover = g.image
       || (g.bggId && window.BGG_IMAGE_MAP ? window.BGG_IMAGE_MAP[g.bggId] : '')
@@ -1176,8 +1241,8 @@ function openModal(name){
     <div class="mfield"><label>Best At</label><div class="val">${g.ba}</div></div>
     <div class="mfield"><label>Good at 2P</label><div class="val">${g.p2||'—'}</div></div>
     <div class="mfield"><label>Solo Option</label><div class="val">${g.so||'—'}</div></div>
-    <div class="mfield"><label>J Rating</label><div class="val">${g.jRat||'—'}</div></div>
-    <div class="mfield"><label>E Rating</label><div class="val">${g.eRat||'—'}</div></div>
+    <div class="mfield"><label>${escAttr(playerProfiles.john.name)} Rating</label><div class="val">${g.jRat||'—'}</div></div>
+    <div class="mfield"><label>${escAttr(playerProfiles.elizabeth.name)} Rating</label><div class="val">${g.eRat||'—'}</div></div>
     <div class="mfield"><label>Type</label><div class="val">${g.exp?'Expansion':'Base Game'}</div></div>
   `;
   document.getElementById('m-notes').innerHTML = g.notes?`<div class="notes-box">${g.notes}</div>`:'';
@@ -1188,14 +1253,14 @@ function openModal(name){
 
 function refreshModalPlays(name){
   const gp = plays.filter(p=>p.game===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const jW = gp.filter(p=>p.winner==='John').length;
-  const eW = gp.filter(p=>p.winner==='Elizabeth').length;
-  const ot = gp.filter(p=>p.winner!=='John'&&p.winner!=='Elizabeth').length;
+  const jW = gp.filter(p=>playerSlotFromWinner(p.winner)==='john').length;
+  const eW = gp.filter(p=>playerSlotFromWinner(p.winner)==='elizabeth').length;
+  const ot = gp.filter(p=>!playerSlotFromWinner(p.winner)).length;
   document.getElementById('m-wl').innerHTML = gp.length
     ?`<div style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.8rem;margin-bottom:.3rem;">
         <span><strong style="color:var(--text)">${gp.length}</strong> plays</span>
-        <span>John: <strong style="color:#7ab0d4">${jW}W</strong></span>
-        <span>Elizabeth: <strong style="color:#d492c0">${eW}W</strong></span>
+        <span>${escAttr(playerProfiles.john.name)}: <strong style="color:${escAttr(playerProfiles.john.color)}">${jW}W</strong></span>
+        <span>${escAttr(playerProfiles.elizabeth.name)}: <strong style="color:${escAttr(playerProfiles.elizabeth.color)}">${eW}W</strong></span>
         ${ot?`<span>Other: <strong style="color:var(--text3)">${ot}</strong></span>`:''}
       </div>`
     :'<div style="color:var(--text3);font-size:.79rem;margin-bottom:.3rem;">No plays logged yet.</div>';
@@ -1204,9 +1269,9 @@ function refreshModalPlays(name){
         const ri = plays.indexOf(p);
         return `<div class="pentry">
           <span class="pdate">${p.date}</span>
-          <span class="pwinner" style="color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'}">${p.winner}</span>
-          ${p.jRat?`<span class="badge">J:${p.jRat}</span>`:''}
-          ${p.eRat?`<span class="badge">E:${p.eRat}</span>`:''}
+          <span class="pwinner" style="color:${winnerColor(p.winner)}">${escAttr(winnerDisplayName(p.winner))}</span>
+          ${p.jRat?`<span class="badge">${escAttr(playerProfiles.john.name)}:${p.jRat}</span>`:''}
+          ${p.eRat?`<span class="badge">${escAttr(playerProfiles.elizabeth.name)}:${p.eRat}</span>`:''}
           <span class="pnotes">${p.notes||''}</span>
           <button class="pdel" onclick="delPlay(${ri},'${name.replace(/'/g,"\\'")}')" title="Delete">✕</button>
         </div>`;
@@ -1368,9 +1433,9 @@ function renderPlays(){
       </div>
       <button class="pdel" onclick="delPlay(${p._i},null)">✕</button>
       <div class="psub">
-        <span class="pwinner" style="color:${p.winner==='John'?'#7ab0d4':p.winner==='Elizabeth'?'#d492c0':'var(--gold)'};">${p.winner}</span>
-        ${p.jRat?`<span class="badge">J:${p.jRat}</span>`:''}
-        ${p.eRat?`<span class="badge">E:${p.eRat}</span>`:''}
+        <span class="pwinner" style="color:${winnerColor(p.winner)};">${escAttr(winnerDisplayName(p.winner))}</span>
+        ${p.jRat?`<span class="badge">${escAttr(playerProfiles.john.name)}:${p.jRat}</span>`:''}
+        ${p.eRat?`<span class="badge">${escAttr(playerProfiles.elizabeth.name)}:${p.eRat}</span>`:''}
       </div>
       ${p.notes?`<div class="pnotes">${p.notes}</div>`:''}
     </div>`).join('');
@@ -1380,19 +1445,20 @@ function renderPlays(){
 // STATS
 // ═══════════════════════════════════════
 function renderStats(){
+  updatePlayerLabels();
   renderBattleRosterSettings();
   const scopedPlays = plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return !g||passesGlobal(g);});
-  const jW=scopedPlays.filter(p=>p.winner==='John').length;
-  const eW=scopedPlays.filter(p=>p.winner==='Elizabeth').length;
+  const jW=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)==='john').length;
+  const eW=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)==='elizabeth').length;
   const tot=jW+eW;
   const pct=tot>0?(jW/tot*100):50;
   const diff=tot?jW-eW:0;
   const johnRate=tot>0?Math.round(jW/tot*100):0;
   const lizRate=tot>0?Math.round(eW/tot*100):0;
-  const leadText = diff > 0 ? `John leads by ${diff}` : diff < 0 ? `Elizabeth leads by ${Math.abs(diff)}` : 'Even match';
-  const leadClass = diff === 0 ? 'tie' : '';
   const johnProfile = playerProfiles.john;
   const lizProfile = playerProfiles.elizabeth;
+  const leadText = diff > 0 ? `${johnProfile.name} leads by ${diff}` : diff < 0 ? `${lizProfile.name} leads by ${Math.abs(diff)}` : 'Even match';
+  const leadClass = diff === 0 ? 'tie' : '';
   const johnDino = DINO_ROSTER[johnProfile.dino] || DINO_ROSTER.velociraptor;
   const lizDino = DINO_ROSTER[lizProfile.dino] || DINO_ROSTER.triceratops;
   document.getElementById('win-stats').innerHTML=`
@@ -1410,14 +1476,16 @@ function renderStats(){
             <span>${johnDino.label}</span>
           </div>
           <div class="fighter-art">
-            <img class="battle-dino john" src="${johnDino.asset}" alt="">
+            <div class="battle-avatar john" style="--avatar-image:url('../${johnDino.asset}')">
+              <img class="battle-dino" src="${johnDino.asset}" alt="">
+            </div>
           </div>
           <div class="fighter-score"><strong>${jW}</strong><span>Wins</span><small>${johnRate}% win rate</small></div>
         </section>
         <div class="battle-center">
           <div class="battle-vs">VS</div>
           <div class="battle-meter-text">Advantage</div>
-          <div class="battle-meter-bar" aria-label="John win share ${Math.round(pct)} percent">
+          <div class="battle-meter-bar" aria-label="${escAttr(johnProfile.name)} win share ${Math.round(pct)} percent">
             <span class="battle-meter-john" style="width:${pct}%"></span>
             <span class="battle-meter-liz" style="width:${100-pct}%"></span>
           </div>
@@ -1430,7 +1498,9 @@ function renderStats(){
             <span>${lizDino.label}</span>
           </div>
           <div class="fighter-art">
-            <img class="battle-dino liz" src="${lizDino.asset}" alt="">
+            <div class="battle-avatar liz" style="--avatar-image:url('../${lizDino.asset}')">
+              <img class="battle-dino" src="${lizDino.asset}" alt="">
+            </div>
           </div>
           <div class="fighter-score"><strong>${eW}</strong><span>Wins</span><small>${lizRate}% win rate</small></div>
         </section>
@@ -1448,23 +1518,23 @@ function renderStats(){
     if(g && !passesGlobal(g)) return; // respect global filter
     if(!map[p.game])map[p.game]={n:0,j:0,e:0,t:0};
     map[p.game].n++;
-    if(p.winner==='John')map[p.game].j++;
-    else if(p.winner==='Elizabeth')map[p.game].e++;
+    if(playerSlotFromWinner(p.winner)==='john')map[p.game].j++;
+    else if(playerSlotFromWinner(p.winner)==='elizabeth')map[p.game].e++;
     else map[p.game].t++;
   });
   const rows=Object.entries(map).sort((a,b)=>b[1].n-a[1].n);
   const tb=document.getElementById('stats-body');
   if(!rows.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.8rem;">No plays yet.</td></tr>';return;}
   tb.innerHTML=rows.map(([name,d])=>{
-    const ldr=d.j>d.e?'John':d.e>d.j?'Elizabeth':'Tied';
-    const lc=ldr==='John'?'wj':ldr==='Elizabeth'?'we':'wn';
+    const ldr=d.j>d.e?playerProfiles.john.name:d.e>d.j?playerProfiles.elizabeth.name:'Tied';
+    const lc=d.j>d.e?'wj':d.e>d.j?'we':'wn';
     return `<tr>
-      <td title="${name}">${name.length>42?name.slice(0,40)+'…':name}</td>
-      <td>${d.n}</td>
-      <td><span class="wp wj">${d.j}</span></td>
-      <td><span class="wp we">${d.e}</span></td>
-      <td>${d.t}</td>
-      <td><span class="wp ${lc}">${ldr}</span></td>
+      <td data-label="Game" title="${name}">${name.length>42?name.slice(0,40)+'…':name}</td>
+      <td data-label="Plays">${d.n}</td>
+      <td data-label="${escAttr(playerProfiles.john.name)}"><span class="wp wj">${d.j}</span></td>
+      <td data-label="${escAttr(playerProfiles.elizabeth.name)}"><span class="wp we">${d.e}</span></td>
+      <td data-label="Ties / Co-op">${d.t}</td>
+      <td data-label="Leader"><span class="wp ${lc}">${ldr}</span></td>
     </tr>`;
   }).join('');
   renderTwoPlayer();
@@ -1491,11 +1561,11 @@ function renderPlayerFavorites(){
   const elizabethGames = ranked('eRat');
   container.innerHTML = `
     <div class="favorites-card">
-      <div class="favorites-title">John's Top Games</div>
+      <div class="favorites-title">${escAttr(playerProfiles.john.name)}'s Top Games</div>
       ${renderList(johnGames,'jRat')}
     </div>
     <div class="favorites-card elizabeth">
-      <div class="favorites-title">Elizabeth's Top Games</div>
+      <div class="favorites-title">${escAttr(playerProfiles.elizabeth.name)}'s Top Games</div>
       ${renderList(elizabethGames,'eRat')}
     </div>`;
 }
@@ -1527,27 +1597,27 @@ function renderTwoPlayer() {
 
   const unplayed = active.filter(g => !g.played);
   const played   = active.filter(g =>  g.played);
+  const playedPercent = active.length > 0 ? Math.round(played.length/active.length*100) : 0;
+  const modeLabel = twoPlayerMode === 'best' ? 'Best at 2' : 'Good at 2';
 
   document.getElementById('twoplayer-stats').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-num">${active.length}</div>
-      <div class="stat-label">Best at 2</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" style="color:var(--green);">${played.length}</div>
-      <div class="stat-label">Played Together</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" style="color:var(--amber);">${unplayed.length}</div>
-      <div class="stat-label">Still to Play</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">${active.length > 0 ? Math.round(played.length/active.length*100) : 0}<span style="font-size:1.2rem;color:var(--text3);">%</span></div>
-      <div class="stat-label">Played</div>
-      <div style="margin-top:.5rem;height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;">
-        <div style="width:${active.length>0?Math.round(played.length/active.length*100):0}%;height:100%;background:var(--green);border-radius:3px;transition:width .5s;"></div>
-      </div>
-    </div>
+    <article class="twoplayer-stat total">
+      <span class="twoplayer-stat-number">${active.length}</span>
+      <span class="twoplayer-stat-label">${modeLabel}</span>
+    </article>
+    <article class="twoplayer-stat played">
+      <span class="twoplayer-stat-number">${played.length}</span>
+      <span class="twoplayer-stat-label">Played Together</span>
+    </article>
+    <article class="twoplayer-stat unplayed">
+      <span class="twoplayer-stat-number">${unplayed.length}</span>
+      <span class="twoplayer-stat-label">Still to Play</span>
+    </article>
+    <article class="twoplayer-stat progress">
+      <span class="twoplayer-stat-number">${playedPercent}<small>%</small></span>
+      <span class="twoplayer-stat-label">Played</span>
+      <span class="twoplayer-progress" aria-hidden="true"><i style="width:${playedPercent}%"></i></span>
+    </article>
   `;
 
   // Main table: unplayed first, then played
@@ -1561,11 +1631,11 @@ function renderTwoPlayer() {
     const statusColor = g.played ? 'var(--green)' : 'var(--amber)';
     const statusText  = g.played ? 'Played' : 'Unplayed';
     return `<tr>
-      <td style="cursor:pointer;" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="openModal(this.dataset.game)">${g.n}</td>
-      <td><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
-      <td style="font-family:'DM Mono',monospace;font-size:.78rem;">${g.ba}</td>
-      <td><span style="color:${statusColor};font-size:.8rem;font-weight:600;">${statusText}</span>${gp.length?` <span style="color:var(--text3);font-size:.75rem;">(${gp.length} plays)</span>`:''}</td>
-      <td><button title="Exclude from list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="excludeGame(this.dataset.game)"
+      <td data-label="Game" style="cursor:pointer;" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="openModal(this.dataset.game)">${g.n}</td>
+      <td data-label="Shelf"><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
+      <td data-label="Best at" style="font-family:var(--mono);">${g.ba}</td>
+      <td data-label="Status"><span style="color:${statusColor};font-size:.8rem;font-weight:600;">${statusText}</span>${gp.length?` <span style="color:var(--muted);font-size:.7rem;">(${gp.length} plays)</span>`:''}</td>
+      <td class="twoplayer-action"><button title="Exclude from list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="excludeGame(this.dataset.game)"
         style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:.1rem .3rem;border-radius:4px;transition:color .15s;"
         onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button></td>
     </tr>`;
@@ -1768,20 +1838,21 @@ async function syncNow(){
         const dateCol = cols2.find(k=>k.trim()==='Date');
         if(rows2.length && dateCol){
           const norm2 = rows2.map(r=>{const o={};Object.keys(r).forEach(k=>{o[k.trim()]=r[k];});return o;});
-          plays = norm2.filter(r=>r.Date&&r.Game).map(r=>({
+          plays = norm2.filter(r=>r.Date&&r.Game&&!/^optional$/i.test(r.Date)).map(r=>({
             id:r['Play ID']||'',
             date:r.Date,
             game:r.Game,
-            winner:r.Winner||r.Wimmer||'',
+            winner:r.Winner||r.Wimmer||r['Winner Player #']||'',
             notes:r.Notes||'',
-            jRat:r['J Rating']||'',
-            eRat:r['E Rating']||''
+            jRat:r['J Rating']||r['P1 Rating']||'',
+            eRat:r['E Rating']||r['P2 Rating']||''
           }));
           savePlays();renderPlays();renderStats();
         }
       }
     }catch(e2){ console.error('Plays sync error:', e2); }
   }
+  if(cfg.playersUrl) await fetchPlayers();
 }
 
 function showPlaySyncToast(result){
@@ -1830,6 +1901,49 @@ async function pushDel(p){
   return postToSheets({action:'delete',...p});
 }
 
+async function fetchPlayers(){
+  const status=document.getElementById('players-connection-status');
+  try{
+    if(status) status.textContent='Loading player avatars...';
+    const txt=await fetchCSV(cfg.playersUrl);
+    if(!txt) throw new Error('Could not reach the published Players sheet.');
+    const rows=parseCSV(txt.replace(/^\uFEFF/,'').trim());
+    const byNumber=new Map();
+    rows.forEach(row=>{
+      const number=parseInt(row['Player #']||row['Player']||row['Player Number']||'',10);
+      if(number>=1&&number<=6) byNumber.set(number,row);
+    });
+    if(!byNumber.has(1)||!byNumber.has(2)){
+      throw new Error('Players sheet needs rows for Player #1 and #2.');
+    }
+    const toProfile=(row,fallback)=>({
+      name:String(row.Name||row['Player Name']||fallback.name).trim(),
+      dino:row.Dino||fallback.dino,
+      color:row.Color||fallback.color
+    });
+    playerProfiles=normalizePlayerProfiles({
+      john:toProfile(byNumber.get(1),playerProfiles.john),
+      elizabeth:toProfile(byNumber.get(2),playerProfiles.elizabeth)
+    });
+    cfg.playerProfiles=playerProfiles;
+    saveCfg();
+    updatePlayerLabels();
+    renderBattleRosterSettings();
+    renderPlays();
+    renderStats();
+    if(status){
+      status.textContent=`Player #1: ${playerProfiles.john.name} · Player #2: ${playerProfiles.elizabeth.name}`;
+      status.style.color='var(--teal)';
+    }
+  }catch(error){
+    console.error('Players sync error:',error);
+    if(status){
+      status.textContent=error.message||String(error);
+      status.style.color='var(--red)';
+    }
+  }
+}
+
 async function fetchStats(){
   const el = document.getElementById('stat-invested');
   try {
@@ -1850,21 +1964,24 @@ async function fetchStats(){
       const val = raw.replace(/[$,\s]/g, '');
       if (key) statsMap[key] = val;
     });
-    playerProfiles = normalizePlayerProfiles({
-      john: {
-        name: statsMap['john name'] || playerProfiles.john.name,
-        dino: statsMap['john dino'] || playerProfiles.john.dino,
-        color: statsMap['john color'] || playerProfiles.john.color
-      },
-      elizabeth: {
-        name: statsMap['elizabeth name'] || statsMap['e name'] || playerProfiles.elizabeth.name,
-        dino: statsMap['elizabeth dino'] || statsMap['e dino'] || playerProfiles.elizabeth.dino,
-        color: statsMap['elizabeth color'] || statsMap['e color'] || playerProfiles.elizabeth.color
-      }
-    });
-    cfg.playerProfiles = playerProfiles;
-    saveCfg();
-    renderBattleRosterSettings();
+    if(!cfg.playersUrl){
+      playerProfiles = normalizePlayerProfiles({
+        john: {
+          name: statsMap['john name'] || playerProfiles.john.name,
+          dino: statsMap['john dino'] || playerProfiles.john.dino,
+          color: statsMap['john color'] || playerProfiles.john.color
+        },
+        elizabeth: {
+          name: statsMap['elizabeth name'] || statsMap['e name'] || playerProfiles.elizabeth.name,
+          dino: statsMap['elizabeth dino'] || statsMap['e dino'] || playerProfiles.elizabeth.dino,
+          color: statsMap['elizabeth color'] || statsMap['e color'] || playerProfiles.elizabeth.color
+        }
+      });
+      cfg.playerProfiles = playerProfiles;
+      saveCfg();
+      updatePlayerLabels();
+      renderBattleRosterSettings();
+    }
     console.log('Stats map:', statsMap);
     // Store e knows effective separately
     if (statsMap['e knows effective'] && !isNaN(parseFloat(statsMap['e knows effective']))) {
@@ -1901,10 +2018,15 @@ async function saveConfig(){
   const newStatsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
   if(newStatsUrl !== cfg.statsUrl) cfg.invested = ''; // clear stale cache
   cfg.statsUrl=newStatsUrl;
+  cfg.playersUrl=document.getElementById('cfg-players')?.value.trim()||'';
   saveCfg();showToast('Config saved!');
   await verifyScriptConnection();
-  if(cfg.gamesUrl)syncNow();
-  if(cfg.statsUrl)fetchStats();
+  if(cfg.gamesUrl){
+    await syncNow();
+  }else{
+    if(cfg.statsUrl) fetchStats();
+    if(cfg.playersUrl) fetchPlayers();
+  }
 }
 
 async function verifyScriptConnection(){
@@ -1932,6 +2054,11 @@ function loadCfgUI(){
   if(cfg.playsUrl){const el=document.getElementById('cfg-plays');if(el)el.value=cfg.playsUrl;}
   if(cfg.scriptUrl){const el=document.getElementById('cfg-script');if(el)el.value=cfg.scriptUrl;}
   if(cfg.statsUrl){const el=document.getElementById('cfg-stats');if(el)el.value=cfg.statsUrl;}
+  if(cfg.playersUrl){const el=document.getElementById('cfg-players');if(el)el.value=cfg.playersUrl;}
+  else {
+    const status=document.getElementById('players-connection-status');
+    if(status) status.textContent='Optional: publish the Players tab as CSV and paste its URL here.';
+  }
   if(cfg.gamesUrl){
     document.getElementById('sync-badge').className='sstatus st-sheets';
     document.getElementById('sync-badge').textContent='● Google Sheets';
@@ -1980,6 +2107,7 @@ function applyPendingUpdate(){
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
   loadCfgUI();
+  updatePlayerLabels();
   populateYearFilter();
   cfg.invested = ''; // always fetch fresh on load, never use stale cache
   saveCfg();
@@ -1997,7 +2125,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderCollection();
   renderStats();
   if(cfg.gamesUrl)syncNow();
-  if(cfg.statsUrl)fetchStats();
+  else {
+    if(cfg.statsUrl)fetchStats();
+    if(cfg.playersUrl)fetchPlayers();
+  }
 
   document.getElementById('update-banner-refresh')?.addEventListener('click', applyPendingUpdate);
   document.getElementById('update-banner-dismiss')?.addEventListener('click', dismissUpdateBanner);
