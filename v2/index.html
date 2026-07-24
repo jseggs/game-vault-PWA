@@ -664,7 +664,7 @@ let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
 if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
 if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
 if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
-cfg.playersUrl = cfg.playersUrl || '';
+if (!cfg.playersUrl) cfg.playersUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=744298410&single=true&output=csv';
 const RETIRED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
 if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
   cfg.scriptUrl = '';
@@ -1725,29 +1725,47 @@ function parseCSV(txt){
   });
 }
 
-// Google-published CSV supports CORS; proxies are fallbacks for restrictive networks.
-async function fetchCSV(url) {
-  const proxies = [
-    u => u,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`
-  ];
-  for (const makeProxy of proxies) {
-    try {
-      const res = await fetch(makeProxy(url), {
-        cache: 'no-store',
-        headers: {'Accept': 'text/csv, text/plain, */*'}
-      });
-      if (!res.ok) continue;
-      const txt = await res.text();
-      // Valid CSV: has commas, doesn't start with HTML, has reasonable length
-      const trimmed = txt.replace(/^﻿/, '').trim();
-      if (trimmed.length > 50 && trimmed.includes(',') && !trimmed.startsWith('<') && !trimmed.startsWith('{')) {
-        return trimmed;
-      }
-    } catch(e) { /* try next proxy */ }
+async function fetchCsvAttempt(url, timeoutMs){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const res=await fetch(url,{
+      cache:'no-store',
+      headers:{'Accept':'text/csv, text/plain, */*'},
+      signal:controller.signal
+    });
+    if(!res.ok) return null;
+    const txt=await res.text();
+    const trimmed=txt.replace(/^﻿/,'').trim();
+    if(trimmed.length>20&&trimmed.includes(',')&&!trimmed.startsWith('<')&&!trimmed.startsWith('{')){
+      return trimmed;
+    }
+  }catch(error){
+    if(error?.name!=='AbortError') console.debug('CSV attempt failed:',error);
+  }finally{
+    clearTimeout(timeout);
   }
   return null;
+}
+
+// Google-published CSV supports CORS; bounded proxy requests are fallbacks.
+async function fetchCSV(url) {
+  const direct=await fetchCsvAttempt(url,6000);
+  if(direct) return direct;
+  const fallbackUrls=[
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+  ];
+  const attempts=fallbackUrls.map(async fallbackUrl=>{
+    const csv=await fetchCsvAttempt(fallbackUrl,7000);
+    if(!csv) throw new Error('CSV fallback failed');
+    return csv;
+  });
+  try{
+    return await Promise.any(attempts);
+  }catch(error){
+    return null;
+  }
 }
 
 function mapGameRow(r) {
@@ -1909,7 +1927,10 @@ async function pushDel(p){
 async function fetchPlayers(){
   const status=document.getElementById('players-connection-status');
   try{
-    if(status) status.textContent='Loading player avatars...';
+    if(status){
+      status.textContent='Loading player avatars...';
+      status.style.color='var(--text3)';
+    }
     const txt=await fetchCSV(cfg.playersUrl);
     if(!txt) throw new Error('Could not reach the published Players sheet.');
     const rows=parseCSV(txt.replace(/^\uFEFF/,'').trim()).map(row=>{

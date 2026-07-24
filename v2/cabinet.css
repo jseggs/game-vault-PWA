@@ -1364,8 +1364,8 @@ select.fc {
   content: "";
   border-radius: 50%;
   background: var(--fighter-accent);
-  opacity: .16;
-  filter: blur(7px);
+  opacity: .08;
+  filter: blur(6px);
 }
 
 .battle-avatar {
@@ -1382,8 +1382,9 @@ select.fc {
   z-index: 2;
   pointer-events: none;
   content: "";
-  opacity: .76;
+  opacity: .72;
   background: var(--fighter-accent, var(--roster-accent));
+  mix-blend-mode: color;
   -webkit-mask: var(--avatar-image) center / contain no-repeat;
   mask: var(--avatar-image) center / contain no-repeat;
 }
@@ -1395,7 +1396,7 @@ select.fc {
   object-fit: contain;
   object-position: center bottom;
   image-rendering: pixelated;
-  filter: grayscale(1) brightness(.86) contrast(1.22) drop-shadow(0 9px 0 rgba(0,0,0,.3)) drop-shadow(0 0 17px var(--fighter-accent));
+  filter: grayscale(1) brightness(.72) contrast(1.22) drop-shadow(0 8px 0 rgba(0,0,0,.34)) drop-shadow(0 0 8px color-mix(in srgb, var(--fighter-accent), transparent 72%));
 }
 
 .battle-avatar.john {
@@ -1687,7 +1688,7 @@ select.fc {
   height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: grayscale(1) brightness(.86) contrast(1.2) drop-shadow(0 0 8px color-mix(in srgb, var(--roster-accent), transparent 50%));
+  filter: grayscale(1) brightness(.72) contrast(1.2) drop-shadow(0 0 5px color-mix(in srgb, var(--roster-accent), transparent 76%));
 }
 
 .roster-player strong,

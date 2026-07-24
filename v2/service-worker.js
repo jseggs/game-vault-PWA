@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-cabinet-v10';
+const CACHE_NAME = 'game-vault-cabinet-v11';
 const APP_SHELL = [
   './',
   './index.html',
@@ -54,5 +54,6 @@ async function networkFirst(request) {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  if (new URL(event.request.url).origin !== self.location.origin) return;
   event.respondWith(networkFirst(event.request));
 });
