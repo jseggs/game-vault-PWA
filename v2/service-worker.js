@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-cabinet-v11';
+const CACHE_NAME = 'game-vault-cabinet-v12';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,6 +6,10 @@ const APP_SHELL = [
   './bgg-images.js',
   './manifest.webmanifest',
   './assets/ui-icons.svg',
+  './assets/frame-brass.svg',
+  './assets/frame-teal.svg',
+  './assets/frame-red.svg',
+  './assets/cabinet-trex.png',
   '../app-icon-192.png',
   '../app-icon-512.png',
   '../app-icon-maskable-512.png',

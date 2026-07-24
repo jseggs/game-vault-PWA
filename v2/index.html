@@ -60,7 +60,7 @@
   </div>
   <div class="cabinet-id" aria-hidden="true">
     <span class="cabinet-id-copy">INSERT<br>COIN TO<br><strong>PLAY</strong></span>
-    <img class="cabinet-id-dino" src="green-t-rex.png" alt="">
+    <img class="cabinet-id-dino" src="v2/assets/cabinet-trex.png" alt="">
   </div>
 </nav>
 
@@ -202,9 +202,9 @@
   <div class="page-title">Scoreboard</div>
   <div class="page-sub">Head-to-head records, player favorites, and collection stats</div>
   <div class="win-grid" id="win-stats"></div>
-  <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Player Favorites</div>
+  <div class="section-label">Player Favorites</div>
   <div class="favorites-grid" id="player-favorites"></div>
-  <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.7rem;font-family:'DM Mono',monospace;">Per-Game Win Records</div>
+  <div class="section-label">Per-Game Win Records</div>
   <div class="twrap">
     <table class="st records-table">
       <thead><tr>
@@ -214,8 +214,8 @@
     </table>
   </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin:2rem 0 .5rem;">
-    <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'DM Mono',monospace;">2-Player Games</div>
+  <div class="section-heading-row">
+    <div class="section-label">2-Player Games</div>
   </div>
 
   <div class="filters-bar" style="margin-bottom:.9rem;">
@@ -234,7 +234,7 @@
     </table>
   </div>
   <div style="margin-top:1.4rem;">
-    <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'DM Mono',monospace;cursor:pointer;display:flex;align-items:center;gap:.5rem;" onclick="toggleExcluded()">
+    <div class="section-label excluded-toggle" onclick="toggleExcluded()">
       <span id="excl-arrow">▸</span> Excluded Games <span id="excl-count" style="color:var(--text3);"></span>
     </div>
     <div id="excluded-wrap" style="display:none;margin-top:.7rem;">
@@ -1211,9 +1211,9 @@ function renderCollection(){
           <span class="card-options" aria-hidden="true"></span>
         </div>
         <div class="game-card-metrics">
-          <span class="card-metric metric-score"><strong>${g.bg || '—'}</strong></span>
-          ${g.plBGG?`<span class="card-metric metric-players">${g.plBGG}</span>`:''}
-          ${g.ba?`<span class="card-metric metric-best">${g.ba}</span>`:''}
+          <span class="card-metric metric-score">${iconUse('score','metric-icon')}<strong>${g.bg || '—'}</strong></span>
+          ${g.plBGG?`<span class="card-metric metric-players">${iconUse('player-count','metric-icon')}${g.plBGG}</span>`:''}
+          ${g.ba?`<span class="card-metric metric-best">${iconUse('best-at','metric-icon')}${g.ba}</span>`:''}
         </div>
         <div class="game-card-footer">
           ${renderRatingBadges(g)}
@@ -1425,7 +1425,7 @@ function renderPlays(){
   });
   if(!filteredPlays.length){list.innerHTML='<div class="empty">No plays match the current filter.</div>';return;}
   const sorted=[...filteredPlays].map((p,i)=>({...p,_i:plays.indexOf(p)})).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  list.innerHTML=`<div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.65rem;font-family:'DM Mono',monospace;">All Plays — ${filteredPlays.length}${filteredPlays.length!==plays.length?' (filtered, '+plays.length+' total)':''}</div>`+
+  list.innerHTML=`<div class="section-label">All Plays — ${filteredPlays.length}${filteredPlays.length!==plays.length?' (filtered, '+plays.length+' total)':''}</div>`+
     sorted.map(p=>`<div class="pentry">
       <div class="pmeta">
         <span class="pdate">${p.date}</span>
@@ -1648,7 +1648,7 @@ function renderTwoPlayer() {
     ? excluded.sort((a,b)=>a.n.localeCompare(b.n)).map(g => `<tr>
         <td style="color:var(--text3);">${g.n}</td>
         <td><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
-        <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--text3);">${g.ba}</td>
+        <td class="table-muted">${g.ba}</td>
         <td><button title="Restore to list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="includeGame(this.dataset.game)"
           style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:.1rem .4rem;border-radius:4px;border:1px solid var(--border2);transition:all .15s;"
           onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" 
