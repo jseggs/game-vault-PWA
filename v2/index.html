@@ -281,7 +281,7 @@
       </div></div>
       <div class="form-row"><div class="fg">
         <label>Players CSV URL</label>
-        <input class="fc" id="cfg-players" placeholder="Published Players sheet URL">
+        <input class="fc" id="cfg-players" placeholder="Published Players sheet URL" oninput="markPlayersUrlPending()">
         <span id="players-connection-status" class="connection-status"></span>
       </div></div>
       <div class="settings-actions">
@@ -1782,13 +1782,18 @@ function mapGameRow(r) {
   };
 }
 
-async function syncNow(){
+async function syncNow(readForm=true){
+  if(readForm) readConnectionFields();
   const msg=document.getElementById('sync-msg');
-  if(!cfg.gamesUrl){msg.textContent='No Games URL set.';return;}
+  if(!cfg.gamesUrl){
+    msg.textContent='No Games URL set.';
+    if(cfg.playersUrl) await fetchPlayers();
+    return;
+  }
   msg.textContent='⟳ Syncing...';
   try{
     const txt = await fetchCSV(cfg.gamesUrl);
-    if (!txt) { msg.textContent='⚠ Could not reach sheet. Check the URL and that it is published as CSV.'; return; }
+    if(!txt) throw new Error('Could not reach the Games sheet. Check its published CSV URL.');
     
     // Strip BOM if present
     const clean = txt.replace(/^﻿/,'').trim();
@@ -1907,19 +1912,37 @@ async function fetchPlayers(){
     if(status) status.textContent='Loading player avatars...';
     const txt=await fetchCSV(cfg.playersUrl);
     if(!txt) throw new Error('Could not reach the published Players sheet.');
-    const rows=parseCSV(txt.replace(/^\uFEFF/,'').trim());
+    const rows=parseCSV(txt.replace(/^\uFEFF/,'').trim()).map(row=>{
+      const normalized={};
+      Object.keys(row).forEach(key=>{
+        normalized[String(key).trim().toLowerCase()]=row[key];
+      });
+      return normalized;
+    });
+    const foundHeaders=rows.length ? Object.keys(rows[0]) : [];
+    if(foundHeaders.includes('game')&&!foundHeaders.includes('player #')){
+      throw new Error('This URL is loading the Games tab, not Players. Publish only the Players tab as CSV and use that URL.');
+    }
+    const valueFor=(row,...keys)=>{
+      for(const key of keys){
+        const value=row[key.toLowerCase()];
+        if(String(value??'').trim()) return value;
+      }
+      return '';
+    };
     const byNumber=new Map();
     rows.forEach(row=>{
-      const number=parseInt(row['Player #']||row['Player']||row['Player Number']||'',10);
+      const number=parseInt(valueFor(row,'Player #','Player','Player Number'),10);
       if(number>=1&&number<=6) byNumber.set(number,row);
     });
     if(!byNumber.has(1)||!byNumber.has(2)){
-      throw new Error('Players sheet needs rows for Player #1 and #2.');
+      const headers=foundHeaders.length ? foundHeaders.join(', ') : 'none';
+      throw new Error(`Players CSV needs rows for Player #1 and #2. Headers received: ${headers}.`);
     }
     const toProfile=(row,fallback)=>({
-      name:String(row.Name||row['Player Name']||fallback.name).trim(),
-      dino:row.Dino||fallback.dino,
-      color:row.Color||fallback.color
+      name:String(valueFor(row,'Name','Player Name')||fallback.name).trim(),
+      dino:valueFor(row,'Dino')||fallback.dino,
+      color:valueFor(row,'Color')||fallback.color
     });
     playerProfiles=normalizePlayerProfiles({
       john:toProfile(byNumber.get(1),playerProfiles.john),
@@ -1932,7 +1955,7 @@ async function fetchPlayers(){
     renderPlays();
     renderStats();
     if(status){
-      status.textContent=`Player #1: ${playerProfiles.john.name} · Player #2: ${playerProfiles.elizabeth.name}`;
+      status.textContent=`✓ Connected: ${playerProfiles.john.name} vs. ${playerProfiles.elizabeth.name}`;
       status.style.color='var(--teal)';
     }
   }catch(error){
@@ -2011,21 +2034,38 @@ async function fetchStats(){
   }
 }
 
+function readConnectionFields(){
+  const gamesUrl=document.getElementById('cfg-games')?.value.trim()||'';
+  const playsUrl=document.getElementById('cfg-plays')?.value.trim()||'';
+  const scriptUrl=document.getElementById('cfg-script')?.value.trim()||'';
+  const statsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
+  const playersUrl=document.getElementById('cfg-players')?.value.trim()||'';
+  if(statsUrl!==cfg.statsUrl) cfg.invested='';
+  cfg.gamesUrl=gamesUrl;
+  cfg.playsUrl=playsUrl;
+  cfg.scriptUrl=scriptUrl;
+  cfg.statsUrl=statsUrl;
+  cfg.playersUrl=playersUrl;
+  saveCfg();
+}
+
+function markPlayersUrlPending(){
+  const status=document.getElementById('players-connection-status');
+  if(!status) return;
+  const hasUrl=Boolean(document.getElementById('cfg-players')?.value.trim());
+  status.textContent=hasUrl?'URL ready — select Save & Sync or Sync Now.':'Optional: publish the Players tab as CSV and paste its URL here.';
+  status.style.color='var(--text3)';
+}
+
 async function saveConfig(){
-  cfg.gamesUrl=document.getElementById('cfg-games').value.trim();
-  cfg.playsUrl=document.getElementById('cfg-plays').value.trim();
-  cfg.scriptUrl=document.getElementById('cfg-script').value.trim();
-  const newStatsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
-  if(newStatsUrl !== cfg.statsUrl) cfg.invested = ''; // clear stale cache
-  cfg.statsUrl=newStatsUrl;
-  cfg.playersUrl=document.getElementById('cfg-players')?.value.trim()||'';
-  saveCfg();showToast('Config saved!');
+  readConnectionFields();
+  showToast('Config saved!');
   await verifyScriptConnection();
   if(cfg.gamesUrl){
-    await syncNow();
+    await syncNow(false);
   }else{
     if(cfg.statsUrl) fetchStats();
-    if(cfg.playersUrl) fetchPlayers();
+    if(cfg.playersUrl) await fetchPlayers();
   }
 }
 
