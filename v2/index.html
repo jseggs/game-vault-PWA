@@ -1841,7 +1841,7 @@ async function syncNow(readForm=true){
       } catch(e2) {}
       // Fetch Stats sheet for sold/effective values
       if(cfg.statsUrl) fetchStats();
-      msg.textContent=`✓ ${GAMES.length} games loaded from Sheets`;
+      msg.textContent='✓ All games loaded from Sheets';
       document.getElementById('sync-badge').className='sstatus st-sheets';
       document.getElementById('sync-badge').textContent='● Google Sheets';
       populateYearFilter();
