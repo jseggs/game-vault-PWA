@@ -1259,9 +1259,9 @@ function renderCollection(){
         </div>
         <div class="game-card-category">${g.cat}</div>
         <div class="game-card-metrics">
-          <span class="card-metric"><strong>BGG ${g.bg || '—'}</strong></span>
-          ${g.plBGG?`<span class="card-metric">${g.plBGG} players</span>`:''}
-          ${g.ba?`<span class="card-metric">Best at ${g.ba}</span>`:''}
+          <span class="card-metric metric-score"><strong>BGG ${g.bg || '—'}</strong></span>
+          ${g.plBGG?`<span class="card-metric metric-players">${g.plBGG} players</span>`:''}
+          ${g.ba?`<span class="card-metric metric-best">Best at ${g.ba}</span>`:''}
         </div>
         <div class="game-card-footer">
           ${renderRatingBadges(g)}
