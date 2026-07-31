@@ -1,0 +1,31 @@
+{
+  "name": "J & E Game Vault V3",
+  "short_name": "Game Vault",
+  "description": "A personal board game collection for picking what to play, logging sessions, and keeping score.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f0ea",
+  "theme_color": "#11162f",
+  "icons": [
+    {
+      "src": "../app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../app-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
