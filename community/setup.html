@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Build Your Own Game Vault</title>
+  <meta name="description" content="Beginner-friendly setup guide for the Game Vault Community Edition.">
+  <style>
+    :root{--navy:#11162f;--ink:#171d1b;--muted:#65706c;--paper:#f2f0ea;--card:#fbfaf6;--line:#d7d3c9;--lime:#7fcd32;--cyan:#35b9c7;--gold:#f1c84c;font-family:"Avenir Next",Avenir,"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);line-height:1.55}a{color:#225f9b}.hero{background:var(--navy);color:white;padding:clamp(32px,7vw,82px) max(22px,calc((100vw - 980px)/2));position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:330px;height:330px;border:46px solid rgba(127,205,50,.13);border-radius:50%;right:-110px;top:-105px}.eyebrow{color:var(--lime);font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:.78rem}.hero h1{font-size:clamp(2.4rem,7vw,5.3rem);line-height:.94;letter-spacing:-.055em;max-width:780px;margin:.35em 0 .28em}.hero p{color:#cfd3df;font-size:1.12rem;max-width:640px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.button{display:inline-flex;align-items:center;min-height:48px;padding:0 18px;border-radius:9px;text-decoration:none;font-weight:850;background:var(--lime);color:var(--navy);box-shadow:0 5px 0 #4d8d18}.button.secondary{background:transparent;color:white;border:1px solid #707895;box-shadow:none}.wrap{max-width:980px;margin:auto;padding:42px 22px 96px}.notice{border-left:6px solid var(--gold);background:#fff7d5;padding:18px 20px;border-radius:0 12px 12px 0;margin:0 0 36px}.step{display:grid;grid-template-columns:64px 1fr;border-top:1px solid var(--line);padding:34px 0;gap:18px}.number{width:52px;height:52px;display:grid;place-items:center;background:var(--navy);color:var(--lime);border-radius:13px;font-size:1.4rem;font-weight:950}.step h2{margin:0 0 8px;font-size:1.55rem;letter-spacing:-.025em}.step p{margin:.55em 0;color:var(--muted)}ol,ul{padding-left:1.25rem}li{margin:.48em 0}.permission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.permission{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:17px}.permission strong{display:block;color:var(--navy);margin-bottom:5px}.code{font:700 .92rem ui-monospace,SFMono-Regular,Consolas,monospace;background:#e8e6df;padding:.15em .42em;border-radius:5px}.done{background:var(--navy);color:white;border-radius:18px;padding:28px;margin-top:30px}.done h2{margin-top:0}.done p{color:#cfd3df}.privacy{font-size:.93rem}.privacy strong{color:var(--ink)}@media(max-width:640px){.step{grid-template-columns:48px 1fr;gap:12px}.number{width:42px;height:42px}.permission-grid{grid-template-columns:1fr}.hero{padding-top:max(34px,env(safe-area-inset-top))}.wrap{padding-bottom:max(80px,env(safe-area-inset-bottom))}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">Game Vault Community Edition</div>
+    <h1>Build your own game tracker.</h1>
+    <p>No coding experience needed. Follow these steps to connect the app to a Google Sheet you own.</p>
+    <div class="actions">
+      <a class="button" href="template/Game-Vault-Community-Template.xlsx" download>Download the Sheet template</a>
+      <a class="button secondary" href="downloads/Game-Vault-Community-Starter.zip" download>Download complete starter kit</a>
+      <a class="button secondary" href="./">Open the sample app</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="notice"><strong>Plan for 25–40 minutes.</strong> Keep the sample rows until everything connects. You can replace them with your games at the end.</div>
+
+    <section class="step">
+      <div class="number">1</div>
+      <div>
+        <h2>Turn the template into a Google Sheet</h2>
+        <ol>
+          <li>Download the template above.</li>
+          <li>Open Google Drive and choose <strong>New → File upload</strong>.</li>
+          <li>Upload the workbook, then right-click it and choose <strong>Open with → Google Sheets</strong>.</li>
+          <li>If an <span class="code">.xlsx</span> label remains, choose <strong>File → Save as Google Sheets</strong>.</li>
+          <li>In the <strong>Players</strong> tab, replace Player 1 and Player 2 with the names or nicknames you want in the app.</li>
+        </ol>
+        <p>Keep the tab names Games, Plays, Stats, and Players exactly as written.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">2</div>
+      <div>
+        <h2>Add the connector</h2>
+        <ol>
+          <li>In the Sheet choose <strong>Extensions → Apps Script</strong>.</li>
+          <li>Replace the contents of Code.gs with <a href="google-apps-script/Code.gs">the packaged Code.gs</a>.</li>
+          <li>Add a new Script file named BGG and paste <a href="google-apps-script/BGG.gs">the packaged BGG.gs</a>.</li>
+          <li>In Project Settings, turn on <strong>Show appsscript.json manifest file</strong>.</li>
+          <li>Replace that manifest with <a href="google-apps-script/appsscript.json">the packaged appsscript.json</a>, then save.</li>
+          <li>Reload the Sheet. A <strong>Game Vault</strong> menu appears.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">3</div>
+      <div>
+        <h2>Approve only the permissions it needs</h2>
+        <div class="permission-grid">
+          <div class="permission"><strong>Current spreadsheet only</strong>The connector can edit this tracker. It cannot browse all the spreadsheets in your Drive.</div>
+          <div class="permission"><strong>External requests</strong>The optional BGG button can send only a game title or BGG ID to the public lookup service.</div>
+        </div>
+        <p>It does not request Gmail, Contacts, Calendar, or broad Drive access. A copied script may still show Google's unverified-app warning. Continue only if the two permissions above are the complete list and your files exactly match this package.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">4</div>
+      <div>
+        <h2>Copy your private write key</h2>
+        <ol>
+          <li>In the Sheet choose <strong>Game Vault → Show connection key</strong>.</li>
+          <li>Approve the two permissions if asked.</li>
+          <li>Choose <strong>Copy key</strong> and keep it private.</li>
+        </ol>
+        <p>The random key is stored in the script's private settings. Never place it in a Sheet cell or public post.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">5</div>
+      <div>
+        <h2>Deploy the connector</h2>
+        <ol>
+          <li>In Apps Script choose <strong>Deploy → New deployment → Web app</strong>.</li>
+          <li>Set <strong>Execute as</strong> to Me.</li>
+          <li>Set <strong>Who has access</strong> to Anyone.</li>
+          <li>Deploy and copy the URL ending in <span class="code">/exec</span>.</li>
+        </ol>
+        <p>The public endpoint cannot write without the private key. It is bound to this one tracker Sheet.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">6</div>
+      <div>
+        <h2>Publish four read-only CSV links</h2>
+        <ol>
+          <li>In the Sheet choose <strong>File → Share → Publish to web</strong>.</li>
+          <li>Choose the Games tab, then <strong>Comma-separated values (.csv)</strong>. Publish and copy the URL.</li>
+          <li>Repeat for Plays, Stats, and Players.</li>
+        </ol>
+        <p><strong>Never publish Entire document, START HERE, or Lists.</strong> Published CSV tabs are public to anyone with their long URL, so keep sensitive information out of them.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">7</div>
+      <div>
+        <h2>Connect Game Vault</h2>
+        <ol>
+          <li><a href="./">Open the Community Edition app</a> and choose Settings.</li>
+          <li>Paste the four CSV URLs into their matching fields.</li>
+          <li>Paste the Apps Script <span class="code">/exec</span> URL and private write key.</li>
+          <li>Choose <strong>Save & Sync</strong>.</li>
+        </ol>
+        <p>Connection values remain in this browser. Repeat this step on each device where you install the app.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="number">8</div>
+      <div>
+        <h2>Add your games and install the app</h2>
+        <ol>
+          <li>Replace sample rows in Games. Keep the header row.</li>
+          <li>For BGG details, select a game row and choose <strong>Game Vault → Enrich selected game from BGG</strong>.</li>
+          <li>Delete the sample rows in Plays.</li>
+          <li>On iPhone use Safari → Share → Add to Home Screen. On Android or desktop use the browser's Install command.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="done">
+      <h2>That’s it. Your Sheet is the database.</h2>
+      <p>Collection browsing, game picking, play logging, ratings, stats, player dinosaurs, and offline installation all remain available. The old Ready to Play column and global filter are intentionally not part of this edition.</p>
+      <div class="actions"><a class="button" href="GETTING-STARTED.md">Open full troubleshooting guide</a><a class="button secondary" href="PRIVACY.md">Read privacy details</a></div>
+    </section>
+
+    <p class="privacy"><strong>Need to undo it?</strong> Unpublish the four tabs, delete the Apps Script deployment, revoke the script from Google Account security, and clear the Game Vault site's browser data.</p>
+  </main>
+</body>
+</html>

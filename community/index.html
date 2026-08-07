@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<base href="../">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Game Vault Community Edition — DIY Board Game Tracker</title>
+<meta name="description" content="A privacy-safe demo and starter kit for building your own board game collection and play tracker with Google Sheets.">
+<link rel="stylesheet" href="community/cabinet.css">
+<script src="community/bgg-images.js"></script>
+
+<meta name="theme-color" content="#11162f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Game Vault DIY">
+<link rel="manifest" href="community/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png">
+<link rel="apple-touch-icon" href="app-icon-512.png">
+</head>
+<body>
+<div class="cabinet-frame">
+<nav aria-label="Primary navigation">
+  <div class="brand-zone">
+    <div class="nav-brand">
+      <img class="brand-mark" src="app-icon-192.png" alt="">
+      <span class="brand-copy">
+        <span class="brand-title">Game Vault</span>
+        <span class="brand-sub">Community edition</span>
+      </span>
+    </div>
+  </div>
+  <div class="nav-tabs" role="tablist" aria-label="App sections">
+    <button type="button" role="tab" class="nav-tab active" data-tab="collection" aria-label="Collection" aria-selected="true" aria-controls="tab-collection">
+      <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#collection"></use></svg>
+      <span>Collection</span>
+    </button>
+    <button type="button" role="tab" class="nav-tab" data-tab="picker" aria-label="Pick a Game" aria-selected="false" aria-controls="tab-picker">
+      <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#picker"></use></svg>
+      <span>Pick a game</span>
+    </button>
+    <button type="button" role="tab" class="nav-tab" data-tab="plays" aria-label="Play Log" aria-selected="false" aria-controls="tab-plays">
+      <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#plays"></use></svg>
+      <span>Play Log</span>
+    </button>
+    <button type="button" role="tab" class="nav-tab" data-tab="stats" aria-label="Stats" aria-selected="false" aria-controls="tab-stats">
+      <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#stats"></use></svg>
+      <span>Stats</span>
+    </button>
+    <button type="button" role="tab" class="nav-tab" data-tab="settings" aria-label="Settings" aria-selected="false" aria-controls="tab-settings">
+      <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#settings"></use></svg>
+      <span>Settings</span>
+    </button>
+  </div>
+  <div class="cabinet-id" aria-hidden="true">
+    <img class="cabinet-id-dino" src="green-t-rex.png" alt="">
+    <span class="cabinet-id-copy"><strong>Good games.</strong><br>Great nights.</span>
+  </div>
+</nav>
+
+<main class="app-shell">
+<!-- COLLECTION -->
+<div class="section active" id="tab-collection" data-screen="Collection">
+  <div class="collection-hero">
+    <div class="collection-title-block">
+      <div class="eyebrow">Collection</div>
+      <div class="page-title">Your game vault</div>
+      <div class="page-sub" id="col-sub">Loading...</div>
+    </div>
+    <div class="stats-row" id="col-stats"></div>
+  </div>
+  <div class="filters-bar">
+    <label class="search-control" for="search-input">
+      <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#search"></use></svg>
+      <input class="fsearch" type="text" id="search-input" placeholder="Search games" oninput="renderCollection()">
+    </label>
+    <div class="fgrp" id="collection-shelf-group">
+      <span class="fgrp-lbl">Shelf</span>
+    </div>
+    <details class="status-menu">
+      <summary>
+        <span>Filters</span>
+        <svg class="ui-icon" aria-hidden="true"><use href="community/assets/ui-icons.svg#chevron"></use></svg>
+      </summary>
+      <div class="status-panel">
+        <div class="fgrp status-group">
+          <span class="fgrp-lbl">Played</span>
+          <button class="fbtn active" onclick="setFilter('status',null,this)">All</button>
+          <button class="fbtn" onclick="setFilter('status','played',this)">Played</button>
+          <button class="fbtn" onclick="setFilter('status','unplayed',this)">Unplayed</button>
+        </div>
+        <div class="fgrp type-group">
+          <span class="fgrp-lbl">Type</span>
+          <button class="fbtn" onclick="toggleBaseOnly(this)">Base Games</button>
+        </div>
+      </div>
+    </details>
+  </div>
+  <div class="game-grid" id="game-grid"></div>
+  <div class="bgg-credit">
+    <a href="https://boardgamegeek.com" target="_blank" rel="noreferrer">
+      <img src="powered-by-bgg-rgb.svg" alt="Powered by BoardGameGeek">
+    </a>
+  </div>
+</div>
+
+<!-- PICKER -->
+<div class="section" id="tab-picker" data-screen="Randomizer">
+  <header class="section-header">
+    <div>
+      <div class="eyebrow">Game picker</div>
+      <div class="page-title">What are we playing?</div>
+      <div class="page-sub">Set the table rules. We’ll make the final call.</div>
+    </div>
+  </header>
+  <div class="pick-box">
+    <div class="pick-spotlight">
+      <div class="pick-cover pick-empty" id="pick-cover" aria-hidden="true">
+        <img class="pick-mascot" src="Pterodactyl-light-blue.png" alt="">
+        <span class="pick-empty-label">Scanning the shelf</span>
+      </div>
+      <div class="pick-copy">
+        <div class="pick-title">Tonight’s pick</div>
+        <div class="pick-result" id="pick-result">Ready when you are</div>
+        <div class="pick-detail" id="pick-detail">Choose a few preferences—or leave it wide open.</div>
+        <button class="btn btn-gold pick-action" onclick="pickRandom()">Pick a game</button>
+      </div>
+    </div>
+    <div class="pick-controls">
+      <div class="pctrls" id="picker-shelf-group">
+        <span class="fgrp-lbl">Shelf</span>
+      </div>
+      <div class="pctrls">
+        <span class="fgrp-lbl">History</span>
+        <button class="fbtn active" onclick="setPick('played',null,this)">Any</button>
+        <button class="fbtn" onclick="setPick('played','yes',this)">Played Before</button>
+        <button class="fbtn" onclick="setPick('played','no',this)">Never Played</button>
+      </div>
+      <div class="pctrls">
+        <span class="fgrp-lbl">Game type</span>
+        <button class="fbtn active" onclick="setPick('exp','no',this)">Base Games Only</button>
+        <button class="fbtn" onclick="setPick('exp',null,this)">Include Expansions</button>
+      </div>
+      <div class="pctrls">
+        <span class="fgrp-lbl">Co-op</span>
+        <button class="fbtn active" onclick="setPick('coop',null,this)">Either</button>
+        <button class="fbtn" onclick="setPick('coop','yes',this)">Co-op only</button>
+        <button class="fbtn" onclick="setPick('coop','no',this)">No co-op</button>
+      </div>
+      <div class="pctrls">
+        <span class="fgrp-lbl">Player count</span>
+        <button class="fbtn active" onclick="setPick('players',null,this)">Any</button>
+        <button class="fbtn" onclick="setPick('players','1',this)">1</button>
+        <button class="fbtn" onclick="setPick('players','2',this)">2</button>
+        <button class="fbtn" onclick="setPick('players','3',this)">3</button>
+        <button class="fbtn" onclick="setPick('players','4',this)">4</button>
+        <button class="fbtn" onclick="setPick('players','5',this)">5</button>
+        <button class="fbtn" onclick="setPick('players','6',this)">6</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYS -->
+<div class="section" id="tab-plays" data-screen="Play Log">
+  <header class="section-header">
+    <div>
+      <div class="eyebrow">Sessions</div>
+      <div class="page-title">Play log</div>
+      <div class="page-sub">Record who played, who won, and what happened.</div>
+    </div>
+  </header>
+  <div class="sbox">
+    <div class="stitle">Add a play</div>
+    <div class="form-row">
+      <div class="fg" style="flex:2;min-width:170px;">
+        <label>Game</label>
+        <input class="fc" id="log-game" list="log-game-list" placeholder="Start typing a game title..." autocomplete="off">
+        <datalist id="log-game-list"></datalist>
+      </div>
+      <div class="fg" style="max-width:138px;">
+        <label>Date</label>
+        <input type="date" class="fc" id="log-date">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label>Winner</label>
+        <select class="fc" id="log-winner">
+          <option value="">— Select —</option>
+          <option value="Player 1">Player 1</option>
+          <option value="Player 2">Player 2</option>
+          <option value="Tie">Tie</option>
+          <option value="N/A (Coop)">N/A – Cooperative</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fg" style="max-width:100px;">
+        <label>P1 Rating (1-10)</label>
+        <input class="fc" type="number" id="log-p1rat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg" style="max-width:100px;">
+        <label>P2 Rating (1-10)</label>
+        <input class="fc" type="number" id="log-p2rat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg">
+        <label>Notes (optional)</label>
+        <input class="fc" type="text" id="log-notes" placeholder="Quick notes...">
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="logPlay()">Log Play</button>
+  </div>
+  <div id="play-log-list"></div>
+</div>
+
+<!-- STATS -->
+<div class="section" id="tab-stats" data-screen="Scoreboard">
+  <header class="section-header">
+    <div>
+      <div class="eyebrow">Performance</div>
+      <div class="page-title">Stats</div>
+      <div class="page-sub">Head-to-head records, favorites, and the games still waiting.</div>
+    </div>
+  </header>
+  <div class="win-grid" id="win-stats"></div>
+  <div class="section-label">Player Favorites</div>
+  <div class="favorites-grid" id="player-favorites"></div>
+  <div class="section-label">Per-Game Win Records</div>
+  <div class="twrap">
+    <table class="st records-table">
+      <thead><tr>
+        <th>Game</th><th>Plays</th><th id="stats-player-one-head">Player 1 W</th><th id="stats-player-two-head">Player 2 W</th><th>Ties/Coop</th><th>Leader</th>
+      </tr></thead>
+      <tbody id="stats-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-heading-row">
+    <div class="section-label">2-Player Games</div>
+  </div>
+
+  <div class="filters-bar" style="margin-bottom:.9rem;">
+    <div class="fgrp">
+      <button class="fbtn" id="2p-mode-best" onclick="set2pMode('best',this)">Best at 2</button>
+      <button class="fbtn active" id="2p-mode-good" onclick="set2pMode('good',this)">Good at 2</button>
+    </div>
+  </div>
+  <div class="twoplayer-summary" id="twoplayer-stats"></div>
+  <div class="twrap">
+    <table class="st twoplayer-table">
+      <thead><tr>
+        <th>Game</th><th>Shelf</th><th>Best At</th><th>Status</th><th style="width:40px;"></th>
+      </tr></thead>
+      <tbody id="twoplayer-body"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:1.4rem;">
+    <div class="section-label excluded-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="excluded-wrap" onclick="toggleExcluded()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleExcluded()}">
+      <span id="excl-arrow">▸</span> Excluded Games <span id="excl-count" style="color:var(--text3);"></span>
+    </div>
+    <div id="excluded-wrap" style="display:none;margin-top:.7rem;">
+      <div class="twrap">
+        <table class="st">
+          <thead><tr>
+            <th>Game</th><th>Shelf</th><th>Best At</th><th style="width:40px;"></th>
+          </tr></thead>
+          <tbody id="excluded-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="section" id="tab-settings" data-screen="Setup">
+  <header class="section-header">
+    <div>
+      <div class="eyebrow">Configuration</div>
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Manage data sources, collection defaults, and player profiles.</div>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <section class="sbox settings-connection">
+      <div class="stitle">
+        Data Connections
+        <span id="sync-badge" class="sstatus st-local">● Local Storage</span>
+      </div>
+      <p class="settings-intro">This public demo starts with bundled sample data. When you connect your own copy of the template, these URLs and your write key are saved only in this browser.</p>
+      <div class="form-row"><div class="fg">
+        <label>Games CSV URL</label>
+        <input class="fc" id="cfg-games" placeholder="Published Games sheet URL">
+      </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Plays CSV URL</label>
+        <input class="fc" id="cfg-plays" placeholder="Published Plays sheet URL">
+      </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Apps Script Web App URL</label>
+        <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec">
+        <span id="script-connection-status" class="connection-status"></span>
+      </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Private write key</label>
+        <input class="fc" id="cfg-write-key" type="password" autocomplete="off" placeholder="The key you added in Apps Script settings">
+        <span class="settings-note">Kept on this device. It is sent only when the app writes a play, rating, or exclusion to your Sheet.</span>
+      </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Stats CSV URL</label>
+        <input class="fc" id="cfg-stats" placeholder="Published Stats sheet URL">
+      </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Players CSV URL</label>
+        <input class="fc" id="cfg-players" placeholder="Published Players sheet URL" oninput="markPlayersUrlPending()">
+        <span id="players-connection-status" class="connection-status"></span>
+      </div></div>
+      <div class="settings-actions">
+        <button class="btn btn-gold" onclick="saveConfig()">Save &amp; Sync</button>
+        <button class="btn btn-outline" onclick="syncNow()">Sync Now</button>
+        <span id="sync-msg"></span>
+      </div>
+    </section>
+
+    <div class="settings-stack">
+      <section class="sbox">
+        <div class="stitle">Default Collection View</div>
+        <p class="settings-intro">These filters are stored only in this browser and apply to Collection, Picker, Play Log, and Stats.</p>
+        <div class="form-row">
+          <div class="fg">
+            <label>Include kids' games?</label>
+            <select class="fc" id="gf-kids" onchange="applyGlobalFilters()">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Year bought</label>
+            <select class="fc" id="gf-year" onchange="applyGlobalFilters()">
+              <option value="">All years</option>
+            </select>
+          </div>
+        </div>
+        <div id="gf-active-msg" class="filter-status">Global filter active</div>
+      </section>
+
+      <section class="sbox">
+        <div class="stitle">Player Avatars</div>
+        <p class="settings-intro">The published Players sheet controls each fighter. Player #1 and #2 supply the display name, dinosaur, and color used throughout the app.</p>
+        <div class="roster-preview" id="roster-preview"></div>
+        <p class="settings-note">Dinosaurs: T-Rex, Velociraptor, Triceratops, Ankylosaurus, Brachiosaurus, Pterodactyl, Spinosaurus, Stegosaurus. Colors: cyan, gold, pink, purple, lime, orange, teal, or red.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="sbox">
+    <div class="stitle" role="button" tabindex="0" aria-expanded="false" aria-controls="guide-body" style="cursor:pointer;" onclick="toggleGuide()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleGuide()}">▸ Build your own Game Vault <span style="color:var(--text3);">(click to expand)</span></div>
+    <div id="guide-body" style="display:none;margin-top:.8rem;">
+      <p class="settings-intro">Copy the template into Google Sheets, add the packaged script, publish four tabs, and paste the resulting links above. The beginner guide explains every click and every permission.</p>
+      <div class="settings-actions">
+        <a class="btn btn-gold" href="community/setup.html" target="_blank" rel="noopener">Open beginner guide</a>
+        <a class="btn btn-outline" href="community/template/Game-Vault-Community-Template.xlsx" download>Download Sheet template</a>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+
+<div class="cabinet-footer">
+  <span>Game Vault Community Edition</span>
+  <span><a href="community/setup.html">Build your own</a> · <a href="community/PRIVACY.md">Privacy</a></span>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="moverlay" id="moverlay" onclick="maybeClose(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-name">
+    <button class="mclose" onclick="closeModal()" aria-label="Close game details">×</button>
+    <div class="modal-game-head">
+      <div class="modal-cover" id="m-cover"></div>
+      <div class="modal-game-copy">
+        <div class="modal-kicker">Game details</div>
+        <div class="mtitle" id="m-name"></div>
+        <div class="mcat" id="m-cat"></div>
+      </div>
+    </div>
+    <div class="mgrid" id="m-grid"></div>
+    <div id="m-notes"></div>
+    <div class="rating-editor">
+      <div class="rating-editor-head">
+        <div class="rating-editor-title">Rate This Game</div>
+        <div class="rating-editor-sub">No play required</div>
+      </div>
+      <div class="form-row" style="margin-bottom:.65rem;">
+        <div class="fg" style="max-width:110px;"><label>P1 Rating</label><input class="fc" type="number" id="m-rate-j" min="1" max="10" step="0.5" placeholder="1-10"></div>
+        <div class="fg" style="max-width:110px;"><label>P2 Rating</label><input class="fc" type="number" id="m-rate-e" min="1" max="10" step="0.5" placeholder="1-10"></div>
+      </div>
+      <button class="btn btn-outline btn-sm" id="m-rate-save" onclick="saveGamp2Ratings()">Save Ratings</button>
+    </div>
+    <div class="msec">Win / Loss Record</div>
+    <div id="m-wl"></div>
+    <div class="msec">Play History</div>
+    <div class="plays-wrap" id="m-plays"></div>
+    <div class="msec">Log a Play for This Game</div>
+    <div class="form-row">
+      <div class="fg" style="max-width:138px;"><label>Date</label><input type="date" class="fc" id="m-date"></div>
+      <div class="fg">
+        <label>Winner</label>
+        <select class="fc" id="m-winner">
+          <option value="">— Select —</option>
+          <option value="Player 1">Player 1</option>
+          <option value="Player 2">Player 2</option>
+          <option value="Tie">Tie</option>
+          <option value="N/A (Coop)">N/A – Cooperative</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg" style="max-width:90px;">
+        <label>P1 Rating</label>
+        <input class="fc" type="number" id="m-p1rat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg" style="max-width:90px;">
+        <label>P2 Rating</label>
+        <input class="fc" type="number" id="m-p2rat" min="1" max="10" placeholder="1-10">
+      </div>
+      <div class="fg"><label>Notes</label><input class="fc" type="text" id="m-notes-in" placeholder="Optional..."></div>
+    </div>
+    <button class="btn btn-gold btn-sm" onclick="logModal()">Log Play</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="update-banner" id="update-banner" role="status" aria-live="polite" aria-hidden="true">
+  <div class="update-banner-inner">
+    <div class="update-banner-copy">
+      <div class="update-banner-title">Update Ready</div>
+      <div class="update-banner-text">A newer version of Game Vault is ready. Refresh to load the latest app.</div>
+    </div>
+    <div class="update-banner-actions">
+      <button class="btn btn-gold btn-sm" id="update-banner-refresh" type="button">Refresh</button>
+      <button class="btn btn-sm update-dismiss" id="update-banner-dismiss" type="button" aria-label="Dismiss update notice">×</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// Privacy-safe sample data used by the public Community Edition demo.
+// ═══════════════════════════════════════════════
+const DEFAULT_GAMES = [
+  {n:"7 Wonders Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Civilization, Card Drafting",played:true,p1Rat:"8",p2Rat:"9",exp:false,year:"2023",excluded:false,notes:"A fast, tactical head-to-head game.",bggId:"173346",price:28},
+  {n:"Azul",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2, 4",so:"No",bg:7.8,cat:"Abstract Strategy, Tile Placement",played:true,p1Rat:"8",p2Rat:"8",exp:false,year:"2022",excluded:false,notes:"Easy to teach and beautiful on the table.",bggId:"230802",price:32},
+  {n:"Cascadia",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2–3",so:"Yes",bg:7.8,cat:"Pattern Building, Tile Placement",played:true,p1Rat:"9",p2Rat:"8",exp:false,year:"2024",excluded:false,notes:"Relaxed puzzle with plenty of replayability.",bggId:"295947",price:36},
+  {n:"Catan",s:"Family",pl:"3–4",plBGG:"3-4",ba:"4",so:"No",bg:7.1,cat:"Negotiation, Network Building",played:false,p1Rat:"",p2Rat:"",exp:false,year:"2020",excluded:false,notes:"A familiar gateway game for a larger table.",bggId:"13",price:42},
+  {n:"Splendor",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.4,cat:"Engine Building, Set Collection",played:true,p1Rat:"7",p2Rat:"8",exp:false,year:"2021",excluded:false,notes:"Quick turns and satisfying combos.",bggId:"148228",price:31},
+  {n:"The Crew: Mission Deep Sea",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:8.0,cat:"Cooperative, Trick-taking",played:false,p1Rat:"",p2Rat:"",exp:false,year:"2025",excluded:false,notes:"Best with a group that enjoys card games.",bggId:"324856",price:15},
+  {n:"Ticket to Ride",s:"Family",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.4,cat:"Route Building, Set Collection",played:false,p1Rat:"",p2Rat:"",exp:false,year:"2019",excluded:false,notes:"A dependable game-night opener.",bggId:"9209",price:45},
+  {n:"Under Falling Skies",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.8,cat:"Solo, Dice Placement, Science Fiction",played:false,p1Rat:"",p2Rat:"",exp:false,year:"2024",excluded:false,notes:"A compact solo campaign.",bggId:"306735",price:29}
+];
+
+const SAMPLE_PLAYS = [
+  {id:"demo-1",date:"2026-07-02",game:"Azul",winner:"Player 2",notes:"Close game.",p1Rat:"8",p2Rat:"8"},
+  {id:"demo-2",date:"2026-07-09",game:"7 Wonders Duel",winner:"Player 1",notes:"Science victory.",p1Rat:"8",p2Rat:"9"},
+  {id:"demo-3",date:"2026-07-18",game:"Cascadia",winner:"Player 2",notes:"Wildlife corridor made the difference.",p1Rat:"9",p2Rat:"8"},
+  {id:"demo-4",date:"2026-07-27",game:"Splendor",winner:"Player 1",notes:"Fast engine this time.",p1Rat:"7",p2Rat:"8"}
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let GAMES = DEFAULT_GAMES.map(g=>({...g}));
+let storedPlays = JSON.parse(localStorage.getItem('bgv-community-plays')||'null');
+let plays = Array.isArray(storedPlays) ? storedPlays : SAMPLE_PLAYS.map(p=>({...p}));
+let cfg = JSON.parse(localStorage.getItem('bgv-community-cfg')||'{}');
+cfg.gamesUrl = cfg.gamesUrl || '';
+cfg.playsUrl = cfg.playsUrl || '';
+cfg.statsUrl = cfg.statsUrl || '';
+cfg.playersUrl = cfg.playersUrl || '';
+cfg.scriptUrl = cfg.scriptUrl || '';
+cfg.writeKey = cfg.writeKey || '';
+let filters = {shelf:[],status:null,baseOnly:false};
+let picks = {shelf:[],played:null,exp:'no',coop:null,players:null};
+let activeModal = null;
+const UI_ICON_SPRITE = 'community/assets/ui-icons.svg';
+const DINO_ROSTER = {
+  velociraptor: {label:'Velociraptor', asset:'Velociraptor-cyan.png', accent:'#36b8c4'},
+  triceratops: {label:'Triceratops', asset:'Triceratops.png', accent:'#e9513d'},
+  trex: {label:'T-Rex', asset:'green-t-rex.png', accent:'#79b82a'},
+  ankylosaurus: {label:'Ankylosaurus', asset:'Ankylosaurus-blue.png', accent:'#5d79a9'},
+  brachiosaurus: {label:'Brachiosaurus', asset:'Brachiosaurus-yellow.png', accent:'#c6a64b'},
+  pterodactyl: {label:'Pterodactyl', asset:'Pterodactyl-light-blue.png', accent:'#76b6d6'},
+  spinosaurus: {label:'Spinosaurus', asset:'Spinosaurus-pink.png', accent:'#d65f78'},
+  stegosaurus: {label:'Stegosaurus', asset:'Stegosaurus-purple.png', accent:'#8b67ad'}
+};
+const PLAYER_COLOR_PALETTE = {
+  cyan:'#36b8c4',
+  gold:'#d5ad52',
+  pink:'#df6596',
+  purple:'#8b67ad',
+  lime:'#8fcf37',
+  orange:'#ed7a32',
+  teal:'#2aa197',
+  red:'#e9513d'
+};
+const DEFAULT_PLAYER_PROFILES = {
+  player1: {name:'Player 1', dino:'velociraptor', color:'#36b8c4'},
+  player2: {name:'Player 2', dino:'triceratops', color:'#e9513d'}
+};
+let playerProfiles = normalizePlayerProfiles(cfg.playerProfiles);
+// Global filters (set in Sync tab, applied everywhere)
+let globalFilters = JSON.parse(localStorage.getItem('bgv-community-global-filters') || '{"kids":"1","year":""}');
+if (typeof globalFilters !== 'object' || globalFilters === null) globalFilters = {kids:'1', year:''};
+globalFilters.kids = globalFilters.kids ?? '1';
+globalFilters.year = globalFilters.year ?? '';
+let twoPlayerMode = 'good'; // 'best' = Best At contains 2, 'good' = BGG Comm contains 2 or 1-
+let twoPlayerExcludedShelves = new Set([]);
+let twoPlayerExcludedGames = new Set(JSON.parse(localStorage.getItem('bgv-community-2p-excl') || '[]'));
+
+function save2pExclusions() {
+  localStorage.setItem('bgv-community-2p-excl', JSON.stringify([...twoPlayerExcludedGames]));
+}
+
+function toggle2pShelfExclude(shelf, btn) {
+  if (twoPlayerExcludedShelves.has(shelf)) {
+    twoPlayerExcludedShelves.delete(shelf);
+    btn.classList.remove('active');
+  } else {
+    twoPlayerExcludedShelves.add(shelf);
+    btn.classList.add('active');
+  }
+  renderTwoPlayer();
+}
+
+function set2pMode(mode, btn) {
+  twoPlayerMode = mode;
+  document.querySelectorAll('[id^="2p-mode-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTwoPlayer();
+}
+
+function excludeGame(name) {
+  twoPlayerExcludedGames.add(name);
+  const game = GAMES.find(g=>g.n===name);
+  if(game) game.excluded = true;
+  save2pExclusions();
+  // Also update sheet if Apps Script is connected
+  if (cfg.scriptUrl) pushExclusion(name, true);
+  renderTwoPlayer();
+}
+
+function includeGame(name) {
+  twoPlayerExcludedGames.delete(name);
+  const game = GAMES.find(g=>g.n===name);
+  if(game) game.excluded = false;
+  // Also clear sheet flag if Apps Script is connected
+  if (cfg.scriptUrl) pushExclusion(name, false);
+  // If the game has g.excluded=true from sheet, sync will clear it on next sync
+  save2pExclusions();
+  renderTwoPlayer();
+}
+
+async function pushExclusion(name, excluded) {
+  if (!cfg.scriptUrl) return;
+  await postToSheets({action:'exclude',game:name,excluded});
+}
+
+function toggleExcluded() {
+  const wrap = document.getElementById('excluded-wrap');
+  const arrow = document.getElementById('excl-arrow');
+  const willOpen = wrap.style.display === 'none';
+  wrap.style.display = willOpen ? 'block' : 'none';
+  arrow.textContent = willOpen ? '▾' : '▸';
+  document.querySelector('.excluded-toggle')?.setAttribute('aria-expanded', String(willOpen));
+}
+
+function applyGlobalFilters() {
+  globalFilters.kids   = document.getElementById('gf-kids')?.value || '1';
+  globalFilters.year   = document.getElementById('gf-year')?.value || '';
+  saveGlobalFilters();
+  const active = globalFilters.kids === '0' || globalFilters.year;
+  const msg = document.getElementById('gf-active-msg');
+  if (msg) msg.style.display = active ? 'block' : 'none';
+  updateInvestedCard();
+  renderCollection(); renderStats(); renderTwoPlayer();
+  if(document.getElementById('tab-plays').classList.contains('active')) renderPlays();
+}
+
+function passesGlobal(g) {
+  if (globalFilters.kids === '0' && hasShelfValue(g.s, 'Kids')) return false;
+  if (globalFilters.year === 'before') {
+    const year=parseInt(g.year,10);
+    if(!Number.isFinite(year)||year>=new Date().getFullYear()) return false;
+  } else if (globalFilters.year && g.year !== globalFilters.year) return false;
+  return true;
+}
+
+function updateInvestedCard() {
+  const el = document.getElementById('stat-invested');
+  if (!el) return;
+  const localTotal = GAMES.reduce((sum, game)=>sum + (Number(game.price) || 0), 0);
+  const value = cfg.invested || (localTotal ? Math.round(localTotal).toLocaleString('en-US') : '—');
+  el.textContent = value === '—' ? value : '$' + value;
+}
+
+function populateYearFilter() {
+  const sel = document.getElementById('gf-year');
+  if (!sel) return;
+  const years = [...new Set(GAMES.map(g=>g.year).filter(y=>y))].sort();
+  const cur = sel.value;
+  const currentYear = new Date().getFullYear();
+  sel.innerHTML = '<option value="">All years</option>' +
+    `<option value="before">Before ${currentYear}</option>` +
+    years.map(y => `<option value="${y}"${cur===y?' selected':''}>${y}</option>`).join('');
+  sel.value=cur;
+}
+
+function isCoop(g) {
+  const cat = (g.cat||'').toLowerCase();
+  return cat.includes('cooperative') || cat.includes('co-op') || cat.includes('coop');
+}
+
+// Check if a game supports exactly N players based on Players (BGG Comm) field
+// Handles: "2", "2-4", "1-4,6", "2,4", "2-3+", "2-4, Best: 3" etc.
+function supportsPlayerCount(g, n) {
+  const raw = (g.plBGG||g.pl||'').toString().replace(/best:.*/i,'').trim();
+  if (!raw) return true; // unknown = include
+  const num = parseInt(n);
+  // Split on commas to handle "1-4,6"
+  const parts = raw.split(',');
+  for (const part of parts) {
+    const p = part.trim().replace('+',''); // handle "2-3+"
+    if (p.includes('-')) {
+      const [lo, hi] = p.split('-').map(x => parseInt(x.trim()));
+      if (!isNaN(lo) && !isNaN(hi) && num >= lo && num <= hi) return true;
+      if (!isNaN(lo) && isNaN(hi) && num >= lo) return true;
+    } else {
+      if (parseInt(p) === num) return true;
+    }
+  }
+  return false;
+}
+
+function savePlays(){localStorage.setItem('bgv-community-plays',JSON.stringify(plays));}
+function saveCfg(){localStorage.setItem('bgv-community-cfg',JSON.stringify(cfg));}
+function saveGlobalFilters(){localStorage.setItem('bgv-community-global-filters', JSON.stringify(globalFilters));}
+
+function iconUse(name, className='ui-icon'){
+  return `<svg class="${className}" aria-hidden="true"><use href="${UI_ICON_SPRITE}#${name}"></use></svg>`;
+}
+
+function normalizeDinoKey(value, fallback){
+  const key = String(value || '').toLowerCase().replace(/[^a-z]/g,'');
+  if(key.includes('trex') || key.includes('tyrannosaurus')) return 'trex';
+  const match = Object.keys(DINO_ROSTER).find(name => key.includes(name));
+  return match || fallback;
+}
+
+function normalizeProfileColor(value, fallback){
+  const color = String(value || '').trim();
+  const namedColor = PLAYER_COLOR_PALETTE[color.toLowerCase()];
+  if(namedColor) return namedColor;
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+}
+
+function normalizePlayerProfiles(profiles){
+  const source = profiles && typeof profiles === 'object' ? profiles : {};
+  return {
+    player1: {
+      name: String(source.player1?.name || DEFAULT_PLAYER_PROFILES.player1.name),
+      dino: normalizeDinoKey(source.player1?.dino, DEFAULT_PLAYER_PROFILES.player1.dino),
+      color: normalizeProfileColor(source.player1?.color, DEFAULT_PLAYER_PROFILES.player1.color)
+    },
+    player2: {
+      name: String(source.player2?.name || DEFAULT_PLAYER_PROFILES.player2.name),
+      dino: normalizeDinoKey(source.player2?.dino, DEFAULT_PLAYER_PROFILES.player2.dino),
+      color: normalizeProfileColor(source.player2?.color, DEFAULT_PLAYER_PROFILES.player2.color)
+    }
+  };
+}
+
+function renderBattleRosterSettings(){
+  const container=document.getElementById('roster-preview');
+  if(!container) return;
+  container.innerHTML=['player1','player2'].map(key=>{
+    const profile=playerProfiles[key];
+    const fallback=key==='player1'?'velociraptor':'triceratops';
+    const dino=DINO_ROSTER[profile.dino]||DINO_ROSTER[fallback];
+    return `<div class="roster-player" style="--roster-accent:${escAttr(profile.color)}">
+      <div class="roster-avatar" style="--avatar-image:url('../${dino.asset}')">
+        <img src="${dino.asset}" alt="">
+      </div>
+      <div><strong>${escAttr(profile.name)}</strong><span>${dino.label}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function playerSlotFromWinner(value){
+  const normalized=String(value||'').trim().toLowerCase();
+  if(!normalized) return '';
+  const compact=normalized.replace(/[^a-z0-9]/g,'');
+  const p1Name=playerProfiles.player1.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const p2Name=playerProfiles.player2.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(['1','p1','player1'].includes(compact)||compact===p1Name) return 'player1';
+  if(['2','p2','player2'].includes(compact)||compact===p2Name) return 'player2';
+  return '';
+}
+
+function winnerDisplayName(value){
+  const slot=playerSlotFromWinner(value);
+  if(slot) return playerProfiles[slot].name;
+  return String(value||'');
+}
+
+function winnerColor(value){
+  const slot=playerSlotFromWinner(value);
+  return slot ? playerProfiles[slot].color : 'var(--brass)';
+}
+
+function updatePlayerLabels(){
+  const p1=playerProfiles.player1.name;
+  const p2=playerProfiles.player2.name;
+  document.querySelectorAll('#log-winner option[value="Player 1"],#m-winner option[value="Player 1"]').forEach(option=>{option.textContent=p1;});
+  document.querySelectorAll('#log-winner option[value="Player 2"],#m-winner option[value="Player 2"]').forEach(option=>{option.textContent=p2;});
+  const labels=[
+    ['log-p1rat',`${p1} rating (1-10)`],
+    ['log-p2rat',`${p2} rating (1-10)`],
+    ['m-rate-j',`${p1} rating`],
+    ['m-rate-e',`${p2} rating`],
+    ['m-p1rat',`${p1} rating`],
+    ['m-p2rat',`${p2} rating`]
+  ];
+  labels.forEach(([id,text])=>{
+    const label=document.getElementById(id)?.closest('.fg')?.querySelector('label');
+    if(label) label.textContent=text;
+  });
+  const p1Head=document.getElementById('stats-player-one-head');
+  const p2Head=document.getElementById('stats-player-two-head');
+  if(p1Head) p1Head.textContent=`${p1} W`;
+  if(p2Head) p2Head.textContent=`${p2} W`;
+}
+
+// ═══════════════════════════════════════
+// SHELF BADGE CLASS
+// ═══════════════════════════════════════
+function normalizeShelfValue(shelfValue){
+  return String(shelfValue || '').replace(/\s+/g,' ').trim();
+}
+
+function splitShelfValues(shelfValue){
+  return String(shelfValue || '')
+    .split(/[;,/]|\s+&\s+|\s+and\s+|\s+\+\s+/gi)
+    .map(s => normalizeShelfValue(s))
+    .filter(Boolean);
+}
+
+function shelfMatchesValue(shelfValue, targetShelf){
+  const target = normalizeShelfValue(targetShelf).toLowerCase();
+  if(!target) return false;
+  return splitShelfValues(shelfValue).some(s => s.toLowerCase() === target);
+}
+
+function hasShelfValue(shelfValue, targetShelf){
+  const raw = normalizeShelfValue(shelfValue).toLowerCase();
+  const target = normalizeShelfValue(targetShelf).toLowerCase();
+  if(!target) return false;
+  if(raw === target) return true;
+  return splitShelfValues(shelfValue).some(s => s.toLowerCase() === target);
+}
+
+function sBadge(shelf){
+  const shelves = splitShelfValues(shelf).map(s => s.toLowerCase());
+  if(shelves.some(s => s.includes('2-player'))) return 's2p';
+  if(shelves.some(s => s.includes('adult'))) return 'sad';
+  if(shelves.some(s => s.includes('family'))) return 'sfam';
+  if(shelves.some(s => s.includes('kids'))) return 'skid';
+  if(shelves.some(s => s.includes('solo'))) return 'ssol';
+  if(shelves.some(s => s.includes('party'))) return 'spar';
+  return 'sgen';
+}
+
+const shelfOrder = ['2-Player','Adult','Family','Party','Kids','Solo'];
+
+function getAvailableShelves(){
+  const seen = new Set();
+  const shelfSource = globalFilters.kids === '0'
+    ? GAMES.filter(g => !hasShelfValue(g.s, 'Kids'))
+    : GAMES;
+  const raw = shelfSource.flatMap(g => splitShelfValues(g.s));
+  const ordered = [];
+  shelfOrder.forEach(name => {
+    const match = raw.find(s => s.toLowerCase() === name.toLowerCase());
+    if(match && !seen.has(name.toLowerCase())){
+      seen.add(name.toLowerCase());
+      ordered.push(match);
+    }
+  });
+  raw.sort((a,b)=>a.localeCompare(b)).forEach(name => {
+    const normalized = normalizeShelfValue(name);
+    const key = normalized.toLowerCase();
+    if(!seen.has(key)){
+      seen.add(key);
+      ordered.push(normalized);
+    }
+  });
+  return ordered;
+}
+
+function normalizeShelfSelections(){
+  const shelves = getAvailableShelves();
+  const allowed = new Set(shelves.map(s => s.toLowerCase()));
+  filters.shelf = filters.shelf.filter(s => allowed.has(s.toLowerCase()));
+  picks.shelf = (Array.isArray(picks.shelf) ? picks.shelf : [])
+    .filter(s => allowed.has(String(s).toLowerCase()));
+}
+
+function renderShelfControls(){
+  const shelves = getAvailableShelves();
+  const collectionGroup = document.getElementById('collection-shelf-group');
+  if(collectionGroup){
+    collectionGroup.innerHTML = `<span class="fgrp-lbl">Shelf</span>
+      <button class="fbtn filter-all ${filters.shelf.length===0?'active':''}" onclick="selectAllShelves()"><span>All games</span></button>
+      ${shelves.map(shelf => `<button class="fbtn ${filters.shelf.some(sel => sel.toLowerCase() === shelf.toLowerCase())?'active':''}" data-shelf="${escAttr(shelf)}" onclick="handleShelfFilterClick(this)"><span>${shelf}</span></button>`).join('')}`;
+  }
+  const pickerGroup = document.getElementById('picker-shelf-group');
+  if(pickerGroup){
+    pickerGroup.innerHTML = `<span class="fgrp-lbl" style="align-self:center;">Shelf</span>
+      ${shelves.map(shelf => `<button class="fbtn ${picks.shelf.some(sel => sel.toLowerCase() === shelf.toLowerCase())?'active':''}" data-shelf="${escAttr(shelf)}" onclick="handlePickShelfClick(this)"><span>${shelf}</span></button>`).join('')}`;
+  }
+}
+
+function shelfIconName(shelf){
+  const key = String(shelf || '').toLowerCase();
+  if(key.includes('2-player')) return 'users';
+  if(key.includes('family')) return 'home';
+  if(key.includes('party')) return 'party';
+  if(key.includes('kids')) return 'kids';
+  if(key.includes('solo')) return 'solo';
+  return 'grid';
+}
+
+function handleShelfFilterClick(btn){
+  setFilter('shelf', btn.dataset.shelf || '', btn);
+}
+
+function selectAllShelves(){
+  filters.shelf = [];
+  renderCollection();
+}
+
+function handlePickShelfClick(btn){
+  setPick('shelf', btn.dataset.shelf || '', btn);
+}
+
+function escAttr(value){
+  return String(value || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+document.querySelectorAll('.nav-tab').forEach(t=>{
+  t.addEventListener('click',function(){
+    const id = this.dataset.tab;
+    document.querySelectorAll('.nav-tab').forEach(x=>{
+      x.classList.remove('active');
+      x.setAttribute('aria-selected','false');
+    });
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    this.setAttribute('aria-selected','true');
+    document.getElementById('tab-'+id).classList.add('active');
+    if(id==='plays') renderPlays();
+    if(id==='stats') renderStats();
+    if(id==='collection') renderCollection();
+  });
+});
+
+// ═══════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════
+function setFilter(k,v,btn){
+  if(k!=='shelf'){
+    filters[k]=v;
+    btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCollection();
+    return;
+  }
+
+  const shelves = getAvailableShelves();
+  const key = v.toLowerCase();
+  const selected = new Set(filters.shelf.map(shelf => shelf.toLowerCase()));
+
+  if(selected.has(key)){
+    filters.shelf = filters.shelf.filter(shelf => shelf.toLowerCase() !== key);
+  } else {
+    const canonical = shelves.find(shelf => shelf.toLowerCase() === key) || v;
+    filters.shelf = [...filters.shelf, canonical];
+  }
+
+  renderCollection();
+}
+
+function toggleBaseOnly(btn){
+  filters.baseOnly = !filters.baseOnly;
+  btn.classList.toggle('active', filters.baseOnly);
+  renderCollection();
+}
+
+function setPick(k,v,btn){
+  if(k==='shelf'){
+    const key = String(v || '').toLowerCase();
+    const shelves = getAvailableShelves();
+    const selected = new Set((Array.isArray(picks.shelf) ? picks.shelf : []).map(shelf => shelf.toLowerCase()));
+    if(selected.has(key)){
+      picks.shelf = picks.shelf.filter(shelf => shelf.toLowerCase() !== key);
+    } else {
+      const canonical = shelves.find(shelf => shelf.toLowerCase() === key) || v;
+      picks.shelf = [...picks.shelf, canonical];
+    }
+    renderShelfControls();
+    return;
+  }
+
+  picks[k]=v;
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// COLLECTION
+// ═══════════════════════════════════════
+function getFiltered(){
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  return GAMES.filter(g=>{
+    if(!passesGlobal(g)) return false;
+    if(q && !g.n.toLowerCase().includes(q) && !g.cat.toLowerCase().includes(q)) return false;
+    if(filters.shelf.length && !filters.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
+    if(filters.status==='played' && !g.played) return false;
+    if(filters.status==='unplayed' && g.played) return false;
+    if(filters.baseOnly && g.exp) return false;
+    return true;
+  });
+}
+
+function numericRating(value){
+  const rating = parseFloat(value);
+  return Number.isFinite(rating) ? rating : null;
+}
+
+function renderRatingBadges(game){
+  const p1Rating = numericRating(game.p1Rat);
+  const p2Rating = numericRating(game.p2Rat);
+  if(p1Rating === null && p2Rating === null) return '';
+  return `<div class="rating-strip">
+    ${p1Rating !== null ? `<span class="rating-chip player1"><span>${escAttr(playerProfiles.player1.name)}</span><strong>${p1Rating}</strong></span>` : ''}
+    ${p2Rating !== null ? `<span class="rating-chip player2"><span>${escAttr(playerProfiles.player2.name)}</span><strong>${p2Rating}</strong></span>` : ''}
+  </div>`;
+}
+
+function getGameCover(game){
+  const nameKey = String(game?.n || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const highRes = game?.image
+    || (game?.bggId && window.BGG_IMAGE_MAP ? window.BGG_IMAGE_MAP[game.bggId] : '')
+    || (window.BGG_IMAGE_NAME_MAP ? window.BGG_IMAGE_NAME_MAP[nameKey] : '');
+  return {src: highRes || game?.thumb || '', fallback: highRes ? game?.thumb || '' : ''};
+}
+
+function styleCoverPresentation(img){
+  if(!img?.naturalWidth || !img?.naturalHeight) return;
+  const frame=img.closest('.game-cover,.pick-cover,.modal-cover');
+  if(!frame) return;
+  const ratio=img.naturalWidth/img.naturalHeight;
+  frame.classList.remove('cover-landscape','cover-square','cover-portrait','pick-empty');
+  frame.classList.add(ratio>1.18?'cover-landscape':ratio>.84?'cover-square':'cover-portrait');
+  const source=img.currentSrc||img.src;
+  const cssUrl=String(source).replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+  frame.style.backgroundImage=`linear-gradient(rgba(17,22,47,.55),rgba(17,22,47,.78)),url("${cssUrl}")`;
+}
+
+function handleCoverError(img){
+  const fallback = img.dataset.fallback;
+  if(fallback && img.src !== fallback){
+    img.dataset.fallback = '';
+    img.src = fallback;
+    return;
+  }
+  img.closest('.game-cover')?.classList.add('cover-missing');
+  img.style.display = 'none';
+}
+
+function renderCollection(){
+  normalizeShelfSelections();
+  renderShelfControls();
+  const filtered = getFiltered();
+  const gfAll = GAMES.filter(g=>passesGlobal(g));
+  const baseGames = gfAll.filter(g=>!g.exp);
+  const expansions = gfAll.filter(g=>g.exp);
+  const playedGames = gfAll.filter(g=>g.played);
+  const unplayedGames = gfAll.filter(g=>!g.played);
+  const playedPercent = gfAll.length > 0 ? Math.round(playedGames.length / gfAll.length * 100) : 0;
+  document.getElementById('col-sub').textContent = `${filtered.length} of ${gfAll.length} games`;
+  document.getElementById('col-stats').innerHTML = `
+    <div class="stat-card stat-progress">
+      <div class="stat-progress-head"><div><div class="stat-label">Collection played</div><div class="stat-num">${playedPercent}<span class="stat-suffix">%</span></div></div><span>${playedGames.length} of ${gfAll.length}</span></div>
+      <div class="collection-meter" aria-label="${playedPercent} percent of collection played"><span style="width:${playedPercent}%"></span></div>
+    </div>
+    <div class="stat-card"><div class="stat-num">${baseGames.length}</div><div class="stat-label">Base games</div></div>
+    <div class="stat-card"><div class="stat-num">${expansions.length}</div><div class="stat-label">Expansions</div></div>
+    <div class="stat-card"><div class="stat-num">${unplayedGames.length}</div><div class="stat-label">Unplayed</div></div>
+    <div class="stat-card stat-value"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Collection value</div></div>
+  `;
+
+  const grid = document.getElementById('game-grid');
+  updateInvestedCard();
+  if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
+  grid.innerHTML = filtered.map(g=>{
+    const gp = plays.filter(p=>p.game===g.n);
+    const jW = gp.filter(p=>playerSlotFromWinner(p.winner)==='player1').length;
+    const eW = gp.filter(p=>playerSlotFromWinner(p.winner)==='player2').length;
+    const {src:coverSrc,fallback:coverFallback} = getGameCover(g);
+    const cover = coverSrc
+      ? `${g.bggUrl ? `<a class="game-cover game-cover-link" href="${escAttr(g.bggUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="Open ${escAttr(g.n)} on BoardGameGeek">` : `<div class="game-cover">`}<img src="${escAttr(coverSrc)}" data-fallback="${escAttr(coverFallback)}" alt="${escAttr(g.n)} cover" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="styleCoverPresentation(this)" onerror="handleCoverError(this)">${g.bggUrl ? `</a>` : `</div>`}`
+      : `<div class="game-cover game-cover-empty"><span>Cover not indexed</span></div>`;
+    return `<div class="game-card ${g.played?'played-card':''} ${g.thumb?'has-thumb':''}" data-game="${escAttr(g.n)}" role="button" tabindex="0" onclick="openModal(this.dataset.game)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal(this.dataset.game)}">
+      ${cover}
+      <div class="game-card-body">
+        <div class="game-card-title-row">
+          <div class="gname">${g.n}</div>
+        </div>
+        <div class="game-card-category">${g.cat}</div>
+        <div class="game-card-metrics">
+          <span class="card-metric metric-score"><strong>BGG ${g.bg || '—'}</strong></span>
+          ${g.plBGG?`<span class="card-metric metric-players">${g.plBGG} players</span>`:''}
+          ${g.ba?`<span class="card-metric metric-best">Best at ${g.ba}</span>`:''}
+        </div>
+        <div class="game-card-footer">
+          ${renderRatingBadges(g)}
+          <div class="play-count">${gp.length?`${gp.length} play${gp.length>1?'s':''} · ${escAttr(playerProfiles.player1.name)} ${jW} / ${escAttr(playerProfiles.player2.name)} ${eW}`:(g.played?'Played':'Not played yet')}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openModal(name){
+  const g = GAMES.find(x=>x.n===name); if(!g) return;
+  activeModal = name;
+  const cover = getGameCover(g);
+  document.getElementById('m-cover').innerHTML = cover.src
+    ? `<img src="${escAttr(cover.src)}" data-fallback="${escAttr(cover.fallback)}" alt="${escAttr(g.n)} cover" onload="styleCoverPresentation(this)" onerror="handleCoverError(this)">`
+    : '<span>No cover</span>';
+  document.getElementById('m-name').textContent = g.n;
+  document.getElementById('m-cat').textContent = g.cat;
+  document.getElementById('m-rate-j').value = g.p1Rat || '';
+  document.getElementById('m-rate-e').value = g.p2Rat || '';
+  document.getElementById('m-grid').innerHTML = `
+    <div class="mfield"><label>Shelf</label><div class="val">${g.s}</div></div>
+    <div class="mfield"><label>BGG Score</label><div class="val">${g.bg}</div></div>
+    <div class="mfield"><label>Players</label><div class="val">${g.pl}</div></div>
+    <div class="mfield"><label>Best At</label><div class="val">${g.ba}</div></div>
+    <div class="mfield"><label>Good at 2P</label><div class="val">${g.p2||'—'}</div></div>
+    <div class="mfield"><label>Solo Option</label><div class="val">${g.so||'—'}</div></div>
+    <div class="mfield"><label>${escAttr(playerProfiles.player1.name)} Rating</label><div class="val">${g.p1Rat||'—'}</div></div>
+    <div class="mfield"><label>${escAttr(playerProfiles.player2.name)} Rating</label><div class="val">${g.p2Rat||'—'}</div></div>
+    <div class="mfield"><label>Type</label><div class="val">${g.exp?'Expansion':'Base Game'}</div></div>
+  `;
+  document.getElementById('m-notes').innerHTML = g.notes?`<div class="notes-box">${g.notes}</div>`:'';
+  document.getElementById('m-date').valueAsDate = new Date();
+  refreshModalPlays(name);
+  document.getElementById('moverlay').classList.add('open');
+}
+
+function refreshModalPlays(name){
+  const gp = plays.filter(p=>p.game===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const jW = gp.filter(p=>playerSlotFromWinner(p.winner)==='player1').length;
+  const eW = gp.filter(p=>playerSlotFromWinner(p.winner)==='player2').length;
+  const ot = gp.filter(p=>!playerSlotFromWinner(p.winner)).length;
+  document.getElementById('m-wl').innerHTML = gp.length
+    ?`<div style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.8rem;margin-bottom:.3rem;">
+        <span><strong style="color:var(--text)">${gp.length}</strong> plays</span>
+        <span>${escAttr(playerProfiles.player1.name)}: <strong style="color:${escAttr(playerProfiles.player1.color)}">${jW}W</strong></span>
+        <span>${escAttr(playerProfiles.player2.name)}: <strong style="color:${escAttr(playerProfiles.player2.color)}">${eW}W</strong></span>
+        ${ot?`<span>Other: <strong style="color:var(--text3)">${ot}</strong></span>`:''}
+      </div>`
+    :'<div style="color:var(--text3);font-size:14px;margin-bottom:.3rem;">No plays logged yet.</div>';
+  document.getElementById('m-plays').innerHTML = gp.length
+    ? gp.map(p=>{
+        const ri = plays.indexOf(p);
+        return `<div class="pentry">
+          <span class="pdate">${p.date}</span>
+          <span class="pwinner" style="color:${winnerColor(p.winner)}">${escAttr(winnerDisplayName(p.winner))}</span>
+          ${p.p1Rat?`<span class="badge">${escAttr(playerProfiles.player1.name)}:${p.p1Rat}</span>`:''}
+          ${p.p2Rat?`<span class="badge">${escAttr(playerProfiles.player2.name)}:${p.p2Rat}</span>`:''}
+          <span class="pnotes">${p.notes||''}</span>
+          <button class="pdel" onclick="delPlay(${ri},'${name.replace(/'/g,"\\'")}')" title="Delete">✕</button>
+        </div>`;
+      }).join('')
+    :'<div class="empty" style="padding:.7rem;">No plays yet.</div>';
+}
+
+function maybeClose(e){if(e.target===document.getElementById('moverlay'))closeModal();}
+function closeModal(){document.getElementById('moverlay').classList.remove('open');activeModal=null;}
+
+// ═══════════════════════════════════════
+// PLAY LOGGING
+// ═══════════════════════════════════════
+function resolveLogGameName(value){
+  const raw=(value||'').trim();
+  if(!raw) return '';
+  const exact=GAMES.find(g=>!g.exp && g.n===raw && passesGlobal(g));
+  if(exact) return exact.n;
+  const ci=GAMES.find(g=>!g.exp && g.n.toLowerCase()===raw.toLowerCase() && passesGlobal(g));
+  if(ci) return ci.n;
+  return '';
+}
+
+function createPlayId(){
+  return globalThis.crypto?.randomUUID?.() || `play-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+async function logPlay(){
+  const game=resolveLogGameName(document.getElementById('log-game').value);
+  const date=document.getElementById('log-date').value;
+  const winner=document.getElementById('log-winner').value;
+  const notes=document.getElementById('log-notes').value;
+  if(!game||!date||!winner){showToast('Choose a game from search, plus date & winner.','#c45c3c');return;}
+  const p1Rat = document.getElementById('log-p1rat')?.value||'';
+  const p2Rat = document.getElementById('log-p2rat')?.value||'';
+  const wasUnplayed = !GAMES.find(x=>x.n===game)?.played;
+  const p={id:createPlayId(),game,date,winner,notes,p1Rat,p2Rat};
+  plays.push(p);savePlays();markPlayed(game);updateLocalRatings(game,p1Rat,p2Rat);
+  document.getElementById('log-game').value='';
+  document.getElementById('log-winner').value='';
+  document.getElementById('log-notes').value='';
+  document.getElementById('log-p1rat').value='';
+  document.getElementById('log-p2rat').value='';
+  renderPlays();renderCollection();
+  const syncResult = await push(p, wasUnplayed);
+  showPlaySyncToast(syncResult);
+}
+
+async function logModal(){
+  if(!activeModal)return;
+  const date=document.getElementById('m-date').value;
+  const winner=document.getElementById('m-winner').value;
+  const notes=document.getElementById('m-notes-in').value;
+  if(!date||!winner){showToast('Select date & winner!','#c45c3c');return;}
+  const p1Rat = document.getElementById('m-p1rat')?.value||'';
+  const p2Rat = document.getElementById('m-p2rat')?.value||'';
+  const wasUnplayed = !GAMES.find(x=>x.n===activeModal)?.played;
+  const p={id:createPlayId(),game:activeModal,date,winner,notes,p1Rat,p2Rat};
+  plays.push(p);savePlays();markPlayed(activeModal);updateLocalRatings(activeModal,p1Rat,p2Rat);
+  document.getElementById('m-winner').value='';
+  document.getElementById('m-notes-in').value='';
+  document.getElementById('m-p1rat').value='';
+  document.getElementById('m-p2rat').value='';
+  refreshModalPlays(activeModal);renderCollection();
+  const syncResult = await push(p, wasUnplayed);
+  showPlaySyncToast(syncResult);
+}
+
+async function saveGamp2Ratings(){
+  if(!activeModal) return;
+  const jInput = document.getElementById('m-rate-j');
+  const eInput = document.getElementById('m-rate-e');
+  const button = document.getElementById('m-rate-save');
+  const p1Rat = jInput.value.trim();
+  const p2Rat = eInput.value.trim();
+  const valid = value => value === '' || (Number(value) >= 1 && Number(value) <= 10);
+
+  if(!p1Rat && !p2Rat){
+    showToast('Enter at least one rating.','#c45c3c');
+    return;
+  }
+  if(!valid(p1Rat) || !valid(p2Rat)){
+    showToast('Ratings must be between 1 and 10.','#c45c3c');
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Saving...';
+  const result = await postToSheets({action:'rate',game:activeModal,p1Rat,p2Rat});
+  button.disabled = false;
+  button.textContent = 'Save Ratings';
+
+  if(!result.ok || result.data?.ratingsUpdated !== true){
+    console.error('Rating writeback failed:', result.error || result.data);
+    showToast(result.error || result.data?.message || 'Ratings were not saved to Sheets.','#c45c3c');
+    return;
+  }
+
+  const game = GAMES.find(g => g.n === activeModal);
+  if(game){
+    if(p1Rat) game.p1Rat = p1Rat;
+    if(p2Rat) game.p2Rat = p2Rat;
+  }
+  renderCollection();
+  renderStats();
+  openModal(activeModal);
+  showToast('Ratings saved.');
+}
+
+function markPlayed(name){const g=GAMES.find(x=>x.n===name);if(g)g.played=true;}
+function updateLocalRatings(name,p1Rat,p2Rat){
+  const game=GAMES.find(x=>x.n===name);
+  if(!game) return;
+  if(p1Rat!=='') game.p1Rat=p1Rat;
+  if(p2Rat!=='') game.p2Rat=p2Rat;
+}
+
+async function delPlay(idx,name){
+  const p=plays[idx];
+  if(!p) return;
+  showToast('Deleting from Google Sheets...');
+  const result = await pushDel(p);
+  if(!result.ok || result.data?.playDeleted !== true){
+    console.error('Play deletion failed:', result.error || result.data);
+    showToast(result.error || result.data?.message || 'Play was not deleted from Sheets.','#c45c3c');
+    return;
+  }
+  const currentIdx=plays.indexOf(p);
+  if(currentIdx>=0) plays.splice(currentIdx,1);
+  savePlays();
+  if(name&&document.getElementById('moverlay').classList.contains('open'))refreshModalPlays(name);
+  renderPlays();renderStats();renderCollection();
+  showToast('Play deleted from Sheets.','#c45c3c');
+}
+
+function renderPlays(){
+  const input=document.getElementById('log-game');
+  const gameList=document.getElementById('log-game-list');
+  if(input&&gameList){
+    const cur=input.value;
+    gameList.innerHTML=GAMES.filter(g=>!g.exp&&passesGlobal(g)).map(g=>`<option value="${g.n}"></option>`).join('');
+    if(cur)input.value=cur;
+  }
+  document.getElementById('log-date').valueAsDate=new Date();
+  const list=document.getElementById('play-log-list');
+  if(!plays.length){list.innerHTML='<div class="empty">No plays logged yet.</div>';return;}
+  // Filter play list to only show plays for games that pass global filter
+  const filteredPlays = plays.filter(p => {
+    const g = GAMES.find(x=>x.n===p.game);
+    return !g || passesGlobal(g);
+  });
+  if(!filteredPlays.length){list.innerHTML='<div class="empty">No plays match the current filter.</div>';return;}
+  const sorted=[...filteredPlays].map((p,i)=>({...p,_i:plays.indexOf(p)})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  list.innerHTML=`<div class="section-label">All Plays — ${filteredPlays.length}${filteredPlays.length!==plays.length?' (filtered, '+plays.length+' total)':''}</div>`+
+    sorted.map(p=>`<div class="pentry">
+      <div class="pmeta">
+        <span class="pdate">${p.date}</span>
+        <span class="pgame" title="${p.game}">${p.game}</span>
+      </div>
+      <button class="pdel" onclick="delPlay(${p._i},null)">✕</button>
+      <div class="psub">
+        <span class="pwinner" style="color:${winnerColor(p.winner)};">${escAttr(winnerDisplayName(p.winner))}</span>
+        ${p.p1Rat?`<span class="badge">${escAttr(playerProfiles.player1.name)}:${p.p1Rat}</span>`:''}
+        ${p.p2Rat?`<span class="badge">${escAttr(playerProfiles.player2.name)}:${p.p2Rat}</span>`:''}
+      </div>
+      ${p.notes?`<div class="pnotes">${p.notes}</div>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+function renderStats(){
+  updatePlayerLabels();
+  renderBattleRosterSettings();
+  const scopedPlays = plays.filter(p=>{const g=GAMES.find(x=>x.n===p.game);return !g||passesGlobal(g);});
+  const jW=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)==='player1').length;
+  const eW=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)==='player2').length;
+  const tot=jW+eW;
+  const pct=tot>0?(jW/tot*100):50;
+  const diff=tot?jW-eW:0;
+  const p1Rate=tot>0?Math.round(jW/tot*100):0;
+  const lizRate=tot>0?Math.round(eW/tot*100):0;
+  const p1Profile = playerProfiles.player1;
+  const p2Profile = playerProfiles.player2;
+  const leadText = diff > 0 ? `${p1Profile.name} leads by ${diff}` : diff < 0 ? `${p2Profile.name} leads by ${Math.abs(diff)}` : 'Even match';
+  const leadClass = diff === 0 ? 'tie' : '';
+  const p1Dino = DINO_ROSTER[p1Profile.dino] || DINO_ROSTER.velociraptor;
+  const p2Dino = DINO_ROSTER[p2Profile.dino] || DINO_ROSTER.triceratops;
+  document.getElementById('win-stats').innerHTML=`
+    <article class="battle-card" aria-label="Head to head record">
+      <header class="battle-header">
+        <span>Head to Head</span>
+        <span>Competitive plays only</span>
+      </header>
+      <div class="battle-stage">
+        <div class="battle-grid" aria-hidden="true"></div>
+        <section class="battle-side left" style="--fighter-accent:${escAttr(p1Profile.color)}">
+          <div class="fighter-hud">
+            <span class="fighter-callout">Player 1</span>
+            <strong>${escAttr(p1Profile.name)}</strong>
+            <span>${p1Dino.label}</span>
+          </div>
+          <div class="fighter-art">
+            <div class="battle-avatar player1" style="--avatar-image:url('../${p1Dino.asset}')">
+              <img class="battle-dino" src="${p1Dino.asset}" alt="">
+            </div>
+          </div>
+          <div class="fighter-score"><strong>${jW}</strong><span>Wins</span><small>${p1Rate}% win rate</small></div>
+        </section>
+        <div class="battle-center">
+          <div class="battle-vs">VS</div>
+          <div class="battle-meter-text">Advantage</div>
+          <div class="battle-meter-bar" aria-label="${escAttr(p1Profile.name)} win share ${Math.round(pct)} percent">
+            <span class="battle-meter-player1" style="width:${pct}%"></span>
+            <span class="battle-meter-player2" style="width:${100-pct}%"></span>
+          </div>
+          <div class="battle-lead ${leadClass}">${leadText}</div>
+        </div>
+        <section class="battle-side right" style="--fighter-accent:${escAttr(p2Profile.color)}">
+          <div class="fighter-hud">
+            <span class="fighter-callout">Player 2</span>
+            <strong>${escAttr(p2Profile.name)}</strong>
+            <span>${p2Dino.label}</span>
+          </div>
+          <div class="fighter-art">
+            <div class="battle-avatar player2" style="--avatar-image:url('../${p2Dino.asset}')">
+              <img class="battle-dino" src="${p2Dino.asset}" alt="">
+            </div>
+          </div>
+          <div class="fighter-score"><strong>${eW}</strong><span>Wins</span><small>${lizRate}% win rate</small></div>
+        </section>
+      </div>
+      <footer class="battle-footer">
+        <span>${tot} decisive play${tot===1?'':'s'}</span>
+        <span>${scopedPlays.length-tot} tie / co-op</span>
+        <span>${scopedPlays.length} total logged</span>
+      </footer>
+    </article>`;
+  renderPlayerFavorites();
+  const map={};
+  plays.forEach(p=>{
+    const g = GAMES.find(x=>x.n===p.game);
+    if(g && !passesGlobal(g)) return; // respect global filter
+    if(!map[p.game])map[p.game]={n:0,j:0,e:0,t:0};
+    map[p.game].n++;
+    if(playerSlotFromWinner(p.winner)==='player1')map[p.game].j++;
+    else if(playerSlotFromWinner(p.winner)==='player2')map[p.game].e++;
+    else map[p.game].t++;
+  });
+  const rows=Object.entries(map).sort((a,b)=>b[1].n-a[1].n);
+  const tb=document.getElementById('stats-body');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.8rem;">No plays yet.</td></tr>';return;}
+  tb.innerHTML=rows.map(([name,d])=>{
+    const ldr=d.j>d.e?playerProfiles.player1.name:d.e>d.j?playerProfiles.player2.name:'Tied';
+    const lc=d.j>d.e?'wj':d.e>d.j?'we':'wn';
+    return `<tr>
+      <td data-label="Game" title="${name}">${name.length>42?name.slice(0,40)+'…':name}</td>
+      <td data-label="Plays">${d.n}</td>
+      <td data-label="${escAttr(playerProfiles.player1.name)}"><span class="wp wj">${d.j}</span></td>
+      <td data-label="${escAttr(playerProfiles.player2.name)}"><span class="wp we">${d.e}</span></td>
+      <td data-label="Ties / Co-op">${d.t}</td>
+      <td data-label="Leader"><span class="wp ${lc}">${ldr}</span></td>
+    </tr>`;
+  }).join('');
+  renderTwoPlayer();
+}
+
+function renderPlayerFavorites(){
+  const container = document.getElementById('player-favorites');
+  if(!container) return;
+
+  const ranked = key => GAMES
+    .filter(g => !g.exp && passesGlobal(g) && numericRating(g[key]) !== null)
+    .sort((a,b) => numericRating(b[key]) - numericRating(a[key]) || a.n.localeCompare(b.n))
+    .slice(0,5);
+
+  const renderList = (games,key) => games.length
+    ? games.map((game,index) => `<div class="favorite-row" data-game="${escAttr(game.n)}" role="button" tabindex="0" onclick="openModal(this.dataset.game)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal(this.dataset.game)}">
+        <span class="favorite-rank">${index + 1}</span>
+        <span class="favorite-name">${game.n}</span>
+        <span class="favorite-score">${numericRating(game[key])}</span>
+      </div>`).join('')
+    : '<div class="favorites-empty">No ratings yet.</div>';
+
+  const p1Games = ranked('p1Rat');
+  const p2Games = ranked('p2Rat');
+  container.innerHTML = `
+    <div class="favorites-card">
+      <div class="favorites-title">${escAttr(playerProfiles.player1.name)}'s Top Games</div>
+      ${renderList(p1Games,'p1Rat')}
+    </div>
+    <div class="favorites-card player2">
+      <div class="favorites-title">${escAttr(playerProfiles.player2.name)}'s Top Games</div>
+      ${renderList(p2Games,'p2Rat')}
+    </div>`;
+}
+
+function renderTwoPlayer() {
+  // All candidates: Best At contains "2", not expansions, passes global filter
+  // 2-player modes
+  const qualifies2P = g => {
+    const ba  = String(g.ba||'');
+    const bgg = String(g.plBGG||'');
+    if (twoPlayerMode === 'best') return ba.includes('2');
+    return bgg.includes('2') || /1-/.test(bgg); // 'good' mode
+  };
+  const allCandidates = GAMES.filter(g => {
+    if (!passesGlobal(g)) return false;
+    if (g.exp) return false;
+    return qualifies2P(g);
+  });
+
+  // Split into active list (not excluded) and excluded
+  // Excluded = sheet flag OR locally excluded by user OR shelf filter
+  const isExcluded = g =>
+    g.excluded ||
+    twoPlayerExcludedGames.has(g.n) ||
+    [...twoPlayerExcludedShelves].some(s => g.s.toLowerCase().includes(s.toLowerCase()));
+
+  const active   = allCandidates.filter(g => !isExcluded(g));
+  const excluded = allCandidates.filter(g =>  isExcluded(g));
+
+  const unplayed = active.filter(g => !g.played);
+  const played   = active.filter(g =>  g.played);
+  const playedPercent = active.length > 0 ? Math.round(played.length/active.length*100) : 0;
+  const modeLabel = twoPlayerMode === 'best' ? 'Best at 2' : 'Good at 2';
+
+  document.getElementById('twoplayer-stats').innerHTML = `
+    <article class="twoplayer-stat total">
+      <span class="twoplayer-stat-number">${active.length}</span>
+      <span class="twoplayer-stat-label">${modeLabel}</span>
+    </article>
+    <article class="twoplayer-stat played">
+      <span class="twoplayer-stat-number">${played.length}</span>
+      <span class="twoplayer-stat-label">Played Together</span>
+    </article>
+    <article class="twoplayer-stat unplayed">
+      <span class="twoplayer-stat-number">${unplayed.length}</span>
+      <span class="twoplayer-stat-label">Still to Play</span>
+    </article>
+    <article class="twoplayer-stat progress">
+      <span class="twoplayer-stat-number">${playedPercent}<small>%</small></span>
+      <span class="twoplayer-stat-label">Played</span>
+      <span class="twoplayer-progress" aria-hidden="true"><i style="width:${playedPercent}%"></i></span>
+    </article>
+  `;
+
+  // Main table: unplayed first, then played
+  const sorted = [
+    ...unplayed.sort((a,b)=>a.n.localeCompare(b.n)),
+    ...played.sort((a,b)=>a.n.localeCompare(b.n))
+  ];
+
+  document.getElementById('twoplayer-body').innerHTML = sorted.map(g => {
+    const gp = plays.filter(p=>p.game===g.n);
+    const statusColor = g.played ? 'var(--green)' : 'var(--amber)';
+    const statusText  = g.played ? 'Played' : 'Unplayed';
+    return `<tr>
+      <td data-label="Game" role="button" tabindex="0" style="cursor:pointer;" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="openModal(this.dataset.game)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal(this.dataset.game)}">${g.n}</td>
+      <td data-label="Shelf"><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
+      <td data-label="Best at" style="font-family:var(--mono);">${g.ba}</td>
+      <td data-label="Status"><span style="color:${statusColor};font-size:13px;font-weight:700;">${statusText}</span>${gp.length?` <span style="color:var(--muted);font-size:12px;">(${gp.length} plays)</span>`:''}</td>
+      <td class="twoplayer-action"><button title="Exclude from list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="excludeGame(this.dataset.game)"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:.1rem .3rem;border-radius:4px;transition:color .15s;"
+        onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Excluded games table
+  const exclCount = document.getElementById('excl-count');
+  if (exclCount) exclCount.textContent = excluded.length ? `(${excluded.length})` : '';
+  document.getElementById('excluded-body').innerHTML = excluded.length
+    ? excluded.sort((a,b)=>a.n.localeCompare(b.n)).map(g => `<tr>
+        <td style="color:var(--text3);">${g.n}</td>
+        <td><span class="badge ${sBadge(g.s)}">${g.s}</span></td>
+        <td class="table-muted">${g.ba}</td>
+        <td><button title="Restore to list" data-game="${g.n.replace(/"/g,'&quot;')}" onclick="includeGame(this.dataset.game)"
+          style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:.1rem .4rem;border-radius:4px;border:1px solid var(--border2);transition:all .15s;"
+          onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'"
+          onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border2)'">↩ Restore</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:1rem;">No excluded games.</td></tr>';
+}
+
+// ═══════════════════════════════════════
+// PICKER
+// ═══════════════════════════════════════
+function pickRandom(){
+  const pool=GAMES.filter(g=>{
+    if(g.excluded) return false;
+    if(!passesGlobal(g)) return false;
+    if(picks.exp==='no'&&g.exp)return false;
+    if(picks.shelf.length && !picks.shelf.some(shelf => hasShelfValue(g.s, shelf))) return false;
+    if(picks.played==='yes'&&!g.played)return false;
+    if(picks.played==='no'&&g.played)return false;
+    if(picks.coop==='yes'&&!isCoop(g))return false;
+    if(picks.coop==='no'&&isCoop(g))return false;
+    if(picks.players&&!supportsPlayerCount(g,picks.players))return false;
+    return true;
+  });
+  const box=document.querySelector('#tab-picker .pick-box');
+  const el=document.getElementById('pick-result');
+  const det=document.getElementById('pick-detail');
+  const cover=document.getElementById('pick-cover');
+  if(!pool.length){el.textContent='No games match';det.textContent='Try relaxing one or two filters.';cover.className='pick-cover pick-empty';cover.removeAttribute('style');cover.innerHTML='<img class="pick-mascot" src="Pterodactyl-light-blue.png" alt=""><span class="pick-empty-label">No match found</span>';box?.classList.remove('rolling');return;}
+  box?.classList.add('rolling');
+  let c=0;
+  const iv=setInterval(()=>{
+    el.textContent=pool[Math.floor(Math.random()*pool.length)].n;
+    if(++c>13){
+      clearInterval(iv);
+      box?.classList.remove('rolling');
+      const p=pool[Math.floor(Math.random()*pool.length)];
+      el.textContent=p.n;
+      const gp=plays.filter(x=>x.game===p.n);
+      det.innerHTML=`<strong>${p.cat}</strong><span>${p.pl} players</span><span>BGG ${p.bg}</span>${gp.length?`<span>${gp.length} previous play${gp.length===1?'':'s'}</span>`:''}${!p.played?'<span>Never played</span>':''}`;
+      const pickImage=getGameCover(p);
+      cover.innerHTML=pickImage.src
+        ? `<img src="${escAttr(pickImage.src)}" data-fallback="${escAttr(pickImage.fallback)}" alt="${escAttr(p.n)} cover" onload="styleCoverPresentation(this)" onerror="handleCoverError(this)">`
+        : '<img class="pick-mascot" src="Pterodactyl-light-blue.png" alt=""><span class="pick-empty-label">Cover unavailable</span>';
+    }
+  },72);
+}
+
+// ═══════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════
+function parseCSV(txt){
+  const rows=[];let row=[];let cell='';let quoted=false;
+  const source=String(txt||'').replace(/^\uFEFF/,'');
+  for(let i=0;i<source.length;i++){
+    const char=source[i];
+    if(char==='"'){
+      if(quoted&&source[i+1]==='"'){cell+='"';i++;}else{quoted=!quoted;}
+    }else if(char===','&&!quoted){
+      row.push(cell);cell='';
+    }else if((char==='\n'||char==='\r')&&!quoted){
+      if(char==='\r'&&source[i+1]==='\n') i++;
+      row.push(cell);cell='';
+      if(row.some(value=>String(value).trim()!=='')) rows.push(row);
+      row=[];
+    }else{
+      cell+=char;
+    }
+  }
+  row.push(cell);
+  if(row.some(value=>String(value).trim()!=='')) rows.push(row);
+  if(!rows.length) return [];
+  const headers=rows.shift().map(value=>String(value).trim());
+  return rows.map(values=>{
+    const record={};
+    headers.forEach((header,index)=>{record[header]=String(values[index]??'').trim();});
+    return record;
+  });
+}
+
+async function fetchCsvAttempt(url, timeoutMs){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const res=await fetch(url,{
+      cache:'no-store',
+      headers:{'Accept':'text/csv, text/plain, */*'},
+      signal:controller.signal
+    });
+    if(!res.ok) return null;
+    const txt=await res.text();
+    const trimmed=txt.replace(/^﻿/,'').trim();
+    if(trimmed.length>20&&trimmed.includes(',')&&!trimmed.startsWith('<')&&!trimmed.startsWith('{')){
+      return trimmed;
+    }
+  }catch(error){
+    if(error?.name!=='AbortError') console.debug('CSV attempt failed:',error);
+  }finally{
+    clearTimeout(timeout);
+  }
+  return null;
+}
+
+// Google-published CSV supports CORS; bounded proxy requests are fallbacks.
+async function fetchCSV(url) {
+  const direct=await fetchCsvAttempt(url,6000);
+  if(direct) return direct;
+  const fallbackUrls=[
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+  ];
+  const attempts=fallbackUrls.map(async fallbackUrl=>{
+    const csv=await fetchCsvAttempt(fallbackUrl,7000);
+    if(!csv) throw new Error('CSV fallback failed');
+    return csv;
+  });
+  try{
+    return await Promise.any(attempts);
+  }catch(error){
+    return null;
+  }
+}
+
+function mapGameRow(r) {
+  const isOne = value => {
+    const normalized = String(value ?? '').trim();
+    return normalized === '1' || normalized === '1.0' || Number(normalized) === 1;
+  };
+  const plBGG = (r['Players (BGG Comm)']||'').toString().trim();
+  return {
+    n:    r['Game']||'',
+    s:    r['Shelf']||'',
+    pl:   r['Players (Manufacturer)']||r['Players']||'',
+    plBGG: plBGG,
+    ba:   r['Best At']||'',
+    so:   r['Good solo option']||r['Solo']||'',
+    bg:   parseFloat(r['BGG Score'])||0,
+    cat:  r['BGG Category']||'',
+    played:(r['Played']||'').trim().toLowerCase()==='yes',
+    p1Rat: r['P1 Rating']||'',
+    p2Rat: r['P2 Rating']||'',
+    exp:  isOne(r['Expansion'])||(r['Expansion']||'').toLowerCase()==='yes',
+    sell: isOne(r['Potentially sell?']),
+    age:  r['Age']||'',
+    year: r['Year bought']||'',
+    notes:r['Notes']||'',
+    excluded:isOne(r['Excluded'])||(r['Excluded']||'').toLowerCase()==='yes',
+    price:parseFloat(r['Price Paid']||r['Total'])||0,
+    bggId:(r['BGG ID']||'').toString().trim(),
+    image:(r['BGG Image']||r['Image']||'').toString().trim(),
+    thumb:(r['BGG Thumbnail']||r['Thumbnail']||'').toString().trim(),
+    bggUrl:(r['BGG URL']||'').toString().trim()
+  };
+}
+
+async function syncNow(readForm=true){
+  if(readForm) readConnectionFields();
+  const msg=document.getElementById('sync-msg');
+  if(!cfg.gamesUrl){
+    msg.textContent='No Games URL set.';
+    if(cfg.playersUrl) await fetchPlayers();
+    return;
+  }
+  msg.textContent='⟳ Syncing...';
+  try{
+    const txt = await fetchCSV(cfg.gamesUrl);
+    if(!txt) throw new Error('Could not reach the Games sheet. Check its published CSV URL.');
+
+    // Strip BOM if present
+    const clean = txt.replace(/^﻿/,'').trim();
+    const rows = parseCSV(clean);
+
+    // Debug: show what columns we found
+    const foundCols = rows.length > 0 ? Object.keys(rows[0]) : [];
+    console.log('CSV columns found:', foundCols);
+
+    // Accept the data if we find "Game" column (with or without extra cols)
+    const gameCol = foundCols.find(k => k.trim() === 'Game');
+    if(rows.length && gameCol){
+      // Re-key if column had whitespace
+      const normalized = rows.map(r => {
+        const out = {};
+        Object.keys(r).forEach(k => { out[k.trim()] = r[k]; });
+        // Explicitly remove stray columns outside the named table
+        delete out['Ratings'];
+        return out;
+      });
+      GAMES = normalized.map(mapGameRow).filter(g=>g.n.trim());
+      // Sum the human-friendly Price Paid column (or legacy Total) as a fallback.
+      try {
+        let totalSpent = 0;
+        rows.forEach(r => { const v=parseFloat(r['Price Paid']||r['Total']); if(!isNaN(v)&&v>0) totalSpent+=v; });
+        if(totalSpent > 0) { cfg.totalSpent = totalSpent.toFixed(2); saveCfg(); }
+      } catch(e2) {}
+      // Fetch Stats sheet for sold/effective values
+      if(cfg.statsUrl) fetchStats();
+      msg.textContent='✓ All games loaded from Sheets';
+      document.getElementById('sync-badge').className='sstatus st-sheets';
+      document.getElementById('sync-badge').textContent='● Google Sheets';
+      populateYearFilter();
+      renderCollection();renderPlays();renderStats();
+    } else {
+      msg.textContent=`⚠ "Game" column not found. Columns seen: ${foundCols.slice(0,5).join(', ')}`;
+    }
+  }catch(e){msg.textContent='⚠ Sync error: '+e.message; console.error(e);}
+
+  if(cfg.playsUrl){
+    try{
+      const t2 = await fetchCSV(cfg.playsUrl);
+      if(t2){
+        const clean2 = t2.replace(/^\uFEFF/,'').trim();
+        const rows2 = parseCSV(clean2);
+        const cols2 = rows2.length > 0 ? Object.keys(rows2[0]) : [];
+        const dateCol = cols2.find(k=>k.trim()==='Date');
+        if(rows2.length && dateCol){
+          const norm2 = rows2.map(r=>{const o={};Object.keys(r).forEach(k=>{o[k.trim()]=r[k];});return o;});
+          plays = norm2.filter(r=>r.Date&&r.Game&&!/^optional$/i.test(r.Date)).map(r=>({
+            id:r['Play ID']||'',
+            date:r.Date,
+            game:r.Game,
+            winner:r.Winner||r.Wimmer||r['Winner Player #']||'',
+            notes:r.Notes||'',
+            p1Rat:r['P1 Rating']||'',
+            p2Rat:r['P2 Rating']||''
+          }));
+          savePlays();renderPlays();renderStats();
+        }
+      }
+    }catch(e2){ console.error('Plays sync error:', e2); }
+  }
+  if(cfg.playersUrl) await fetchPlayers();
+}
+
+function showPlaySyncToast(result){
+  if(result.ok){
+    showToast('Play logged and synced.');
+    return;
+  }
+  console.error('Sheets writeback failed:', result.error);
+  showToast(result.error || 'Play saved locally — Sheet sync failed', '#c45c3c');
+}
+
+async function postToSheets(payload){
+  if(!cfg.scriptUrl){
+    return {ok:false,error:'No Apps Script URL configured'};
+  }
+  try{
+    const response = await fetch(cfg.scriptUrl,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({writeKey:cfg.writeKey,...payload}),
+      redirect:'follow'
+    });
+    const raw = await response.text();
+    let result;
+    try{
+      result = JSON.parse(raw);
+    }catch(e){
+      const looksLikeHtml = raw.trim().startsWith('<');
+      throw new Error(looksLikeHtml
+        ? 'Apps Script deployment URL is invalid or not shared with Anyone.'
+        : `Apps Script returned non-JSON (${response.status})`);
+    }
+    if(!response.ok || result.status !== 'ok'){
+      throw new Error(result.message || `Apps Script returned ${response.status}`);
+    }
+    return {ok:true,data:result};
+  }catch(error){
+    return {ok:false,error:error.message || String(error)};
+  }
+}
+
+async function push(p, wasUnplayed){
+  return postToSheets({action:'add',markPlayed:wasUnplayed===true,...p});
+}
+async function pushDel(p){
+  return postToSheets({action:'delete',...p});
+}
+
+async function fetchPlayers(){
+  const status=document.getElementById('players-connection-status');
+  try{
+    if(status){
+      status.textContent='Loading player avatars...';
+      status.style.color='var(--text3)';
+    }
+    const txt=await fetchCSV(cfg.playersUrl);
+    if(!txt) throw new Error('Could not reach the published Players sheet.');
+    const rows=parseCSV(txt.replace(/^\uFEFF/,'').trim()).map(row=>{
+      const normalized={};
+      Object.keys(row).forEach(key=>{
+        normalized[String(key).trim().toLowerCase()]=row[key];
+      });
+      return normalized;
+    });
+    const foundHeaders=rows.length ? Object.keys(rows[0]) : [];
+    if(foundHeaders.includes('game')&&!foundHeaders.includes('player #')){
+      throw new Error('This URL is loading the Games tab, not Players. Publish only the Players tab as CSV and use that URL.');
+    }
+    const valueFor=(row,...keys)=>{
+      for(const key of keys){
+        const value=row[key.toLowerCase()];
+        if(String(value??'').trim()) return value;
+      }
+      return '';
+    };
+    const byNumber=new Map();
+    rows.forEach(row=>{
+      const number=parseInt(valueFor(row,'Player #','Player','Player Number'),10);
+      if(number>=1&&number<=6) byNumber.set(number,row);
+    });
+    if(!byNumber.has(1)||!byNumber.has(2)){
+      const headers=foundHeaders.length ? foundHeaders.join(', ') : 'none';
+      throw new Error(`Players CSV needs rows for Player #1 and #2. Headers received: ${headers}.`);
+    }
+    const toProfile=(row,fallback)=>({
+      name:String(valueFor(row,'Name','Player Name')||fallback.name).trim(),
+      dino:valueFor(row,'Dino')||fallback.dino,
+      color:valueFor(row,'Color')||fallback.color
+    });
+    playerProfiles=normalizePlayerProfiles({
+      player1:toProfile(byNumber.get(1),playerProfiles.player1),
+      player2:toProfile(byNumber.get(2),playerProfiles.player2)
+    });
+    cfg.playerProfiles=playerProfiles;
+    saveCfg();
+    updatePlayerLabels();
+    renderBattleRosterSettings();
+    renderPlays();
+    renderStats();
+    if(status){
+      status.textContent=`✓ Connected: ${playerProfiles.player1.name} vs. ${playerProfiles.player2.name}`;
+      status.style.color='var(--teal)';
+    }
+  }catch(error){
+    console.error('Players sync error:',error);
+    if(status){
+      status.textContent=error.message||String(error);
+      status.style.color='var(--red)';
+    }
+  }
+}
+
+async function fetchStats(){
+  const el = document.getElementById('stat-invested');
+  try {
+    if (el) el.textContent = '…';
+    const txt = await fetchCSV(cfg.statsUrl);
+    if (!txt) {
+      if (el) el.textContent = '—';
+      return;
+    }
+    const clean = txt.replace(/^\uFEFF/,'').trim();
+    console.log('Stats CSV raw:', clean.slice(0,200));
+    const rows = parseCSV(clean);
+    console.log('Stats rows:', rows);
+    const statsMap = {};
+    rows.forEach(r => {
+      const key = (r['Key']||r['key']||Object.values(r)[0]||'').toString().trim().toLowerCase();
+      const raw = (r['Value']||r['value']||Object.values(r)[1]||'').toString().trim();
+      const val = raw.replace(/[$,\s]/g, '');
+      if (key) statsMap[key] = val;
+    });
+    if(!cfg.playersUrl){
+      playerProfiles = normalizePlayerProfiles({
+        player1: {
+          name: statsMap['player 1 name'] || statsMap['player1 name'] || playerProfiles.player1.name,
+          dino: statsMap['player 1 dino'] || statsMap['player1 dino'] || playerProfiles.player1.dino,
+          color: statsMap['player 1 color'] || statsMap['player1 color'] || playerProfiles.player1.color
+        },
+        player2: {
+          name: statsMap['player 2 name'] || statsMap['player2 name'] || playerProfiles.player2.name,
+          dino: statsMap['player 2 dino'] || statsMap['player2 dino'] || playerProfiles.player2.dino,
+          color: statsMap['player 2 color'] || statsMap['player2 color'] || playerProfiles.player2.color
+        }
+      });
+      cfg.playerProfiles = playerProfiles;
+      saveCfg();
+      updatePlayerLabels();
+      renderBattleRosterSettings();
+    }
+    console.log('Stats map:', statsMap);
+    // Main effective value
+    let finalVal = null;
+    if (statsMap['effective'] && !isNaN(parseFloat(statsMap['effective']))) {
+      finalVal = parseFloat(statsMap['effective']);
+    } else if (statsMap['spent'] && statsMap['sold']) {
+      finalVal = parseFloat(statsMap['spent']) - parseFloat(statsMap['sold']);
+    } else if (cfg.totalSpent && statsMap['sold']) {
+      finalVal = parseFloat(cfg.totalSpent) - parseFloat(statsMap['sold']);
+    }
+    if (finalVal !== null && !isNaN(finalVal)) {
+      cfg.invested = Math.round(finalVal).toLocaleString('en-US');
+      saveCfg();
+      updateInvestedCard();
+      renderStats();
+    } else {
+      if (el) el.textContent = 'parse err';
+      console.warn('Could not parse stats. Map:', statsMap);
+    }
+  } catch(e) {
+    if (el) el.textContent = 'error';
+    console.error('Stats fetch error:', e);
+  }
+}
+
+function readConnectionFields(){
+  const gamesUrl=document.getElementById('cfg-games')?.value.trim()||'';
+  const playsUrl=document.getElementById('cfg-plays')?.value.trim()||'';
+  const scriptUrl=document.getElementById('cfg-script')?.value.trim()||'';
+  const writeKey=document.getElementById('cfg-write-key')?.value.trim()||'';
+  const statsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
+  const playersUrl=document.getElementById('cfg-players')?.value.trim()||'';
+  if(statsUrl!==cfg.statsUrl) cfg.invested='';
+  cfg.gamesUrl=gamesUrl;
+  cfg.playsUrl=playsUrl;
+  cfg.scriptUrl=scriptUrl;
+  cfg.writeKey=writeKey;
+  cfg.statsUrl=statsUrl;
+  cfg.playersUrl=playersUrl;
+  saveCfg();
+}
+
+function markPlayersUrlPending(){
+  const status=document.getElementById('players-connection-status');
+  if(!status) return;
+  const hasUrl=Boolean(document.getElementById('cfg-players')?.value.trim());
+  status.textContent=hasUrl?'URL ready — select Save & Sync or Sync Now.':'Optional: publish the Players tab as CSV and paste its URL here.';
+  status.style.color='var(--text3)';
+}
+
+async function saveConfig(){
+  readConnectionFields();
+  showToast('Config saved!');
+  await verifyScriptConnection();
+  if(cfg.gamesUrl){
+    await syncNow(false);
+  }else{
+    if(cfg.statsUrl) fetchStats();
+    if(cfg.playersUrl) await fetchPlayers();
+  }
+}
+
+async function verifyScriptConnection(){
+  const status=document.getElementById('script-connection-status');
+  if(!status) return;
+  if(!cfg.scriptUrl){
+    status.textContent='No active Apps Script deployment configured.';
+    status.style.color='var(--red)';
+    return;
+  }
+  if(!cfg.writeKey){
+    status.textContent='Add the private write key from your Apps Script project settings.';
+    status.style.color='var(--red)';
+    return;
+  }
+  status.textContent='Testing write connection...';
+  status.style.color='var(--text3)';
+  const result=await postToSheets({action:'ping'});
+  if(result.ok){
+    status.textContent='✓ Apps Script write connection ready';
+    status.style.color='var(--green)';
+  }else{
+    status.textContent='⚠ '+result.error;
+    status.style.color='var(--red)';
+  }
+}
+
+function loadCfgUI(){
+  if(cfg.gamesUrl){const el=document.getElementById('cfg-games');if(el)el.value=cfg.gamesUrl;}
+  if(cfg.playsUrl){const el=document.getElementById('cfg-plays');if(el)el.value=cfg.playsUrl;}
+  if(cfg.scriptUrl){const el=document.getElementById('cfg-script');if(el)el.value=cfg.scriptUrl;}
+  if(cfg.writeKey){const el=document.getElementById('cfg-write-key');if(el)el.value=cfg.writeKey;}
+  if(cfg.statsUrl){const el=document.getElementById('cfg-stats');if(el)el.value=cfg.statsUrl;}
+  if(cfg.playersUrl){const el=document.getElementById('cfg-players');if(el)el.value=cfg.playersUrl;}
+  else {
+    const status=document.getElementById('players-connection-status');
+    if(status) status.textContent='Optional: publish the Players tab as CSV and paste its URL here.';
+  }
+  if(cfg.gamesUrl){
+    document.getElementById('sync-badge').className='sstatus st-sheets';
+    document.getElementById('sync-badge').textContent='● Google Sheets';
+  }
+  verifyScriptConnection();
+}
+function toggleGuide(){
+  const b=document.getElementById('guide-body');
+  const willOpen=b.style.display==='none';
+  b.style.display=willOpen?'block':'none';
+  b.previousElementSibling?.setAttribute('aria-expanded',String(willOpen));
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+function showToast(msg,color='#4a9f6e'){
+  const t=document.getElementById('toast');t.textContent=msg;t.style.background=color;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+let pendingServiceWorker = null;
+function setUpdateBannerVisible(visible){
+  const banner = document.getElementById('update-banner');
+  if (!banner) return;
+  banner.classList.toggle('show', visible);
+  banner.setAttribute('aria-hidden', visible ? 'false' : 'true');
+}
+
+function promptForUpdate(worker){
+  pendingServiceWorker = worker || pendingServiceWorker;
+  setUpdateBannerVisible(Boolean(pendingServiceWorker));
+}
+
+function dismissUpdateBanner(){
+  pendingServiceWorker = null;
+  setUpdateBannerVisible(false);
+}
+
+function applyPendingUpdate(){
+  if (!pendingServiceWorker) return;
+  setUpdateBannerVisible(false);
+  pendingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  loadCfgUI();
+  updatePlayerLabels();
+  populateYearFilter();
+  cfg.invested = ''; // always fetch fresh on load, never use stale cache
+  saveCfg();
+
+  const gfKidsEl = document.getElementById('gf-kids');
+  const gfYearEl = document.getElementById('gf-year');
+  if (gfKidsEl) gfKidsEl.value = globalFilters.kids || '1';
+  if (gfYearEl) gfYearEl.value = globalFilters.year || '';
+
+  const msg = document.getElementById('gf-active-msg');
+  if (msg) msg.style.display = (globalFilters.kids === '0' || globalFilters.year) ? 'block' : 'none';
+
+  renderCollection();
+  renderStats();
+  if(cfg.gamesUrl)syncNow();
+  else {
+    if(cfg.statsUrl)fetchStats();
+    if(cfg.playersUrl)fetchPlayers();
+  }
+
+  document.getElementById('update-banner-refresh')?.addEventListener('click', applyPendingUpdate);
+  document.getElementById('update-banner-dismiss')?.addEventListener('click', dismissUpdateBanner);
+  const requestedTab=new URLSearchParams(window.location.search).get('tab');
+  if(requestedTab&&['collection','picker','plays','stats','settings'].includes(requestedTab)){
+    document.querySelector(`.nav-tab[data-tab="${requestedTab}"]`)?.click();
+  }
+});
+
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&document.getElementById('moverlay')?.classList.contains('open')) closeModal();
+});
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  let refreshing = false;
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./community/service-worker.js', { updateViaCache: 'none' });
+
+      if (registration.waiting) {
+        promptForUpdate(registration.waiting);
+      }
+
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            promptForUpdate(newWorker);
+          }
+        });
+      });
+
+      registration.update();
+    } catch (err) {
+      console.error('Service worker registration failed:', err);
+    }
+  });
+}
+</script>
+</body>
+</html>
