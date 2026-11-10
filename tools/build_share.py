@@ -1,38 +1,17 @@
 #!/usr/bin/env python3
-"""Prepare the read-only share page in share/.
+"""Refresh the read-only share page's copy of the v3 design.
 
-The share page normally loads live from the read-only Apps Script feed
-(google-apps-script/ShareFeed.gs) whose URL is set as FEED_URL in
-share/index.html. This script does the two things that feed does not:
+The share page (share/) loads its data live from the read-only Apps Script
+feed (google-apps-script/ShareFeed.gs) set as FEED_URL in share/index.html.
+This script only copies the stylesheet, icons, and cover-image map from v3/
+into share/, so the folder stays self-contained and can be hosted by itself.
+Run it after changing the v3 design, then re-upload share/ to the host.
 
-  1. Copies the stylesheet, icons, and cover-image map from v3/ into share/,
-     so the folder is self-contained and can be hosted by itself. Re-run it
-     after changing the v3 design.
-  2. Writes share/data.js, a static snapshot in the same shape as the feed.
-     The page only uses it while FEED_URL is empty.
-
-Usage:
-  python3 tools/build_share.py               # copy assets and write the snapshot
-  python3 tools/build_share.py --ready-only  # snapshot only games where "E knows?" = 1
-  python3 tools/build_share.py --no-ratings  # snapshot without personal ratings
-  python3 tools/build_share.py --assets-only # copy assets, leave data.js alone
-
-Never copied into the snapshot: notes, prices, tax, shipping, vendor, buy
-reason, year bought, sell flags, collection value, plays.
-
-Sheet URLs come from GV_GAMES_URL / GV_PLAYERS_URL if set, otherwise from the
-defaults in v3/index.html.
+Usage: python3 tools/build_share.py
 """
-import argparse
-import csv
-import datetime
-import io
-import json
-import os
 import re
 import shutil
 import sys
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,119 +19,22 @@ V3 = ROOT / "v3"
 SHARE = ROOT / "share"
 
 
-def sheet_url(key):
-    env = os.environ.get(f"GV_{key.upper()}_URL")
-    if env:
-        return env
-    match = re.search(rf"cfg\.{key}Url\s*=\s*'([^']+)'", (V3 / "index.html").read_text())
-    return match.group(1) if match else ""
-
-
-def fetch_rows(url):
-    if not url:
-        return []
-    request = urllib.request.Request(url, headers={"User-Agent": "game-vault-share-build"})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        text = response.read().decode("utf-8-sig")
-    if text.lstrip().startswith("<"):
-        raise SystemExit(f"Expected CSV but got HTML from {url[:60]}...")
-    return [{(k or "").strip(): (v or "").strip() for k, v in row.items()}
-            for row in csv.DictReader(io.StringIO(text))]
-
-
-def is_one(value):
-    try:
-        return float(value) == 1
-    except (TypeError, ValueError):
-        return False
-
-
-def copy_assets():
+def main():
+    SHARE.mkdir(exist_ok=True)
     shutil.copy2(V3 / "cabinet.css", SHARE / "cabinet.css")
     shutil.copy2(V3 / "bgg-images.js", SHARE / "bgg-images.js")
     assets = SHARE / "assets"
     (assets / "dinos").mkdir(parents=True, exist_ok=True)
     for name in ("ui-icons.svg", "icon-192.png", "icon-512.png"):
         shutil.copy2(V3 / "assets" / name, assets / name)
-    for stale in (assets / "dinos").glob("*.png"):
-        stale.unlink()
     shutil.copy2(V3 / "assets" / "dinos" / "trex.png", assets / "dinos" / "trex.png")
     shutil.copy2(ROOT / "powered-by-bgg-rgb.svg", assets / "powered-by-bgg-rgb.svg")
-
-
-def write_snapshot(args):
-    game_rows = fetch_rows(sheet_url("games"))
-    if not game_rows or "Game" not in game_rows[0]:
-        raise SystemExit('Games CSV is missing a "Game" column; nothing written.')
-
-    names = ["Player 1", "Player 2"]
-    for row in fetch_rows(sheet_url("players")):
-        row = {k.lower(): v for k, v in row.items()}
-        number = row.get("player #") or row.get("player") or row.get("player number") or ""
-        name = row.get("name") or row.get("player name")
-        if number in ("1", "2") and name:
-            names[int(number) - 1] = name
-
-    games = []
-    for row in game_rows:
-        if not row.get("Game"):
-            continue
-        if args.ready_only and not is_one(row.get("E knows?")):
-            continue
-        try:
-            score = float(row.get("BGG Score") or 0)
-        except ValueError:
-            score = 0
-        games.append({
-            "n": row["Game"],
-            "s": row.get("Shelf", ""),
-            "pl": row.get("Players (Manufacturer)") or row.get("Players", ""),
-            "plBGG": row.get("Players (BGG Comm)", ""),
-            "ba": row.get("Best At", ""),
-            "so": row.get("Good solo option") or row.get("Solo", ""),
-            "bg": score,
-            "cat": row.get("BGG Category", ""),
-            "played": row.get("Played", "").lower() == "yes",
-            "exp": is_one(row.get("Expansion")) or row.get("Expansion", "").lower() == "yes",
-            "r1": "" if args.no_ratings else row.get("J Rating", ""),
-            "r2": "" if args.no_ratings else row.get("E Rating", ""),
-            "url": row.get("BGG URL", ""),
-            "id": row.get("BGG ID", ""),
-            "thumb": row.get("BGG Thumbnail") or row.get("Thumbnail") or "",
-        })
-
-    snapshot = {
-        "status": "ok",
-        "generated": datetime.date.today().isoformat(),
-        "players": [{"name": names[0]}, {"name": names[1]}],
-        "games": games,
-    }
-    payload = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    (SHARE / "data.js").write_text(
-        "// Generated by tools/build_share.py. Static fallback snapshot; no backend URLs or credentials.\n"
-        f"window.VAULT_SNAPSHOT = {payload};\n"
-    )
-    skipped = len([r for r in game_rows if r.get("Game")]) - len(games)
-    print(f"share/data.js: {len(games)} games ({skipped} left out), players {names[0]} and {names[1]}.")
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--ready-only", action="store_true", help='only include games where "E knows?" is 1')
-    parser.add_argument("--no-ratings", action="store_true", help="leave out personal ratings")
-    parser.add_argument("--assets-only", action="store_true", help="copy assets but do not rewrite data.js")
-    args = parser.parse_args()
-
-    SHARE.mkdir(exist_ok=True)
-    copy_assets()
     print("share/: stylesheet, icons, and cover map copied from v3/.")
-    if not args.assets_only:
-        write_snapshot(args)
 
     # Guardrail: the only Google address allowed in share/ is the read-only feed
-    # (script.google.com/.../exec). Sheet addresses must never appear.
-    for path in (SHARE / "data.js", SHARE / "index.html"):
-        if path.exists() and re.search(r"docs\.google\.com|2PACX-", path.read_text()):
+    # (script.google.com/.../exec). Spreadsheet addresses must never appear.
+    for path in SHARE.glob("*.*"):
+        if path.suffix in (".html", ".js") and re.search(r"docs\.google\.com|2PACX-", path.read_text()):
             sys.exit(f"ERROR: {path.name} contains a Google Sheets address.")
 
 

@@ -32,6 +32,6 @@ Supported dinosaurs are T-Rex, Velociraptor, Triceratops, Ankylosaurus, Brachios
 - **Live data:** the page loads from a read-only Apps Script feed, `google-apps-script/ShareFeed.gs`. Deploy that script as its own standalone web app (steps are in the file) and paste its `/exec` URL into `FEED_URL` in `share/index.html`. Sheet edits then show up on the next page load, within about a minute.
 - **What the feed returns:** game name, shelf, player counts, best at, solo option, BGG score, category, played, expansion, both ratings, BGG link, BGG ID, thumbnail, and the two player names. Notes, prices, tax, shipping, vendor, buy reason, year bought, sell flags, and plays never leave the sheet.
 - **What visitors can see:** the feed URL and the fields above. They cannot see the spreadsheet, its published CSV links, or the write-back script.
-- **Fallback:** while `FEED_URL` is empty the page shows `share/data.js`, a static snapshot, with a "snapshot" notice. If the feed is unreachable, the page shows the last copy that browser loaded.
-- **Assets:** `python3 tools/build_share.py` copies the stylesheet, icons, and cover map from `v3/` into `share/` and rewrites the snapshot. Re-run it after design changes (`--assets-only` skips the snapshot).
+- **If the feed is unreachable,** the page shows the last copy that browser loaded, with a short notice.
+- **Assets:** `python3 tools/build_share.py` copies the stylesheet, icons, and cover map from `v3/` into `share/`. Re-run it after design changes, then re-upload `share/` to the host.
 - `share/` is self-contained, so it can be hosted by itself. Hosting it apart from this repository is what keeps the private app and its sheet URLs out of visitors' reach.

@@ -24,8 +24,7 @@
 <body>
 <!--
   Read-only share page. It shows the collection and has no way to save changes.
-  Data comes from FEED_URL (a read-only feed that returns only shareable
-  fields). If FEED_URL is empty, it falls back to the static data.js snapshot.
+  Data comes from FEED_URL, a read-only feed that returns only shareable fields.
 -->
 <div class="cabinet-frame">
 <nav aria-label="Primary navigation">
@@ -146,13 +145,11 @@
 </div>
 
 <script src="bgg-images.js"></script>
-<script src="data.js"></script>
 <script>
 (() => {
   'use strict';
 
   // Paste the web app URL from google-apps-script/ShareFeed.gs here (ends in /exec).
-  // Leave empty to show the static snapshot in data.js instead.
   const FEED_URL = 'https://script.google.com/macros/s/AKfycbxh_PbyY5U59e0-ngRYSW3FFVTRUJ2UWetuI9XfSEle5_00GrrIFvyKRr0qru6q2-IrLA/exec';
 
   const CACHE_KEY = 'gv-share-feed';
@@ -335,13 +332,7 @@
 
   async function load() {
     if (!FEED_URL) {
-      const snapshot = window.VAULT_SNAPSHOT;
-      if (validFeed(snapshot)) {
-        apply(snapshot);
-        banner(`<strong>View only.</strong> A snapshot of the collection${snapshot.generated ? ` as of ${esc(snapshot.generated)}` : ''}.`);
-      } else {
-        $('col-sub').textContent = 'The collection is not available yet.';
-      }
+      $('col-sub').textContent = 'The collection is not available yet.';
       return;
     }
     // Show the last copy this browser saw right away, then replace it with the live sheet.
