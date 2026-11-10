@@ -537,122 +537,8 @@ function normalizePlayText_(value) {
 // ═══════════════════════════════════════════════
 // COMPLETE GAME DATA (108 games from your sheet)
 // ═══════════════════════════════════════════════
-const DEFAULT_GAMES = [
-  // 2-PLAYER (35 entries)
-  {n:"7 Wonders Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Air Land & Sea: Spies, Lies, & Supplies",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Military, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Agent Avenue",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.2,cat:"Card Game, Deduction, Spy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Azul Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Abstract Strategy, Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Bottom of the 9th",s:"2-Player",pl:"1–2",plBGG:"1-2",ba:"2",so:"Yes",bg:7.0,cat:"Dice Game, Sports, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Compile: Main 1",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Compile: Main 2",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Dice Throne: Season 2 - Gunslinger vs. Samurai",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Dice Rolling, Combat, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Flamecraft: Duals",s:"2-Player",pl:"2",plBGG:"1-2",ba:"2",so:"No",bg:7.4,cat:"Card Game, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Ironwood",s:"2-Player",pl:"2–4",plBGG:"1-2",ba:"2",so:"No",bg:7.6,cat:"Area Control, Fantasy, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"King of Tokyo Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Dice, Fighting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Lord of the Rings: Duel for Middle-Earth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Area Control, Fantasy",played:true,jRat:"9",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Lord of the Rings: Duel for Middle-Earth - Allies (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Area Control, Fantasy",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Lost Cities",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:"Like solitaire"},
-  {n:"Mind MGMT",s:"2-Player",pl:"2–5",plBGG:"1-5",ba:"3–4",so:"No",bg:8.0,cat:"Asymmetric, Deduction, Hidden Role",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Mindbug: First Contact",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"NFL Showdown",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:6.3,cat:"Sports, Dice Game",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"Me, Johnny, and Jack can play this"},
-  {n:"Radlands",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"In retrospect, bad purchase – FOMO got the best of me"},
-  {n:"Radlands Cult of Chrome Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.5,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Sky Team",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.2,cat:"Cooperative, Aviation",played:true,jRat:"9",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Splendor Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Economic, Abstract",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Realms",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Realms: Frontiers",s:"2-Player",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:7.8,cat:"Deck-Building, Sci-Fi, Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars X-Wing First Edition - 2x Core Sets - Force Awakens, Original; Heroes of the Resistance Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Wars X-Wing First Edition Tie Advanced Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: Battle of Hoth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.4,cat:"Wargame, Tactical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: The Deckbuilding Game",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:true,jRat:"8",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: The Deckbuilding Game - Mandalorian Faction Pack (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Summoner Wars",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:7.7,cat:"Card Game, Fantasy, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Undaunted: Normandy",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Wargame, Deck-Building, WWII",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Undaunted: Stalingrad",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Wargame, Deck-Building, Campaign",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched - Bruce Lee vs. Muhammad Ali",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:8.1,cat:"Card Game, Fighting",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched: Battle of Legends Vol. 2",s:"2-Player",pl:"2–4",plBGG:"2,4",ba:"2,4",so:"No",bg:8.2,cat:"Card Game, Fighting, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Watergate",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.9,cat:"Political, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  // ADULT (17)
-  {n:"7 Wonders",s:"Adult",pl:"2–7",plBGG:"3-7",ba:"4–5",so:"No",bg:7.7,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Been a long long time"},
-  {n:"Arcs",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:8.5,cat:"Strategy, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Cascadia",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2–3",so:"Yes",bg:7.8,cat:"Tile Placement, Nature",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Catan",s:"Adult",pl:"3–4",plBGG:"3-4",ba:"4",so:"No",bg:7.2,cat:"Negotiation, Territory Building, Resource Management",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Catan: Game of Thrones",s:"Adult",pl:"3–4",plBGG:"",ba:"4",so:"No",bg:7.1,cat:"Negotiation, Territory Building, Fantasy",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:false,year:"",excluded:false,notes:"Sell candidate"},
-  {n:"Clank!: Catacombs",s:"Adult",pl:"2–4",plBGG:"2-4, Best: 3",ba:"3–4",so:"No",bg:8.2,cat:"Deck-Building, Adventure, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Dominion",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.6,cat:"Deck-Building",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"Yes",bg:8.4,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium: Rise of Ix (Expansion)",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"No",bg:8.8,cat:"Strategy, Sci-Fi, Worker Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium: Uprising",s:"Adult",pl:"1–4",plBGG:"1-4,6",ba:"3–4",so:"No",bg:8.7,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Lost Ruins of Arnak",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:8.1,cat:"Deck-Building, Worker Placement, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Risk",s:"Adult",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:5.6,cat:"Area Control, Wargame",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Need to play with kids now"},
-  {n:"Space Base",s:"Adult",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:7.7,cat:"Dice Game, Engine Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Thief's Market - Retail + Promo Pack",s:"Adult",pl:"2–5",plBGG:"3-5, Best: 4",ba:"4",so:"No",bg:6.8,cat:"Set Collection, Negotiation, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Thunder Road: Vendetta",s:"Adult",pl:"2–5",plBGG:"3-4",ba:"4–5",so:"No",bg:7.9,cat:"Racing, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched Adventures: Tales to Amaze",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"No",bg:8.1,cat:"Cooperative, Miniatures, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  // FAMILY (25)
-  {n:"Antiquity Quest",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:6.6,cat:"Family, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Like canasta"},
-  {n:"Azul",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.8,cat:"Abstract Strategy, Tile Placement",played:true,jRat:"8",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Only played as 2-player"},
-  {n:"Bunny Kingdom",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:7.4,cat:"Area Control, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Play as 2-player next. Parents have this too."},
-  {n:"Carcassonne",s:"Family",pl:"2–5",plBGG:"2-5",ba:"2",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"At grandma's house"},
-  {n:"Cartographers: Heroes",s:"Family",pl:"1–100",plBGG:"1-10",ba:"1",so:"Yes",bg:7.7,cat:"Roll & Write, Fantasy, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Castle Combo",s:"Family",pl:"2–5",plBGG:"2-4",ba:"2",so:"No",bg:7.7,cat:"Card Drafting, Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Castle Panic",s:"Family",pl:"1–6",plBGG:"1-6",ba:"4",so:"No",bg:6.6,cat:"Cooperative, Tower Defense",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Cover Your Assets",s:"Family",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.4,cat:"Set Collection",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"J is over it. Good one with kids."},
-  {n:"Cover Your Kingdom",s:"Family",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.3,cat:"Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Forbidden Island",s:"Family",pl:"2–4",plBGG:"1-4",ba:"4",so:"No",bg:6.8,cat:"Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Kingdomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Kingdomino: Age of Giants (Expansion)",s:"Family",pl:"2–5",plBGG:"2-5",ba:"5",so:"No",bg:7.2,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Monopoly Deal",s:"Family",pl:"2–5",plBGG:"2-3+",ba:"3",so:"No",bg:6.4,cat:"Economic, Card Game",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
-  {n:"Queendomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.1,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Qwixx",s:"Family",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:6.9,cat:"Dice Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Santorini",s:"Family",pl:"2–4",plBGG:"2-3",ba:"2",so:"No",bg:7.6,cat:"Abstract Strategy, Mythology",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Scout",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:7.7,cat:"Ladder Climbing, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Sea Salt and Paper",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Set Collection, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Skip-Bo",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:5.4,cat:"Card Game, Classic",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
-  {n:"Splendor",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.4,cat:"Economic, Abstract",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Sushi Go",s:"Family",pl:"2–5",plBGG:"3-5",ba:"5",so:"No",bg:7.0,cat:"Card Drafting, Set Collection",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"The Crew: Mission Deep Sea",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:8.0,cat:"Cooperative, Trick-taking",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"The Lost Expedition Card Game",s:"Family",pl:"1–6",plBGG:"1-3",ba:"3",so:"Yes",bg:7.2,cat:"Cooperative, Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"The Quest for El Dorado",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Race, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Ticket to Ride",s:"Family",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.4,cat:"Network Building, Route",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Yahtzee",s:"Family",pl:"2–10",plBGG:"",ba:"4",so:"No",bg:5.6,cat:"Dice Game, Classic",played:true,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // PARTY (13)
-  {n:"6 Nimmt!",s:"Party",pl:"2–10",plBGG:"3-8",ba:"5–8",so:"No",bg:7.0,cat:"Card Game, Party",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Decrypto",s:"Party",pl:"3–8",plBGG:"4-8",ba:"4–6",so:"No",bg:7.8,cat:"Word Game, Party, Deduction",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Exploding Kittens",s:"Party",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:5.9,cat:"Card Game, Party, Humor",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Exploding Kittens: Good vs Evil",s:"Party",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.2,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Imploding Kittens (Expansion)",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:6.5,cat:"Card Game, Party",played:false,jRat:"5",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Love Letter",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:7.2,cat:"Card Game, Deduction",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Mantis",s:"Party",pl:"2–6",plBGG:"2-6",ba:"4–5",so:"No",bg:6.5,cat:"Card Game, Party, Set Collection",played:false,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Mountain Goats",s:"Party",pl:"2–5",plBGG:"2-4",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Mountain Goats: Big Mountain (Expansion)",s:"Party",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Power Hungry Pets",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.8,cat:"Card Game, Party, Humor",played:false,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Saboteur",s:"Party",pl:"3–10",plBGG:"",ba:"7",so:"No",bg:6.6,cat:"Card Game, Party, Deduction",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"The Resistance: Avalon",s:"Party",pl:"5–10",plBGG:"",ba:"7",so:"No",bg:7.7,cat:"Social Deduction, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Zombie Kittens",s:"Party",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.3,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // KIDS (11)
-  {n:"A Game of Cat and Mouth Pinball Game",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:7.1,cat:"Dexterity, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Bounce Off",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.8,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Chicken vs Hot Dog",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.0,cat:"Card Game, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Connect 4",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:5.8,cat:"Abstract Strategy, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Enchanted Forest",s:"Kids",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.7,cat:"Children's, Memory",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"HABA Rhino Hero",s:"Kids",pl:"2–5",plBGG:"",ba:"4",so:"No",bg:7.2,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"My First Stone Age",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:7.1,cat:"Children's, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Parcheesi",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.2,cat:"Race Game, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Race to the Treasure",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.8,cat:"Cooperative, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Throw Throw Burrito",s:"Kids",pl:"2–6",plBGG:"",ba:"4–6",so:"No",bg:6.2,cat:"Dexterity, Party",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Trouble",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:4.6,cat:"Children's Game, Race",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // SOLO (8)
-  {n:"Hadrian's Wall",s:"Solo",pl:"1–6",plBGG:"1",ba:"1",so:"Yes",bg:8.0,cat:"Roll & Write, Historical, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Imperium: Classics",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"2",so:"Yes",bg:7.6,cat:"Civilization, Deck-Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Legacy of Yu",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.7,cat:"Solo, Deck-Building, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Marvel Champions LCG - Core Set",s:"Solo",pl:"1–4",plBGG:"1-3",ba:"2",so:"Yes",bg:8.0,cat:"Cooperative, Card Game, Superhero",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Resist!",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.4,cat:"Card Game, Solo, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Solo Hero Series: Warp's Edge",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.6,cat:"Solo, Bag Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Sprawlopolis",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"1",so:"Yes",bg:7.5,cat:"Solo, Tile Laying, City Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Under Falling Skies",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.8,cat:"Solo, Sci-Fi, Dice Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-];
+// The built-in copy of the collection was removed. Data comes only from the configured sheet connection.
+const DEFAULT_GAMES = [];
 
 // ═══════════════════════════════════════
 // STATE
@@ -660,12 +546,7 @@ const DEFAULT_GAMES = [
 let GAMES = DEFAULT_GAMES.map(g=>({...g}));
 let plays = JSON.parse(localStorage.getItem('bgv-plays')||'[]');
 let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
-// Hardcoded defaults — override if not already set by user
-if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
-if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
-if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
-if (!cfg.playersUrl) cfg.playersUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=744298410&single=true&output=csv';
-const RETIRED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
+const RETIRED_SCRIPT_URL = 'retired';
 if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
   cfg.scriptUrl = '';
   localStorage.setItem('bgv-cfg',JSON.stringify(cfg));

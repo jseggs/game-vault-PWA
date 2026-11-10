@@ -446,11 +446,6 @@
 let GAMES = (() => { try { const cached = JSON.parse(localStorage.getItem('bgv-games') || '[]'); return Array.isArray(cached) ? cached : []; } catch (error) { return []; } })();
 let plays = JSON.parse(localStorage.getItem('bgv-plays')||'[]');
 let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
-const RETIRED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
-if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
-  cfg.scriptUrl = '';
-  localStorage.setItem('bgv-cfg',JSON.stringify(cfg));
-}
 let filters = {shelf:[],status:null,baseOnly:false};
 let picks = {shelf:[],played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
