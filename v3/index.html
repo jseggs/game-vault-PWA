@@ -291,37 +291,22 @@
   <div class="settings-grid">
     <section class="sbox settings-connection">
       <div class="stitle">
-        Data Connections
-        <span id="sync-badge" class="sstatus st-local">● Local Storage</span>
+        Data Connection
+        <span id="sync-badge" class="sstatus st-local">● Not connected</span>
       </div>
-      <p class="settings-intro">Published CSV feeds load your collection, plays, stats, and player avatars. The Apps Script deployment handles secure write-back.</p>
-      <div class="form-row"><div class="fg">
-        <label>Games CSV URL</label>
-        <input class="fc" id="cfg-games" placeholder="Published Games sheet URL">
-      </div></div>
-      <div class="form-row"><div class="fg">
-        <label>Plays CSV URL</label>
-        <input class="fc" id="cfg-plays" placeholder="Published Plays sheet URL">
-      </div></div>
+      <p class="settings-intro">Your collection loads and saves through your private Apps Script web app. The link is stored only in this browser, never in the app's code. Treat it like a password: anyone who has it can view and change your collection.</p>
       <div class="form-row"><div class="fg">
         <label>Apps Script Web App URL</label>
-        <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec">
+        <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" spellcheck="false">
         <span id="script-connection-status" class="connection-status"></span>
-      </div></div>
-      <div class="form-row"><div class="fg">
-        <label>Stats CSV URL</label>
-        <input class="fc" id="cfg-stats" placeholder="Published Stats sheet URL">
-      </div></div>
-      <div class="form-row"><div class="fg">
-        <label>Players CSV URL</label>
-        <input class="fc" id="cfg-players" placeholder="Published Players sheet URL" oninput="markPlayersUrlPending()">
-        <span id="players-connection-status" class="connection-status"></span>
       </div></div>
       <div class="settings-actions">
         <button class="btn btn-gold" onclick="saveConfig()">Save &amp; Sync</button>
         <button class="btn btn-outline" onclick="syncNow()">Sync Now</button>
+        <button class="btn btn-outline" onclick="copyInviteLink()">Copy invite link</button>
         <span id="sync-msg"></span>
       </div>
+      <p class="settings-note">An invite link connects another phone or computer in one step, with full access to log plays and edit ratings. For view-only sharing, send the share page instead.</p>
     </section>
 
     <div class="settings-stack">
@@ -356,7 +341,7 @@
 
       <section class="sbox">
         <div class="stitle">Player Avatars</div>
-        <p class="settings-intro">The published Players sheet controls each fighter. Player #1 and #2 supply the display name, dinosaur, and color used throughout the app.</p>
+        <p class="settings-intro">The Players sheet controls each fighter. Player #1 and #2 supply the display name, dinosaur, and color used throughout the app.</p>
         <div class="roster-preview" id="roster-preview"></div>
         <p class="settings-note">Dinosaurs: T-Rex, Velociraptor, Triceratops, Ankylosaurus, Brachiosaurus, Pterodactyl, Spinosaurus, Stegosaurus. Colors: cyan, gold, pink, purple, lime, orange, teal, or red.</p>
       </section>
@@ -364,130 +349,10 @@
   </div>
 
   <div class="sbox">
-    <div class="stitle" role="button" tabindex="0" aria-expanded="false" aria-controls="guide-body" style="cursor:pointer;" onclick="toggleGuide()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleGuide()}">▸ Apps Script for Writing Plays Back to Sheets <span style="color:var(--text3);">(click to expand)</span></div>
+    <div class="stitle" role="button" tabindex="0" aria-expanded="false" aria-controls="guide-body" style="cursor:pointer;" onclick="toggleGuide()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleGuide()}">▸ Setting up the Apps Script <span style="color:var(--text3);">(click to expand)</span></div>
     <div id="guide-body" style="display:none;margin-top:.8rem;">
-      <p class="settings-intro">Open the maintained script below, replace the contents of <strong>Code.gs</strong>, save, then update the existing web-app deployment. This version maps ratings by header and gives new plays stable IDs.</p>
+      <p class="settings-intro">In your spreadsheet, open Extensions, then Apps Script. Replace the contents of <strong>Code.gs</strong> with the maintained script below, save, then deploy it as a web app (Execute as: Me, Who has access: Anyone). Paste the web app URL above. The spreadsheet itself does not need to be published to the web.</p>
       <a class="btn btn-outline" href="google-apps-script/Code.gs" target="_blank" rel="noopener">Open Current Code.gs</a>
-      <pre hidden>function doPost(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var data = JSON.parse(e.postData.contents);
-  var result = {status:"ok"};
-
-  // Log play to Plays sheet
-  if (data.action === "add" || data.action === "delete") {
-    var playsSheet = ss.getSheetByName("Plays");
-    if (!playsSheet) {
-      playsSheet = ss.insertSheet("Plays");
-      playsSheet.appendRow(["Date","Game","Winner","Notes","J Rating","E Rating"]);
-    }
-    if (data.action === "add") {
-      playsSheet.appendRow([data.date, data.game, data.winner, data.notes || "", data.jRat || "", data.eRat || ""]);
-      // Mark game as Played + write ratings to Games sheet
-      if (data.markPlayed || data.jRat || data.eRat) {
-        var gamesSheet = ss.getSheetByName("Games");
-        if (gamesSheet) {
-          var gv = gamesSheet.getDataRange().getValues();
-          var headers = gv[0];
-          // Find columns by name — robust to column order changes
-          var playedCol  = headers.indexOf("Played")   + 1; // col J = 10
-          var jRatCol    = headers.indexOf("J Rating")  + 1; // col K = 11
-          var eRatCol    = headers.indexOf("E Rating")  + 1; // col L = 12
-          for (var i = 1; i < gv.length; i++) {
-            if (gv[i][0] === data.game) {
-              if (data.markPlayed && playedCol > 0) {
-                var cur = (gv[i][playedCol-1]||'').toString().toLowerCase();
-                if (cur !== 'yes') gamesSheet.getRange(i+1, playedCol).setValue("Yes");
-              }
-              if (data.jRat && jRatCol > 0) {
-                gamesSheet.getRange(i+1, jRatCol).setValue(parseFloat(data.jRat));
-              }
-              if (data.eRat && eRatCol > 0) {
-                gamesSheet.getRange(i+1, eRatCol).setValue(parseFloat(data.eRat));
-              }
-              break;
-            }
-          }
-        }
-      }
-    } else if (data.action === "delete") {
-      result.playDeleted = false;
-      var v = playsSheet.getDataRange().getValues();
-      var playTimeZone = ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone();
-      for (var i = v.length - 1; i >= 1; i--) {
-        if (normalizePlayDate_(v[i][0], playTimeZone) === normalizePlayDate_(data.date, playTimeZone) &amp;&amp;
-            normalizePlayText_(v[i][1]) === normalizePlayText_(data.game) &amp;&amp;
-            normalizePlayText_(v[i][2]) === normalizePlayText_(data.winner)) {
-          playsSheet.deleteRow(i + 1);
-          result.playDeleted = true;
-          break;
-        }
-      }
-      if (!result.playDeleted) result.message = "No matching play was found in the Plays sheet.";
-    }
-  }
-
-  // Update ratings without logging a play
-  if (data.action === "rate") {
-    result.ratingsUpdated = false;
-    var gamesSheet = ss.getSheetByName("Games");
-    if (gamesSheet) {
-      var gv = gamesSheet.getDataRange().getValues();
-      var headers = gv[0];
-      var jRatCol = headers.indexOf("J Rating") + 1;
-      var eRatCol = headers.indexOf("E Rating") + 1;
-      for (var i = 1; i &lt; gv.length; i++) {
-        if ((gv[i][0] || "").toString().trim() === (data.game || "").toString().trim()) {
-          if (data.jRat !== "" &amp;&amp; jRatCol &gt; 0) gamesSheet.getRange(i + 1, jRatCol).setValue(parseFloat(data.jRat));
-          if (data.eRat !== "" &amp;&amp; eRatCol &gt; 0) gamesSheet.getRange(i + 1, eRatCol).setValue(parseFloat(data.eRat));
-          result.ratingsUpdated = true;
-          break;
-        }
-      }
-    }
-  }
-
-  // Update Excluded column (found by header name) in Games sheet
-  if (data.action === "exclude") {
-    var gamesSheet = ss.getSheetByName("Games");
-    if (gamesSheet) {
-      var gv = gamesSheet.getDataRange().getValues();
-      // Find or create the Excluded column
-      var headers = gv[0];
-      var exclCol = headers.indexOf('Excluded') + 1; // 1-based
-      if (exclCol === 0) {
-        // Column doesn't exist yet - add it after last column
-        exclCol = gv[0].length + 1;
-        gamesSheet.getRange(1, exclCol).setValue('Excluded');
-      }
-      for (var i = 1; i < gv.length; i++) {
-        if (gv[i][0] === data.game) {
-          gamesSheet.getRange(i + 1, exclCol).setValue(data.excluded ? 1 : '');
-          break;
-        }
-      }
-    }
-  }
-
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-}
-function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
-}
-function normalizePlayDate_(value, timeZone) {
-  if (value instanceof Date &amp;&amp; !isNaN(value.getTime())) {
-    return Utilities.formatDate(value, timeZone, "yyyy-MM-dd");
-  }
-  var text = String(value || "").trim();
-  var iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (iso) return iso[1] + "-" + iso[2] + "-" + iso[3];
-  var slash = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (slash) return slash[3] + "-" + ("0" + slash[1]).slice(-2) + "-" + ("0" + slash[2]).slice(-2);
-  var parsed = new Date(text);
-  return isNaN(parsed.getTime()) ? text : Utilities.formatDate(parsed, timeZone, "yyyy-MM-dd");
-}
-function normalizePlayText_(value) {
-  return String(value || "").trim().toLowerCase();
-}</pre>
     </div>
   </div>
 </div>
@@ -573,137 +438,14 @@ function normalizePlayText_(value) {
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-// COMPLETE GAME DATA (108 games from your sheet)
-// ═══════════════════════════════════════════════
-const DEFAULT_GAMES = [
-  // 2-PLAYER (35 entries)
-  {n:"7 Wonders Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Air Land & Sea: Spies, Lies, & Supplies",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Military, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Agent Avenue",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.2,cat:"Card Game, Deduction, Spy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Azul Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Abstract Strategy, Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Bottom of the 9th",s:"2-Player",pl:"1–2",plBGG:"1-2",ba:"2",so:"Yes",bg:7.0,cat:"Dice Game, Sports, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Compile: Main 1",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Compile: Main 2",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Abstract, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Dice Throne: Season 2 - Gunslinger vs. Samurai",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Dice Rolling, Combat, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Flamecraft: Duals",s:"2-Player",pl:"2",plBGG:"1-2",ba:"2",so:"No",bg:7.4,cat:"Card Game, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Ironwood",s:"2-Player",pl:"2–4",plBGG:"1-2",ba:"2",so:"No",bg:7.6,cat:"Area Control, Fantasy, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"King of Tokyo Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Dice, Fighting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Lord of the Rings: Duel for Middle-Earth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Area Control, Fantasy",played:true,jRat:"9",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Lord of the Rings: Duel for Middle-Earth - Allies (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.1,cat:"Area Control, Fantasy",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Lost Cities",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.3,cat:"Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:"Like solitaire"},
-  {n:"Mind MGMT",s:"2-Player",pl:"2–5",plBGG:"1-5",ba:"3–4",so:"No",bg:8.0,cat:"Asymmetric, Deduction, Hidden Role",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Mindbug: First Contact",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"NFL Showdown",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:6.3,cat:"Sports, Dice Game",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"Me, Johnny, and Jack can play this"},
-  {n:"Radlands",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:"In retrospect, bad purchase – FOMO got the best of me"},
-  {n:"Radlands Cult of Chrome Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.5,cat:"Tactical, Card Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Sky Team",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.2,cat:"Cooperative, Aviation",played:true,jRat:"9",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Splendor Duel",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.0,cat:"Economic, Abstract",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Realms",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Realms: Frontiers",s:"2-Player",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:7.8,cat:"Deck-Building, Sci-Fi, Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars X-Wing First Edition - 2x Core Sets - Force Awakens, Original; Heroes of the Resistance Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Star Wars X-Wing First Edition Tie Advanced Expansion",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Miniatures, Tactical Combat, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: Battle of Hoth",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.4,cat:"Wargame, Tactical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: The Deckbuilding Game",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Sci-Fi",played:true,jRat:"8",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Star Wars: The Deckbuilding Game - Mandalorian Faction Pack (Expansion)",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Deck-Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Summoner Wars",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:7.7,cat:"Card Game, Fantasy, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Undaunted: Normandy",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.8,cat:"Wargame, Deck-Building, WWII",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Undaunted: Stalingrad",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:8.4,cat:"Wargame, Deck-Building, Campaign",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched - Bruce Lee vs. Muhammad Ali",s:"2-Player",pl:"2",plBGG:"2,4",ba:"2",so:"No",bg:8.1,cat:"Card Game, Fighting",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched: Battle of Legends Vol. 2",s:"2-Player",pl:"2–4",plBGG:"2,4",ba:"2,4",so:"No",bg:8.2,cat:"Card Game, Fighting, Fantasy",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Watergate",s:"2-Player",pl:"2",plBGG:"2",ba:"2",so:"No",bg:7.9,cat:"Political, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  // ADULT (17)
-  {n:"7 Wonders",s:"Adult",pl:"2–7",plBGG:"3-7",ba:"4–5",so:"No",bg:7.7,cat:"Civilization, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Been a long long time"},
-  {n:"Arcs",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:8.5,cat:"Strategy, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Cascadia",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2–3",so:"Yes",bg:7.8,cat:"Tile Placement, Nature",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Catan",s:"Adult",pl:"3–4",plBGG:"3-4",ba:"4",so:"No",bg:7.2,cat:"Negotiation, Territory Building, Resource Management",played:true,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Catan: Game of Thrones",s:"Adult",pl:"3–4",plBGG:"",ba:"4",so:"No",bg:7.1,cat:"Negotiation, Territory Building, Fantasy",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:false,year:"",excluded:false,notes:"Sell candidate"},
-  {n:"Clank!: Catacombs",s:"Adult",pl:"2–4",plBGG:"2-4, Best: 3",ba:"3–4",so:"No",bg:8.2,cat:"Deck-Building, Adventure, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Dominion",s:"Adult",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.6,cat:"Deck-Building",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"Yes",bg:8.4,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium: Rise of Ix (Expansion)",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"3–4",so:"No",bg:8.8,cat:"Strategy, Sci-Fi, Worker Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Dune Imperium: Uprising",s:"Adult",pl:"1–4",plBGG:"1-4,6",ba:"3–4",so:"No",bg:8.7,cat:"Strategy, Political, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Lost Ruins of Arnak",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"Yes",bg:8.1,cat:"Deck-Building, Worker Placement, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Risk",s:"Adult",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:5.6,cat:"Area Control, Wargame",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Need to play with kids now"},
-  {n:"Space Base",s:"Adult",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:7.7,cat:"Dice Game, Engine Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Thief's Market - Retail + Promo Pack",s:"Adult",pl:"2–5",plBGG:"3-5, Best: 4",ba:"4",so:"No",bg:6.8,cat:"Set Collection, Negotiation, Push Your Luck",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Thunder Road: Vendetta",s:"Adult",pl:"2–5",plBGG:"3-4",ba:"4–5",so:"No",bg:7.9,cat:"Racing, Combat",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Unmatched Adventures: Tales to Amaze",s:"Adult",pl:"1–4",plBGG:"1-4",ba:"2",so:"No",bg:8.1,cat:"Cooperative, Miniatures, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  // FAMILY (25)
-  {n:"Antiquity Quest",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:6.6,cat:"Family, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Like canasta"},
-  {n:"Azul",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.8,cat:"Abstract Strategy, Tile Placement",played:true,jRat:"8",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Only played as 2-player"},
-  {n:"Bunny Kingdom",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3–4",so:"No",bg:7.4,cat:"Area Control, Card Drafting",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Play as 2-player next. Parents have this too."},
-  {n:"Carcassonne",s:"Family",pl:"2–5",plBGG:"2-5",ba:"2",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"At grandma's house"},
-  {n:"Cartographers: Heroes",s:"Family",pl:"1–100",plBGG:"1-10",ba:"1",so:"Yes",bg:7.7,cat:"Roll & Write, Fantasy, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Castle Combo",s:"Family",pl:"2–5",plBGG:"2-4",ba:"2",so:"No",bg:7.7,cat:"Card Drafting, Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Castle Panic",s:"Family",pl:"1–6",plBGG:"1-6",ba:"4",so:"No",bg:6.6,cat:"Cooperative, Tower Defense",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Cover Your Assets",s:"Family",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.4,cat:"Set Collection",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"J is over it. Good one with kids."},
-  {n:"Cover Your Kingdom",s:"Family",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.3,cat:"Set Collection",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Forbidden Island",s:"Family",pl:"2–4",plBGG:"1-4",ba:"4",so:"No",bg:6.8,cat:"Cooperative",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Kingdomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2,4",so:"No",bg:7.4,cat:"Tile Placement",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Kingdomino: Age of Giants (Expansion)",s:"Family",pl:"2–5",plBGG:"2-5",ba:"5",so:"No",bg:7.2,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Monopoly Deal",s:"Family",pl:"2–5",plBGG:"2-3+",ba:"3",so:"No",bg:6.4,cat:"Economic, Card Game",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
-  {n:"Queendomino",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.1,cat:"Tile Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Qwixx",s:"Family",pl:"2–5",plBGG:"2-5",ba:"3–4",so:"No",bg:6.9,cat:"Dice Game",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Santorini",s:"Family",pl:"2–4",plBGG:"2-3",ba:"2",so:"No",bg:7.6,cat:"Abstract Strategy, Mythology",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Scout",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:7.7,cat:"Ladder Climbing, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Sea Salt and Paper",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Set Collection, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Skip-Bo",s:"Family",pl:"2–6",plBGG:"2-6",ba:"4",so:"No",bg:5.4,cat:"Card Game, Classic",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:"Good one with kids. Johnny loves it."},
-  {n:"Splendor",s:"Family",pl:"2–4",plBGG:"2-4",ba:"3",so:"No",bg:7.4,cat:"Economic, Abstract",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Sushi Go",s:"Family",pl:"2–5",plBGG:"3-5",ba:"5",so:"No",bg:7.0,cat:"Card Drafting, Set Collection",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"The Crew: Mission Deep Sea",s:"Family",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:8.0,cat:"Cooperative, Trick-taking",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"The Lost Expedition Card Game",s:"Family",pl:"1–6",plBGG:"1-3",ba:"3",so:"Yes",bg:7.2,cat:"Cooperative, Card Game, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"The Quest for El Dorado",s:"Family",pl:"2–4",plBGG:"2-4",ba:"2",so:"No",bg:7.6,cat:"Deck-Building, Race, Adventure",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Ticket to Ride",s:"Family",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.4,cat:"Network Building, Route",played:true,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Yahtzee",s:"Family",pl:"2–10",plBGG:"",ba:"4",so:"No",bg:5.6,cat:"Dice Game, Classic",played:true,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // PARTY (13)
-  {n:"6 Nimmt!",s:"Party",pl:"2–10",plBGG:"3-8",ba:"5–8",so:"No",bg:7.0,cat:"Card Game, Party",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Decrypto",s:"Party",pl:"3–8",plBGG:"4-8",ba:"4–6",so:"No",bg:7.8,cat:"Word Game, Party, Deduction",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:true,year:"2026",excluded:false,notes:""},
-  {n:"Exploding Kittens",s:"Party",pl:"2–5",plBGG:"3-5",ba:"4",so:"No",bg:5.9,cat:"Card Game, Party, Humor",played:true,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Exploding Kittens: Good vs Evil",s:"Party",pl:"2–6",plBGG:"3-5",ba:"4",so:"No",bg:6.2,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Imploding Kittens (Expansion)",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:6.5,cat:"Card Game, Party",played:false,jRat:"5",eRat:"",exp:true,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Love Letter",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4",so:"No",bg:7.2,cat:"Card Game, Deduction",played:true,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Mantis",s:"Party",pl:"2–6",plBGG:"2-6",ba:"4–5",so:"No",bg:6.5,cat:"Card Game, Party, Set Collection",played:false,jRat:"4",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Mountain Goats",s:"Party",pl:"2–5",plBGG:"2-4",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Mountain Goats: Big Mountain (Expansion)",s:"Party",pl:"2–5",plBGG:"2-5",ba:"4",so:"No",bg:7.0,cat:"Dexterity, Children's Game",played:false,jRat:"",eRat:"",exp:true,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Power Hungry Pets",s:"Party",pl:"2–6",plBGG:"3-6",ba:"4–5",so:"No",bg:6.8,cat:"Card Game, Party, Humor",played:false,jRat:"6",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Saboteur",s:"Party",pl:"3–10",plBGG:"",ba:"7",so:"No",bg:6.6,cat:"Card Game, Party, Deduction",played:false,jRat:"7",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"The Resistance: Avalon",s:"Party",pl:"5–10",plBGG:"",ba:"7",so:"No",bg:7.7,cat:"Social Deduction, Bluffing",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Zombie Kittens",s:"Party",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.3,cat:"Card Game, Party, Humor",played:false,jRat:"5",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // KIDS (11)
-  {n:"A Game of Cat and Mouth Pinball Game",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:7.1,cat:"Dexterity, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Bounce Off",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.8,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Chicken vs Hot Dog",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.0,cat:"Card Game, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Connect 4",s:"Kids",pl:"2",plBGG:"",ba:"2",so:"No",bg:5.8,cat:"Abstract Strategy, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Enchanted Forest",s:"Kids",pl:"2–6",plBGG:"",ba:"4",so:"No",bg:6.7,cat:"Children's, Memory",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"HABA Rhino Hero",s:"Kids",pl:"2–5",plBGG:"",ba:"4",so:"No",bg:7.2,cat:"Dexterity, Children's",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"My First Stone Age",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:7.1,cat:"Children's, Worker Placement",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Parcheesi",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:5.2,cat:"Race Game, Classic",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Race to the Treasure",s:"Kids",pl:"2–4",plBGG:"",ba:"3",so:"No",bg:6.8,cat:"Cooperative, Children's",played:false,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Throw Throw Burrito",s:"Kids",pl:"2–6",plBGG:"",ba:"4–6",so:"No",bg:6.2,cat:"Dexterity, Party",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  {n:"Trouble",s:"Kids",pl:"2–4",plBGG:"",ba:"4",so:"No",bg:4.6,cat:"Children's Game, Race",played:true,jRat:"",eRat:"",exp:false,yr:"",eKnows:true,year:"",excluded:false,notes:""},
-  // SOLO (8)
-  {n:"Hadrian's Wall",s:"Solo",pl:"1–6",plBGG:"1",ba:"1",so:"Yes",bg:8.0,cat:"Roll & Write, Historical, Solo",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Imperium: Classics",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"2",so:"Yes",bg:7.6,cat:"Civilization, Deck-Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Legacy of Yu",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.7,cat:"Solo, Deck-Building, Card Game",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Marvel Champions LCG - Core Set",s:"Solo",pl:"1–4",plBGG:"1-3",ba:"2",so:"Yes",bg:8.0,cat:"Cooperative, Card Game, Superhero",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Resist!",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.4,cat:"Card Game, Solo, Historical",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Solo Hero Series: Warp's Edge",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.6,cat:"Solo, Bag Building, Sci-Fi",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Sprawlopolis",s:"Solo",pl:"1–4",plBGG:"1-2",ba:"1",so:"Yes",bg:7.5,cat:"Solo, Tile Laying, City Building",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-  {n:"Under Falling Skies",s:"Solo",pl:"1",plBGG:"1",ba:"1",so:"Yes",bg:7.8,cat:"Solo, Sci-Fi, Dice Placement",played:false,jRat:"",eRat:"",exp:false,yr:"2026",eKnows:false,year:"2026",excluded:false,notes:""},
-];
-
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let GAMES = DEFAULT_GAMES.map(g=>({...g}));
+// The collection comes from the user's sheet. The last synced copy is kept in this browser
+// so the app opens instantly and still works offline. No collection data lives in this file.
+let GAMES = (() => { try { const cached = JSON.parse(localStorage.getItem('bgv-games') || '[]'); return Array.isArray(cached) ? cached : []; } catch (error) { return []; } })();
 let plays = JSON.parse(localStorage.getItem('bgv-plays')||'[]');
 let cfg = JSON.parse(localStorage.getItem('bgv-cfg')||'{}');
-// Hardcoded defaults — override if not already set by user
-if (!cfg.gamesUrl) cfg.gamesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1079464617&single=true&output=csv';
-if (!cfg.playsUrl) cfg.playsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1015814020&single=true&output=csv';
-if (!cfg.statsUrl) cfg.statsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=1114944696&single=true&output=csv';
-if (!cfg.playersUrl) cfg.playersUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvh48m0xXop0pZyw87ms4TNrg-5RJUg7MqaOQQMIbkpos32jvWHHccs9P0G6URn1BNvwavDuez2q-j/pub?gid=744298410&single=true&output=csv';
 const RETIRED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ1iZbqNaoFaieVbO3GE5kTzMOhxMdHP6q9dxXDMkaetb59v7X2MkYM6EnSO6BHfsyig/exec';
 if (cfg.scriptUrl === RETIRED_SCRIPT_URL) {
   cfg.scriptUrl = '';
@@ -1261,11 +1003,12 @@ function renderCollection(){
     <div class="stat-card"><div class="stat-num">${baseGames.length}</div><div class="stat-label">Base games</div></div>
     <div class="stat-card"><div class="stat-num">${expansions.length}</div><div class="stat-label">Expansions</div></div>
     <div class="stat-card"><div class="stat-num">${unplayedGames.length}</div><div class="stat-label">Unplayed</div></div>
-    <div class="stat-card stat-value"><div class="stat-num" id="stat-invested">${cfg.statsUrl&&!cfg.invested?'…':cfg.invested?'$'+cfg.invested:'n/a'}</div><div class="stat-label">Collection value</div></div>
+    <div class="stat-card stat-value"><div class="stat-num" id="stat-invested">${cfg.invested?'$'+cfg.invested:cfg.scriptUrl?'…':'n/a'}</div><div class="stat-label">Collection value</div></div>
   `;
 
   const grid = document.getElementById('game-grid');
   updateInvestedCard();
+  if(!GAMES.length){grid.innerHTML=`<div class="empty">${cfg.scriptUrl?'Loading your collection...':'No collection loaded yet. Open Settings and add your Apps Script URL, or open your invite link.'}</div>`;return;}
   if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
   grid.innerHTML = filtered.map(g=>{
     const gp = plays.filter(p=>p.game===g.n);
@@ -1769,76 +1512,41 @@ function pickRandom(){
 // ═══════════════════════════════════════
 // GOOGLE SHEETS SYNC
 // ═══════════════════════════════════════
-function parseCSV(txt){
-  const rows=[];let row=[];let cell='';let quoted=false;
-  const source=String(txt||'').replace(/^\uFEFF/,'');
-  for(let i=0;i<source.length;i++){
-    const char=source[i];
-    if(char==='"'){
-      if(quoted&&source[i+1]==='"'){cell+='"';i++;}else{quoted=!quoted;}
-    }else if(char===','&&!quoted){
-      row.push(cell);cell='';
-    }else if((char==='\n'||char==='\r')&&!quoted){
-      if(char==='\r'&&source[i+1]==='\n') i++;
-      row.push(cell);cell='';
-      if(row.some(value=>String(value).trim()!=='')) rows.push(row);
-      row=[];
-    }else{
-      cell+=char;
-    }
-  }
-  row.push(cell);
-  if(row.some(value=>String(value).trim()!=='')) rows.push(row);
-  if(!rows.length) return [];
-  const headers=rows.shift().map(value=>String(value).trim());
-  return rows.map(values=>{
-    const record={};
-    headers.forEach((header,index)=>{record[header]=String(values[index]??'').trim();});
-    return record;
-  });
+function cacheGames(){
+  try{ localStorage.setItem('bgv-games', JSON.stringify(GAMES)); }catch(error){}
 }
 
-async function fetchCsvAttempt(url, timeoutMs){
+// All reads go through the user's private Apps Script web app (GET ?action=data).
+async function fetchSheetData(){
   const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+  const timeout=setTimeout(()=>controller.abort(),25000);
   try{
-    const res=await fetch(url,{
-      cache:'no-store',
-      headers:{'Accept':'text/csv, text/plain, */*'},
-      signal:controller.signal
-    });
-    if(!res.ok) return null;
-    const txt=await res.text();
-    const trimmed=txt.replace(/^﻿/,'').trim();
-    if(trimmed.length>20&&trimmed.includes(',')&&!trimmed.startsWith('<')&&!trimmed.startsWith('{')){
-      return trimmed;
+    const url=cfg.scriptUrl+(cfg.scriptUrl.includes('?')?'&':'?')+'action=data';
+    const response=await fetch(url,{cache:'no-store',redirect:'follow',signal:controller.signal});
+    const raw=await response.text();
+    let data;
+    try{ data=JSON.parse(raw); }
+    catch(error){
+      throw new Error(raw.trim().startsWith('<')
+        ? 'Apps Script URL is invalid or not shared with Anyone.'
+        : 'Apps Script returned an unexpected response.');
     }
-  }catch(error){
-    if(error?.name!=='AbortError') console.debug('CSV attempt failed:',error);
+    if(data.status!=='ok') throw new Error(data.message||'Apps Script returned an error.');
+    if(!Array.isArray(data.games)){
+      throw new Error('This Apps Script deployment is out of date. Paste in the current Code.gs and deploy a new version.');
+    }
+    return data;
   }finally{
     clearTimeout(timeout);
   }
-  return null;
 }
 
-// Google-published CSV supports CORS; bounded proxy requests are fallbacks.
-async function fetchCSV(url) {
-  const direct=await fetchCsvAttempt(url,6000);
-  if(direct) return direct;
-  const fallbackUrls=[
-    `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-  ];
-  const attempts=fallbackUrls.map(async fallbackUrl=>{
-    const csv=await fetchCsvAttempt(fallbackUrl,7000);
-    if(!csv) throw new Error('CSV fallback failed');
-    return csv;
+function normalizeSheetRows(rows){
+  return (Array.isArray(rows)?rows:[]).map(row=>{
+    const out={};
+    Object.keys(row||{}).forEach(key=>{ out[String(key).trim()]=String(row[key]??'').trim(); });
+    return out;
   });
-  try{
-    return await Promise.any(attempts);
-  }catch(error){
-    return null;
-  }
 }
 
 function mapGameRow(r) {
@@ -1876,79 +1584,59 @@ function mapGameRow(r) {
 async function syncNow(readForm=true){
   if(readForm) readConnectionFields();
   const msg=document.getElementById('sync-msg');
-  if(!cfg.gamesUrl){
-    msg.textContent='No Games URL set.';
-    if(cfg.playersUrl) await fetchPlayers();
+  const badge=document.getElementById('sync-badge');
+  if(!cfg.scriptUrl){
+    msg.textContent='Add your Apps Script URL to load the collection.';
     return;
   }
   msg.textContent='⟳ Syncing...';
+  let data;
   try{
-    const txt = await fetchCSV(cfg.gamesUrl);
-    if(!txt) throw new Error('Could not reach the Games sheet. Check its published CSV URL.');
-
-    // Strip BOM if present
-    const clean = txt.replace(/^﻿/,'').trim();
-    const rows = parseCSV(clean);
-
-    // Debug: show what columns we found
-    const foundCols = rows.length > 0 ? Object.keys(rows[0]) : [];
-    console.log('CSV columns found:', foundCols);
-
-    // Accept the data if we find "Game" column (with or without extra cols)
-    const gameCol = foundCols.find(k => k.trim() === 'Game');
-    if(rows.length && gameCol){
-      // Re-key if column had whitespace
-      const normalized = rows.map(r => {
-        const out = {};
-        Object.keys(r).forEach(k => { out[k.trim()] = r[k]; });
-        // Explicitly remove stray columns outside the named table
-        delete out['Ratings'];
-        return out;
-      });
-      GAMES = normalized.map(mapGameRow).filter(g=>g.n.trim());
-      // Sum Total column from game rows as a fallback
-      try {
-        let totalSpent = 0;
-        rows.forEach(r => { const v=parseFloat(r['Total']); if(!isNaN(v)&&v>0) totalSpent+=v; });
-        if(totalSpent > 0) { cfg.totalSpent = totalSpent.toFixed(2); saveCfg(); }
-      } catch(e2) {}
-      // Fetch Stats sheet for sold/effective values
-      if(cfg.statsUrl) fetchStats();
-      msg.textContent='✓ All games loaded from Sheets';
-      document.getElementById('sync-badge').className='sstatus st-sheets';
-      document.getElementById('sync-badge').textContent='● Google Sheets';
-      populateYearFilter();
-      renderCollection();renderPlays();renderStats();
-    } else {
-      msg.textContent=`⚠ "Game" column not found. Columns seen: ${foundCols.slice(0,5).join(', ')}`;
-    }
-  }catch(e){msg.textContent='⚠ Sync error: '+e.message; console.error(e);}
-
-  if(cfg.playsUrl){
-    try{
-      const t2 = await fetchCSV(cfg.playsUrl);
-      if(t2){
-        const clean2 = t2.replace(/^\uFEFF/,'').trim();
-        const rows2 = parseCSV(clean2);
-        const cols2 = rows2.length > 0 ? Object.keys(rows2[0]) : [];
-        const dateCol = cols2.find(k=>k.trim()==='Date');
-        if(rows2.length && dateCol){
-          const norm2 = rows2.map(r=>{const o={};Object.keys(r).forEach(k=>{o[k.trim()]=r[k];});return o;});
-          plays = norm2.filter(r=>r.Date&&r.Game&&!/^optional$/i.test(r.Date)).map(r=>({
-            id:r['Play ID']||'',
-            date:r.Date,
-            game:r.Game,
-            winner:r.Winner||r.Wimmer||r['Winner Player #']||'',
-            notes:r.Notes||'',
-            jRat:r['J Rating']||r['P1 Rating']||'',
-            eRat:r['E Rating']||r['P2 Rating']||''
-          }));
-          savePlays();renderPlays();renderStats();
-        }
-      }
-    }catch(e2){ console.error('Plays sync error:', e2); }
+    data=await fetchSheetData();
+  }catch(error){
+    msg.textContent='⚠ Sync error: '+(error.name==='AbortError'?'Google Sheets took too long to respond.':error.message);
+    console.error(error);
+    return;
   }
-  if(cfg.playersUrl) await fetchPlayers();
+
+  const gameRows=normalizeSheetRows(data.games);
+  if(!gameRows.length || !('Game' in gameRows[0])){
+    msg.textContent='⚠ "Game" column not found in the Games sheet.';
+    return;
+  }
+  GAMES=gameRows.map(mapGameRow).filter(g=>g.n.trim());
+  cacheGames();
+  let totalSpent=0;
+  gameRows.forEach(row=>{
+    const value=parseFloat(String(row['Total']||'').replace(/[$,\s]/g,''));
+    if(!isNaN(value)&&value>0) totalSpent+=value;
+  });
+  if(totalSpent>0) cfg.totalSpent=totalSpent.toFixed(2);
+
+  const playRows=normalizeSheetRows(data.plays).filter(r=>r.Date&&r.Game&&!/^optional$/i.test(r.Date));
+  if(playRows.length){
+    plays=playRows.map(r=>({
+      id:r['Play ID']||'',
+      date:r.Date,
+      game:r.Game,
+      winner:r.Winner||r.Wimmer||r['Winner Player #']||'',
+      notes:r.Notes||'',
+      jRat:r['J Rating']||r['P1 Rating']||'',
+      eRat:r['E Rating']||r['P2 Rating']||''
+    }));
+    savePlays();
+  }
+
+  const hasPlayers=applyPlayerRows(normalizeSheetRows(data.players));
+  applyStatsRows(normalizeSheetRows(data.stats), hasPlayers);
+  saveCfg();
+
+  badge.className='sstatus st-sheets';
+  badge.textContent='● Google Sheets';
+  msg.textContent='✓ Synced with Google Sheets';
+  populateYearFilter();
+  updatePlayerLabels();
+  renderCollection();renderPlays();renderStats();
 }
 
 function showPlaySyncToast(result){
@@ -1997,170 +1685,122 @@ async function pushDel(p){
   return postToSheets({action:'delete',...p});
 }
 
-async function fetchPlayers(){
-  const status=document.getElementById('players-connection-status');
-  try{
-    if(status){
-      status.textContent='Loading player avatars...';
-      status.style.color='var(--text3)';
+// Player #1 and #2 rows from the Players sheet set the names, dinosaurs, and colors.
+function applyPlayerRows(rows){
+  const valueFor=(row,...keys)=>{
+    for(const key of keys){
+      const value=row[key];
+      if(String(value??'').trim()) return value;
     }
-    const txt=await fetchCSV(cfg.playersUrl);
-    if(!txt) throw new Error('Could not reach the published Players sheet.');
-    const rows=parseCSV(txt.replace(/^\uFEFF/,'').trim()).map(row=>{
-      const normalized={};
-      Object.keys(row).forEach(key=>{
-        normalized[String(key).trim().toLowerCase()]=row[key];
-      });
-      return normalized;
-    });
-    const foundHeaders=rows.length ? Object.keys(rows[0]) : [];
-    if(foundHeaders.includes('game')&&!foundHeaders.includes('player #')){
-      throw new Error('This URL is loading the Games tab, not Players. Publish only the Players tab as CSV and use that URL.');
-    }
-    const valueFor=(row,...keys)=>{
-      for(const key of keys){
-        const value=row[key.toLowerCase()];
-        if(String(value??'').trim()) return value;
-      }
-      return '';
-    };
-    const byNumber=new Map();
-    rows.forEach(row=>{
-      const number=parseInt(valueFor(row,'Player #','Player','Player Number'),10);
-      if(number>=1&&number<=6) byNumber.set(number,row);
-    });
-    if(!byNumber.has(1)||!byNumber.has(2)){
-      const headers=foundHeaders.length ? foundHeaders.join(', ') : 'none';
-      throw new Error(`Players CSV needs rows for Player #1 and #2. Headers received: ${headers}.`);
-    }
-    const toProfile=(row,fallback)=>({
-      name:String(valueFor(row,'Name','Player Name')||fallback.name).trim(),
-      dino:valueFor(row,'Dino')||fallback.dino,
-      color:valueFor(row,'Color')||fallback.color
-    });
-    playerProfiles=normalizePlayerProfiles({
-      john:toProfile(byNumber.get(1),playerProfiles.john),
-      elizabeth:toProfile(byNumber.get(2),playerProfiles.elizabeth)
-    });
-    cfg.playerProfiles=playerProfiles;
-    saveCfg();
-    updatePlayerLabels();
-    renderBattleRosterSettings();
-    renderPlays();
-    renderStats();
-    if(status){
-      status.textContent=`✓ Connected: ${playerProfiles.john.name} vs. ${playerProfiles.elizabeth.name}`;
-      status.style.color='var(--teal)';
-    }
-  }catch(error){
-    console.error('Players sync error:',error);
-    if(status){
-      status.textContent=error.message||String(error);
-      status.style.color='var(--red)';
-    }
-  }
+    return '';
+  };
+  const byNumber=new Map();
+  rows.map(row=>{
+    const lower={};
+    Object.keys(row).forEach(key=>{ lower[key.toLowerCase()]=row[key]; });
+    return lower;
+  }).forEach(row=>{
+    const number=parseInt(valueFor(row,'player #','player','player number'),10);
+    if(number>=1&&number<=6) byNumber.set(number,row);
+  });
+  if(!byNumber.has(1)||!byNumber.has(2)) return false;
+  const toProfile=(row,fallback)=>({
+    name:String(valueFor(row,'name','player name')||fallback.name).trim(),
+    dino:valueFor(row,'dino')||fallback.dino,
+    color:valueFor(row,'color')||fallback.color
+  });
+  playerProfiles=normalizePlayerProfiles({
+    john:toProfile(byNumber.get(1),playerProfiles.john),
+    elizabeth:toProfile(byNumber.get(2),playerProfiles.elizabeth)
+  });
+  cfg.playerProfiles=playerProfiles;
+  return true;
 }
 
-async function fetchStats(){
-  const el = document.getElementById('stat-invested');
-  try {
-    if (el) el.textContent = '…';
-    const txt = await fetchCSV(cfg.statsUrl);
-    if (!txt) {
-      if (el) el.textContent = '—';
-      return;
-    }
-    const clean = txt.replace(/^\uFEFF/,'').trim();
-    console.log('Stats CSV raw:', clean.slice(0,200));
-    const rows = parseCSV(clean);
-    console.log('Stats rows:', rows);
-    const statsMap = {};
-    rows.forEach(r => {
-      const key = (r['Key']||r['key']||Object.values(r)[0]||'').toString().trim().toLowerCase();
-      const raw = (r['Value']||r['value']||Object.values(r)[1]||'').toString().trim();
-      const val = raw.replace(/[$,\s]/g, '');
-      if (key) statsMap[key] = val;
+// Key/Value rows from the Stats sheet set the collection value (and player profiles when there is no Players sheet).
+function applyStatsRows(rows, hasPlayers){
+  const statsMap={};
+  rows.forEach(row=>{
+    const values=Object.values(row);
+    const key=String(row['Key']||row['key']||values[0]||'').trim().toLowerCase();
+    const value=String(row['Value']||row['value']||values[1]||'').trim().replace(/[$,\s]/g,'');
+    if(key) statsMap[key]=value;
+  });
+  if(!hasPlayers){
+    playerProfiles=normalizePlayerProfiles({
+      john:{
+        name:statsMap['john name']||playerProfiles.john.name,
+        dino:statsMap['john dino']||playerProfiles.john.dino,
+        color:statsMap['john color']||playerProfiles.john.color
+      },
+      elizabeth:{
+        name:statsMap['elizabeth name']||statsMap['e name']||playerProfiles.elizabeth.name,
+        dino:statsMap['elizabeth dino']||statsMap['e dino']||playerProfiles.elizabeth.dino,
+        color:statsMap['elizabeth color']||statsMap['e color']||playerProfiles.elizabeth.color
+      }
     });
-    if(!cfg.playersUrl){
-      playerProfiles = normalizePlayerProfiles({
-        john: {
-          name: statsMap['john name'] || playerProfiles.john.name,
-          dino: statsMap['john dino'] || playerProfiles.john.dino,
-          color: statsMap['john color'] || playerProfiles.john.color
-        },
-        elizabeth: {
-          name: statsMap['elizabeth name'] || statsMap['e name'] || playerProfiles.elizabeth.name,
-          dino: statsMap['elizabeth dino'] || statsMap['e dino'] || playerProfiles.elizabeth.dino,
-          color: statsMap['elizabeth color'] || statsMap['e color'] || playerProfiles.elizabeth.color
-        }
-      });
-      cfg.playerProfiles = playerProfiles;
-      saveCfg();
-      updatePlayerLabels();
-      renderBattleRosterSettings();
-    }
-    console.log('Stats map:', statsMap);
-    // Store e knows effective separately
-    if (statsMap['e knows effective'] && !isNaN(parseFloat(statsMap['e knows effective']))) {
-      cfg.eKnowsInvested = Math.round(parseFloat(statsMap['e knows effective'])).toLocaleString('en-US');
-    }
-    // Main effective value
-    let finalVal = null;
-    if (statsMap['effective'] && !isNaN(parseFloat(statsMap['effective']))) {
-      finalVal = parseFloat(statsMap['effective']);
-    } else if (statsMap['spent'] && statsMap['sold']) {
-      finalVal = parseFloat(statsMap['spent']) - parseFloat(statsMap['sold']);
-    } else if (cfg.totalSpent && statsMap['sold']) {
-      finalVal = parseFloat(cfg.totalSpent) - parseFloat(statsMap['sold']);
-    }
-    if (finalVal !== null && !isNaN(finalVal)) {
-      cfg.invested = Math.round(finalVal).toLocaleString('en-US');
-      saveCfg();
-      updateInvestedCard();
-      renderStats();
-    } else {
-      if (el) el.textContent = 'parse err';
-      console.warn('Could not parse stats. Map:', statsMap);
-    }
-  } catch(e) {
-    if (el) el.textContent = 'error';
-    console.error('Stats fetch error:', e);
+    cfg.playerProfiles=playerProfiles;
   }
+  const number=key=>{ const value=parseFloat(statsMap[key]); return isNaN(value)?null:value; };
+  if(number('e knows effective')!==null){
+    cfg.eKnowsInvested=Math.round(number('e knows effective')).toLocaleString('en-US');
+  }
+  let finalValue=null;
+  if(number('effective')!==null) finalValue=number('effective');
+  else if(number('spent')!==null&&number('sold')!==null) finalValue=number('spent')-number('sold');
+  else if(cfg.totalSpent&&number('sold')!==null) finalValue=parseFloat(cfg.totalSpent)-number('sold');
+  else if(cfg.totalSpent) finalValue=parseFloat(cfg.totalSpent);
+  cfg.invested=finalValue!==null&&!isNaN(finalValue)?Math.round(finalValue).toLocaleString('en-US'):'';
 }
 
 function readConnectionFields(){
-  const gamesUrl=document.getElementById('cfg-games')?.value.trim()||'';
-  const playsUrl=document.getElementById('cfg-plays')?.value.trim()||'';
   const scriptUrl=document.getElementById('cfg-script')?.value.trim()||'';
-  const statsUrl=document.getElementById('cfg-stats')?.value.trim()||'';
-  const playersUrl=document.getElementById('cfg-players')?.value.trim()||'';
-  if(statsUrl!==cfg.statsUrl) cfg.invested='';
-  cfg.gamesUrl=gamesUrl;
-  cfg.playsUrl=playsUrl;
+  if(scriptUrl!==cfg.scriptUrl) cfg.invested='';
   cfg.scriptUrl=scriptUrl;
-  cfg.statsUrl=statsUrl;
-  cfg.playersUrl=playersUrl;
   saveCfg();
-}
-
-function markPlayersUrlPending(){
-  const status=document.getElementById('players-connection-status');
-  if(!status) return;
-  const hasUrl=Boolean(document.getElementById('cfg-players')?.value.trim());
-  status.textContent=hasUrl?'URL ready — select Save & Sync or Sync Now.':'Optional: publish the Players tab as CSV and paste its URL here.';
-  status.style.color='var(--text3)';
 }
 
 async function saveConfig(){
   readConnectionFields();
-  showToast('Config saved!');
+  showToast('Connection saved.');
   await verifyScriptConnection();
-  if(cfg.gamesUrl){
-    await syncNow(false);
-  }else{
-    if(cfg.statsUrl) fetchStats();
-    if(cfg.playersUrl) await fetchPlayers();
+  await syncNow(false);
+}
+
+// An invite link carries the script URL in the part after "#", which browsers never send to a server.
+// Opening it connects that device in one step. Anyone holding the link gets full view and edit access.
+const SCRIPT_URL_PATTERN=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/;
+
+async function copyInviteLink(){
+  readConnectionFields();
+  if(!SCRIPT_URL_PATTERN.test(cfg.scriptUrl)){
+    showToast('Save a working Apps Script URL first.','#ff5c7a');
+    return;
   }
+  const link=`${location.origin}${location.pathname}#connect=${encodeURIComponent(cfg.scriptUrl)}`;
+  try{
+    await navigator.clipboard.writeText(link);
+    showToast('Invite link copied. Share it only with people you trust.');
+  }catch(error){
+    window.prompt('Copy this invite link:',link);
+  }
+}
+
+function acceptInviteLink(){
+  const match=location.hash.match(/^#connect=(.+)$/);
+  if(!match) return false;
+  history.replaceState(null,'',location.pathname+location.search);
+  let url='';
+  try{ url=decodeURIComponent(match[1]); }catch(error){}
+  if(!SCRIPT_URL_PATTERN.test(url)){
+    showToast('That invite link is not valid.','#ff5c7a');
+    return false;
+  }
+  cfg.scriptUrl=url;
+  cfg.invested='';
+  saveCfg();
+  showToast('Connected. Loading the collection...');
+  return true;
 }
 
 async function verifyScriptConnection(){
@@ -2184,18 +1824,11 @@ async function verifyScriptConnection(){
 }
 
 function loadCfgUI(){
-  if(cfg.gamesUrl){const el=document.getElementById('cfg-games');if(el)el.value=cfg.gamesUrl;}
-  if(cfg.playsUrl){const el=document.getElementById('cfg-plays');if(el)el.value=cfg.playsUrl;}
-  if(cfg.scriptUrl){const el=document.getElementById('cfg-script');if(el)el.value=cfg.scriptUrl;}
-  if(cfg.statsUrl){const el=document.getElementById('cfg-stats');if(el)el.value=cfg.statsUrl;}
-  if(cfg.playersUrl){const el=document.getElementById('cfg-players');if(el)el.value=cfg.playersUrl;}
-  else {
-    const status=document.getElementById('players-connection-status');
-    if(status) status.textContent='Optional: publish the Players tab as CSV and paste its URL here.';
-  }
-  if(cfg.gamesUrl){
+  const field=document.getElementById('cfg-script');
+  if(field&&cfg.scriptUrl) field.value=cfg.scriptUrl;
+  if(GAMES.length){
     document.getElementById('sync-badge').className='sstatus st-sheets';
-    document.getElementById('sync-badge').textContent='● Google Sheets';
+    document.getElementById('sync-badge').textContent='● Saved copy';
   }
   verifyScriptConnection();
 }
@@ -2242,6 +1875,7 @@ function applyPendingUpdate(){
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
+  acceptInviteLink();
   loadCfgUI();
   updatePlayerLabels();
   populateYearFilter();
@@ -2261,11 +1895,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   renderCollection();
   renderStats();
-  if(cfg.gamesUrl)syncNow();
-  else {
-    if(cfg.statsUrl)fetchStats();
-    if(cfg.playersUrl)fetchPlayers();
-  }
+  if(cfg.scriptUrl) syncNow(false);
 
   document.getElementById('update-banner-refresh')?.addEventListener('click', applyPendingUpdate);
   document.getElementById('update-banner-dismiss')?.addEventListener('click', dismissUpdateBanner);

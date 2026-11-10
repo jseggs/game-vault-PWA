@@ -126,10 +126,44 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function doGet() {
+/**
+ * GET ?action=data returns the Games, Plays, Stats, and Players sheets for the
+ * private app, so the spreadsheet does not need to be published to the web.
+ * This web app URL is the only key to that data: keep it out of public code.
+ */
+function doGet(e) {
+  var result = {status: 'ok'};
+  if (e && e.parameter && e.parameter.action === 'data') {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    result.games = readSheetRows_(ss.getSheetByName('Games'));
+    result.plays = readSheetRows_(ss.getSheetByName('Plays'));
+    result.stats = readSheetRows_(ss.getSheetByName('Stats'));
+    result.players = readSheetRows_(ss.getSheetByName('Players'));
+  }
   return ContentService
-    .createTextOutput(JSON.stringify({status: 'ok'}))
+    .createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/** Rows as objects keyed by trimmed header, using the values as displayed in the sheet. */
+function readSheetRows_(sheet) {
+  if (!sheet) return [];
+  var values = sheet.getDataRange().getDisplayValues();
+  if (values.length < 2) return [];
+  var headers = values[0].map(function (header) { return String(header).trim(); });
+  var rows = [];
+  for (var r = 1; r < values.length; r++) {
+    var row = {};
+    var hasValue = false;
+    for (var c = 0; c < headers.length; c++) {
+      if (!headers[c]) continue;
+      var cell = String(values[r][c] == null ? '' : values[r][c]).trim();
+      row[headers[c]] = cell;
+      if (cell) hasValue = true;
+    }
+    if (hasValue) rows.push(row);
+  }
+  return rows;
 }
 
 function normalizePlayDate_(value, timeZone) {
