@@ -296,6 +296,13 @@
       </div>
       <p class="settings-intro">Your collection loads and saves through your private Apps Script web app. The link is stored only in this browser, never in the app's code. Treat it like a password: anyone who has it can view and change your collection.</p>
       <div class="form-row"><div class="fg">
+        <label for="settings-invite">Paste an invite link</label>
+        <input class="fc" id="settings-invite" type="url" inputmode="url" placeholder="https://…#connect=…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div></div>
+      <div class="settings-actions" style="margin:-4px 0 20px;">
+        <button class="btn btn-outline" onclick="connectFromPastedInvite('settings-invite')">Connect with invite link</button>
+      </div>
+      <div class="form-row"><div class="fg">
         <label>Apps Script Web App URL</label>
         <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" spellcheck="false">
         <span id="script-connection-status" class="connection-status"></span>
@@ -1016,7 +1023,22 @@ function renderCollection(){
 
   const grid = document.getElementById('game-grid');
   updateInvestedCard();
-  if(!GAMES.length){grid.innerHTML=`<div class="empty">${cfg.scriptUrl?'Loading your collection...':'No collection loaded yet. Open Settings and add your Apps Script URL, or open your invite link.'}</div>`;return;}
+  // Before the first connection, hide the empty scoreboard and filters so the connect box is the first thing on screen.
+  document.getElementById('tab-collection').classList.toggle('not-connected', !GAMES.length && !cfg.scriptUrl);
+  if(!GAMES.length){
+    grid.innerHTML=cfg.scriptUrl
+      ? '<div class="empty">Loading your collection...</div>'
+      : `<div class="sbox connect-box">
+          <div class="stitle">Connect this app</div>
+          <p class="settings-intro">Paste the invite link you were sent. On iPhone, do this inside the home-screen app: it keeps its own settings, separate from Safari.</p>
+          <div class="form-row"><div class="fg">
+            <label for="connect-invite">Invite link</label>
+            <input class="fc" id="connect-invite" type="url" inputmode="url" placeholder="https://…#connect=…" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div></div>
+          <button class="btn btn-gold" onclick="connectFromPastedInvite('connect-invite')">Connect</button>
+        </div>`;
+    return;
+  }
   if(!filtered.length){grid.innerHTML='<div class="empty">No games match your filters.</div>';return;}
   grid.innerHTML = filtered.map(g=>{
     const gp = plays.filter(p=>p.game===g.n);
@@ -1854,24 +1876,60 @@ async function copyText(text){
   }
 }
 
-function acceptInviteLink(){
-  const match=location.hash.match(/^#connect=([^&]+)(?:&key=([^&]+))?$/);
-  if(!match) return false;
-  history.replaceState(null,'',location.pathname+location.search);
+// Accepts a full invite link (or just the part after "#") and returns {url, key}, or null.
+function parseInviteLink(text){
+  const raw=String(text||'').trim();
+  const at=raw.indexOf('connect=');
+  if(at<0) return null;
+  const match=raw.slice(at).match(/^connect=([^&\s]+)&key=([^&\s]+)/);
+  if(!match) return null;
   let url='',key='';
-  try{ url=decodeURIComponent(match[1]); key=decodeURIComponent(match[2]||''); }catch(error){}
-  if(!SCRIPT_URL_PATTERN.test(url)||!/^[A-Za-z0-9]{16,128}$/.test(key)){
-    showToast('That invite link is not valid.','#ff5c7a');
-    return false;
-  }
-  cfg.scriptUrl=url;
-  cfg.accessKey=key;
+  try{ url=decodeURIComponent(match[1]); key=decodeURIComponent(match[2]); }catch(error){ return null; }
+  if(!SCRIPT_URL_PATTERN.test(url)||!/^[A-Za-z0-9]{16,128}$/.test(key)) return null;
+  return {url,key};
+}
+
+function connectWith(invite){
+  cfg.scriptUrl=invite.url;
+  cfg.accessKey=invite.key;
   cfg.invested='';
   cfg.role='';
   cfg.familyKey='';
   saveCfg();
+  const field=document.getElementById('cfg-script');
+  if(field) field.value=invite.url;
+  const keyField=document.getElementById('cfg-key');
+  if(keyField) keyField.value=invite.key;
+}
+
+function acceptInviteLink(){
+  if(!location.hash.startsWith('#connect=')) return false;
+  const invite=parseInviteLink(location.hash);
+  history.replaceState(null,'',location.pathname+location.search);
+  if(!invite){
+    showToast('That invite link is not valid.','#ff5c7a');
+    return false;
+  }
+  connectWith(invite);
   showToast('Connected. Loading the collection...');
   return true;
+}
+
+// On iPhone, an app added to the home screen keeps its own storage, separate from Safari,
+// and links always open in Safari. Pasting the invite link here connects the app itself.
+async function connectFromPastedInvite(inputId){
+  const input=document.getElementById(inputId);
+  const invite=parseInviteLink(input?.value);
+  if(!invite){
+    showToast('Paste the whole invite link, starting with https://','#ff5c7a');
+    return;
+  }
+  connectWith(invite);
+  if(input) input.value='';
+  showToast('Connected. Loading the collection...');
+  updateAccessUI();
+  await verifyScriptConnection();
+  await syncNow(false);
 }
 
 async function verifyScriptConnection(){

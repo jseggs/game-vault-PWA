@@ -3460,3 +3460,16 @@ pre {
 [hidden] {
   display: none !important;
 }
+
+/* First-run connect panel inside the empty collection grid */
+.connect-box {
+  grid-column: 1 / -1;
+  max-width: 560px;
+}
+
+#tab-collection.not-connected .stats-row,
+#tab-collection.not-connected .filters-bar,
+#tab-collection.not-connected .bgg-credit,
+#tab-collection.not-connected #col-sub {
+  display: none;
+}
