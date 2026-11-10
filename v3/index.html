@@ -313,6 +313,10 @@
         <button class="btn btn-outline" id="invite-own" onclick="copyInviteLink('own')">Copy invite link</button>
         <button class="btn btn-outline" id="invite-family" onclick="copyInviteLink('family')" hidden>Copy family link</button>
       </div>
+      <div class="form-row" id="invite-output" hidden style="margin-top:16px;"><div class="fg">
+        <label>Invite link</label>
+        <input class="fc" type="text" readonly onfocus="this.select()" autocomplete="off" spellcheck="false">
+      </div></div>
       <p class="settings-note" id="invite-note">An invite link connects another phone or computer in one step.</p>
     </section>
 
@@ -1806,11 +1810,39 @@ async function copyInviteLink(kind){
     return;
   }
   const link=`${location.origin}${location.pathname}#connect=${encodeURIComponent(cfg.scriptUrl)}&key=${encodeURIComponent(key)}`;
+  // Always show the link as well: some browsers report a successful copy without updating the system clipboard.
+  const copied=await copyText(link);
+  const box=document.getElementById('invite-output');
+  if(box){
+    box.hidden=false;
+    box.querySelector('label').textContent=(kind==='family'?'Family link':'Full-access link')+(copied?' (copied; or select it here)':' (select all and copy)');
+    const field=box.querySelector('input');
+    field.value=link;
+    field.focus();
+    field.select();
+  }
+  showToast(copied
+    ? (kind==='family'?'Family link copied.':'Full-access link copied. Share it only with people you trust.')
+    : 'Could not copy automatically. Copy the link shown below the buttons.', copied?undefined:'#ffe04a');
+}
+
+async function copyText(text){
   try{
-    await navigator.clipboard.writeText(link);
-    showToast(kind==='family'?'Family link copied.':'Invite link copied. Share it only with people you trust.');
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(error){}
+  try{
+    const area=document.createElement('textarea');
+    area.value=text;
+    area.setAttribute('readonly','');
+    area.style.cssText='position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(area);
+    area.select();
+    const ok=document.execCommand('copy');
+    area.remove();
+    return ok;
   }catch(error){
-    window.prompt('Copy this invite link:',link);
+    return false;
   }
 }
 

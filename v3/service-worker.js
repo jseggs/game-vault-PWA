@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-v3-arcade-v5';
+const CACHE_NAME = 'game-vault-v3-arcade-v6';
 const APP_SHELL = [
   './',
   './index.html',
