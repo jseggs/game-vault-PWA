@@ -267,12 +267,45 @@ def build_app_icons():
                 d.point((x, y), fill=BG)
         return img
 
-    regular = scene(64, border=True, dino_scale=0.62)
-    regular.resize((512, 512), Image.NEAREST).save(ASSETS / "icon-512.png", optimize=True)
-    regular.resize((192, 192), Image.NEAREST).save(ASSETS / "icon-192.png", optimize=True)
-    # Maskable: no border, art kept inside the central safe zone
-    maskable = scene(64, border=False, dino_scale=0.48)
-    maskable.resize((512, 512), Image.NEAREST).save(ASSETS / "icon-maskable-512.png", optimize=True)
+    # The detailed sunset scene is the in-app logo (small, in the sidebar corner).
+    scene(64, border=True, dino_scale=0.62).resize((192, 192), Image.NEAREST).save(ASSETS / "logo-192.png", optimize=True)
+
+    # App icons are deliberately simple so they read at home-screen size: the dino
+    # on a deep indigo field with a soft neon glow. No border, grid, or stars.
+    from PIL import ImageFilter
+
+    def app_icon(size, dino_scale):
+        big = size * 2  # draw at 2x, then downsample for smooth edges on the background
+        yy = Image.linear_gradient("L").resize((big, big))
+        top, bottom = (30, 20, 84), (8, 6, 20)
+        img = Image.merge("RGB", [yy.point(lambda v, a=a, b=b: int(a + (b - a) * v / 255)) for a, b in zip(top, bottom)])
+
+        glow = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+        g = ImageDraw.Draw(glow)
+        r = int(big * 0.30)
+        g.ellipse((big // 2 - r, int(big * 0.47) - r, big // 2 + r, int(big * 0.47) + r), fill=PINK + (150,))
+        r2 = int(big * 0.17)
+        g.ellipse((big // 2 - r2, int(big * 0.50) - r2, big // 2 + r2, int(big * 0.50) + r2), fill=CYAN + (90,))
+        glow = glow.filter(ImageFilter.GaussianBlur(big * 0.11))
+        img.paste(glow, (0, 0), glow)
+
+        src = Image.open(ASSETS / "dinos" / "trex.png").convert("RGBA")
+        src = src.crop(src.getbbox())
+        w = int(big * dino_scale)
+        h = int(w * src.height / src.width)
+        dino = src.resize((w, h), Image.NEAREST)
+        ox, oy = (big - w) // 2, (big - h) // 2
+        shadow = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+        shadow.paste((0, 0, 0, 170), (ox + int(big * 0.012), oy + int(big * 0.022)), dino.getchannel("A"))
+        shadow = shadow.filter(ImageFilter.GaussianBlur(big * 0.012))
+        img.paste(shadow, (0, 0), shadow)
+        img.paste(dino, (ox, oy), dino)
+        return img.resize((size, size), Image.LANCZOS)
+
+    app_icon(512, 0.60).save(ASSETS / "icon-512.png", optimize=True)
+    app_icon(192, 0.60).save(ASSETS / "icon-192.png", optimize=True)
+    # Maskable: launchers may crop to a circle, so the dino stays inside the central safe zone.
+    app_icon(512, 0.46).save(ASSETS / "icon-maskable-512.png", optimize=True)
 
 
 DINOS = {

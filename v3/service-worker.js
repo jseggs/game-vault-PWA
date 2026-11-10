@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-v3-arcade-v4';
+const CACHE_NAME = 'game-vault-v3-arcade-v5';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const APP_SHELL = [
   './bgg-images.js',
   './manifest.webmanifest',
   './assets/ui-icons.svg',
+  './assets/logo-192.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/icon-maskable-512.png',

@@ -25,7 +25,7 @@ def main():
     shutil.copy2(V3 / "bgg-images.js", SHARE / "bgg-images.js")
     assets = SHARE / "assets"
     (assets / "dinos").mkdir(parents=True, exist_ok=True)
-    for name in ("ui-icons.svg", "icon-192.png", "icon-512.png"):
+    for name in ("ui-icons.svg", "logo-192.png", "icon-192.png", "icon-512.png"):
         shutil.copy2(V3 / "assets" / name, assets / name)
     shutil.copy2(V3 / "assets" / "dinos" / "trex.png", assets / "dinos" / "trex.png")
     shutil.copy2(ROOT / "powered-by-bgg-rgb.svg", assets / "powered-by-bgg-rgb.svg")
