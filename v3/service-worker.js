@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-vault-v3-console-v3';
+const CACHE_NAME = 'game-vault-v3-arcade-v1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,17 +6,17 @@ const APP_SHELL = [
   './bgg-images.js',
   './manifest.webmanifest',
   './assets/ui-icons.svg',
-  '../app-icon-192.png',
-  '../app-icon-512.png',
-  '../app-icon-maskable-512.png',
-  '../green-t-rex.png',
-  '../Velociraptor-cyan.png',
-  '../Ankylosaurus-blue.png',
-  '../Brachiosaurus-yellow.png',
-  '../Pterodactyl-light-blue.png',
-  '../Spinosaurus-pink.png',
-  '../Stegosaurus-purple.png',
-  '../Triceratops.png',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
+  './assets/icon-maskable-512.png',
+  './assets/dinos/trex.png',
+  './assets/dinos/velociraptor.png',
+  './assets/dinos/ankylosaurus.png',
+  './assets/dinos/brachiosaurus.png',
+  './assets/dinos/pterodactyl.png',
+  './assets/dinos/spinosaurus.png',
+  './assets/dinos/stegosaurus.png',
+  './assets/dinos/triceratops.png',
   '../powered-by-bgg-rgb.svg'
 ];
 

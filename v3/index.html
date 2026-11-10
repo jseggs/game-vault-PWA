@@ -5,26 +5,29 @@
 <base href="../">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Game Vault — Board Game Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="v3/cabinet.css">
 <script src="v3/bgg-images.js"></script>
 
-<meta name="theme-color" content="#11162f">
+<meta name="theme-color" content="#0a0818">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Game Vault">
 <link rel="manifest" href="v3/manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png">
-<link rel="apple-touch-icon" href="app-icon-512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="v3/assets/icon-192.png">
+<link rel="apple-touch-icon" href="v3/assets/icon-512.png">
 </head>
 <body>
 <div class="cabinet-frame">
 <nav aria-label="Primary navigation">
   <div class="brand-zone">
     <div class="nav-brand">
-      <img class="brand-mark" src="app-icon-192.png" alt="">
+      <img class="brand-mark" src="v3/assets/icon-192.png" alt="">
       <span class="brand-copy">
         <span class="brand-title">Game Vault</span>
-        <span class="brand-sub">Board game collection</span>
+        <span class="brand-sub">Board game arcade</span>
       </span>
     </div>
   </div>
@@ -51,8 +54,8 @@
     </button>
   </div>
   <div class="cabinet-id" aria-hidden="true">
-    <img class="cabinet-id-dino" src="green-t-rex.png" alt="">
-    <span class="cabinet-id-copy"><strong>Good games.</strong><br>Great nights.</span>
+    <img class="cabinet-id-dino" src="v3/assets/dinos/trex.png" alt="">
+    <span class="cabinet-id-copy"><strong>INSERT COIN</strong><br>Good games. Great nights.</span>
   </div>
 </nav>
 
@@ -61,7 +64,7 @@
 <div class="section active" id="tab-collection" data-screen="Collection">
   <div class="collection-hero">
     <div class="collection-title-block">
-      <div class="eyebrow">Collection</div>
+      <div class="eyebrow">Stage 1 · Collection</div>
       <div class="page-title">Your game vault</div>
       <div class="page-sub" id="col-sub">Loading...</div>
     </div>
@@ -89,7 +92,13 @@
         </div>
         <div class="fgrp type-group">
           <span class="fgrp-lbl">Type</span>
-          <button class="fbtn" onclick="toggleBaseOnly(this)">Base Games</button>
+          <button class="fbtn active" id="type-filter-all" onclick="setBaseOnly(false)">Include expansions</button>
+          <button class="fbtn" id="type-filter-base" onclick="setBaseOnly(true)">Base games only</button>
+        </div>
+        <div class="fgrp kids-group">
+          <span class="fgrp-lbl">Kids games</span>
+          <button class="fbtn" id="kids-filter-hide" onclick="setKidsFilter('0')">No kids games</button>
+          <button class="fbtn" id="kids-filter-show" onclick="setKidsFilter('1')">Include kids</button>
         </div>
       </div>
     </details>
@@ -106,7 +115,7 @@
 <div class="section" id="tab-picker" data-screen="Randomizer">
   <header class="section-header">
     <div>
-      <div class="eyebrow">Game picker</div>
+      <div class="eyebrow">Stage 2 · Game picker</div>
       <div class="page-title">What are we playing?</div>
       <div class="page-sub">Set the table rules. We’ll make the final call.</div>
     </div>
@@ -114,14 +123,14 @@
   <div class="pick-box">
     <div class="pick-spotlight">
       <div class="pick-cover pick-empty" id="pick-cover" aria-hidden="true">
-        <img class="pick-mascot" src="Pterodactyl-light-blue.png" alt="">
-        <span class="pick-empty-label">Scanning the shelf</span>
+        <img class="pick-mascot" src="v3/assets/dinos/pterodactyl.png" alt="">
+        <span class="pick-empty-label">Press start</span>
       </div>
       <div class="pick-copy">
         <div class="pick-title">Tonight’s pick</div>
         <div class="pick-result" id="pick-result">Ready when you are</div>
         <div class="pick-detail" id="pick-detail">Choose a few preferences—or leave it wide open.</div>
-        <button class="btn btn-gold pick-action" onclick="pickRandom()">Pick a game</button>
+        <button class="btn btn-gold pick-action" onclick="pickRandom()">▶ Press start</button>
       </div>
     </div>
     <div class="pick-controls">
@@ -163,7 +172,7 @@
 <div class="section" id="tab-plays" data-screen="Play Log">
   <header class="section-header">
     <div>
-      <div class="eyebrow">Sessions</div>
+      <div class="eyebrow">Stage 3 · Sessions</div>
       <div class="page-title">Play log</div>
       <div class="page-sub">Record who played, who won, and what happened.</div>
     </div>
@@ -215,7 +224,7 @@
 <div class="section" id="tab-stats" data-screen="Scoreboard">
   <header class="section-header">
     <div>
-      <div class="eyebrow">Performance</div>
+      <div class="eyebrow">Stage 4 · High scores</div>
       <div class="page-title">Stats</div>
       <div class="page-sub">Head-to-head records, favorites, and the games still waiting.</div>
     </div>
@@ -273,7 +282,7 @@
 <div class="section" id="tab-settings" data-screen="Setup">
   <header class="section-header">
     <div>
-      <div class="eyebrow">Configuration</div>
+      <div class="eyebrow">Service menu</div>
       <div class="page-title">Settings</div>
       <div class="page-sub">Manage data sources, collection defaults, and player profiles.</div>
     </div>
@@ -486,7 +495,7 @@ function normalizePlayText_(value) {
 
 <div class="cabinet-footer">
   <span>Game Vault</span>
-  <span>Collect · Play · Remember</span>
+  <span>Collect · Play · Remember · © 198X</span>
 </div>
 </div>
 
@@ -705,14 +714,14 @@ let picks = {shelf:[],played:null,exp:'no',coop:null,players:null};
 let activeModal = null;
 const UI_ICON_SPRITE = 'v3/assets/ui-icons.svg';
 const DINO_ROSTER = {
-  velociraptor: {label:'Velociraptor', asset:'Velociraptor-cyan.png', accent:'#36b8c4'},
-  triceratops: {label:'Triceratops', asset:'Triceratops.png', accent:'#e9513d'},
-  trex: {label:'T-Rex', asset:'green-t-rex.png', accent:'#79b82a'},
-  ankylosaurus: {label:'Ankylosaurus', asset:'Ankylosaurus-blue.png', accent:'#5d79a9'},
-  brachiosaurus: {label:'Brachiosaurus', asset:'Brachiosaurus-yellow.png', accent:'#c6a64b'},
-  pterodactyl: {label:'Pterodactyl', asset:'Pterodactyl-light-blue.png', accent:'#76b6d6'},
-  spinosaurus: {label:'Spinosaurus', asset:'Spinosaurus-pink.png', accent:'#d65f78'},
-  stegosaurus: {label:'Stegosaurus', asset:'Stegosaurus-purple.png', accent:'#8b67ad'}
+  velociraptor: {label:'Velociraptor', asset:'v3/assets/dinos/velociraptor.png', accent:'#36b8c4'},
+  triceratops: {label:'Triceratops', asset:'v3/assets/dinos/triceratops.png', accent:'#e9513d'},
+  trex: {label:'T-Rex', asset:'v3/assets/dinos/trex.png', accent:'#79b82a'},
+  ankylosaurus: {label:'Ankylosaurus', asset:'v3/assets/dinos/ankylosaurus.png', accent:'#5d79a9'},
+  brachiosaurus: {label:'Brachiosaurus', asset:'v3/assets/dinos/brachiosaurus.png', accent:'#c6a64b'},
+  pterodactyl: {label:'Pterodactyl', asset:'v3/assets/dinos/pterodactyl.png', accent:'#76b6d6'},
+  spinosaurus: {label:'Spinosaurus', asset:'v3/assets/dinos/spinosaurus.png', accent:'#d65f78'},
+  stegosaurus: {label:'Stegosaurus', asset:'v3/assets/dinos/stegosaurus.png', accent:'#8b67ad'}
 };
 const PLAYER_COLOR_PALETTE = {
   cyan:'#36b8c4',
@@ -806,12 +815,26 @@ function applyGlobalFilters() {
   globalFilters.kids   = document.getElementById('gf-kids')?.value || '0';
   globalFilters.year   = document.getElementById('gf-year')?.value || '';
   saveGlobalFilters();
+  syncKidsFilterButtons();
   const active = globalFilters.eKnows || globalFilters.kids === '0' || globalFilters.year;
   const msg = document.getElementById('gf-active-msg');
   if (msg) msg.style.display = active ? 'block' : 'none';
   updateInvestedCard();
   renderCollection(); renderStats(); renderTwoPlayer();
   if(document.getElementById('tab-plays').classList.contains('active')) renderPlays();
+}
+
+// Collection filter for kids' games. Shares state with the Settings default so both stay in step.
+function setKidsFilter(value) {
+  const select = document.getElementById('gf-kids');
+  if (select) select.value = value;
+  applyGlobalFilters();
+}
+
+function syncKidsFilterButtons() {
+  const hidden = globalFilters.kids === '0';
+  document.getElementById('kids-filter-hide')?.classList.toggle('active', hidden);
+  document.getElementById('kids-filter-show')?.classList.toggle('active', !hidden);
 }
 
 function passesGlobal(g) {
@@ -915,7 +938,7 @@ function renderBattleRosterSettings(){
     const fallback=key==='john'?'velociraptor':'triceratops';
     const dino=DINO_ROSTER[profile.dino]||DINO_ROSTER[fallback];
     return `<div class="roster-player" style="--roster-accent:${escAttr(profile.color)}">
-      <div class="roster-avatar" style="--avatar-image:url('../${dino.asset}')">
+      <div class="roster-avatar">
         <img src="${dino.asset}" alt="">
       </div>
       <div><strong>${escAttr(profile.name)}</strong><span>${dino.label}</span></div>
@@ -1130,9 +1153,10 @@ function setFilter(k,v,btn){
   renderCollection();
 }
 
-function toggleBaseOnly(btn){
-  filters.baseOnly = !filters.baseOnly;
-  btn.classList.toggle('active', filters.baseOnly);
+function setBaseOnly(baseOnly){
+  filters.baseOnly = baseOnly;
+  document.getElementById('type-filter-all')?.classList.toggle('active', !baseOnly);
+  document.getElementById('type-filter-base')?.classList.toggle('active', baseOnly);
   renderCollection();
 }
 
@@ -1356,7 +1380,7 @@ async function logPlay(){
   const date=document.getElementById('log-date').value;
   const winner=document.getElementById('log-winner').value;
   const notes=document.getElementById('log-notes').value;
-  if(!game||!date||!winner){showToast('Choose a game from search, plus date & winner.','#c45c3c');return;}
+  if(!game||!date||!winner){showToast('Choose a game from search, plus date & winner.','#ff5c7a');return;}
   const jRat = document.getElementById('log-jrat')?.value||'';
   const eRat = document.getElementById('log-erat')?.value||'';
   const wasUnplayed = !GAMES.find(x=>x.n===game)?.played;
@@ -1377,7 +1401,7 @@ async function logModal(){
   const date=document.getElementById('m-date').value;
   const winner=document.getElementById('m-winner').value;
   const notes=document.getElementById('m-notes-in').value;
-  if(!date||!winner){showToast('Select date & winner!','#c45c3c');return;}
+  if(!date||!winner){showToast('Select date & winner!','#ff5c7a');return;}
   const jRat = document.getElementById('m-jrat')?.value||'';
   const eRat = document.getElementById('m-erat')?.value||'';
   const wasUnplayed = !GAMES.find(x=>x.n===activeModal)?.played;
@@ -1402,11 +1426,11 @@ async function saveGameRatings(){
   const valid = value => value === '' || (Number(value) >= 1 && Number(value) <= 10);
 
   if(!jRat && !eRat){
-    showToast('Enter at least one rating.','#c45c3c');
+    showToast('Enter at least one rating.','#ff5c7a');
     return;
   }
   if(!valid(jRat) || !valid(eRat)){
-    showToast('Ratings must be between 1 and 10.','#c45c3c');
+    showToast('Ratings must be between 1 and 10.','#ff5c7a');
     return;
   }
 
@@ -1418,7 +1442,7 @@ async function saveGameRatings(){
 
   if(!result.ok || result.data?.ratingsUpdated !== true){
     console.error('Rating writeback failed:', result.error || result.data);
-    showToast(result.error || result.data?.message || 'Ratings were not saved to Sheets.','#c45c3c');
+    showToast(result.error || result.data?.message || 'Ratings were not saved to Sheets.','#ff5c7a');
     return;
   }
 
@@ -1448,7 +1472,7 @@ async function delPlay(idx,name){
   const result = await pushDel(p);
   if(!result.ok || result.data?.playDeleted !== true){
     console.error('Play deletion failed:', result.error || result.data);
-    showToast(result.error || result.data?.message || 'Play was not deleted from Sheets.','#c45c3c');
+    showToast(result.error || result.data?.message || 'Play was not deleted from Sheets.','#ff5c7a');
     return;
   }
   const currentIdx=plays.indexOf(p);
@@ -1456,7 +1480,7 @@ async function delPlay(idx,name){
   savePlays();
   if(name&&document.getElementById('moverlay').classList.contains('open'))refreshModalPlays(name);
   renderPlays();renderStats();renderCollection();
-  showToast('Play deleted from Sheets.','#c45c3c');
+  showToast('Play deleted from Sheets.','#ff5c7a');
 }
 
 function renderPlays(){
@@ -1503,61 +1527,54 @@ function renderStats(){
   const jW=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)==='john').length;
   const eW=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)==='elizabeth').length;
   const tot=jW+eW;
-  const pct=tot>0?(jW/tot*100):50;
   const diff=tot?jW-eW:0;
   const johnRate=tot>0?Math.round(jW/tot*100):0;
   const lizRate=tot>0?Math.round(eW/tot*100):0;
   const johnProfile = playerProfiles.john;
   const lizProfile = playerProfiles.elizabeth;
-  const leadText = diff > 0 ? `${johnProfile.name} leads by ${diff}` : diff < 0 ? `${lizProfile.name} leads by ${Math.abs(diff)}` : 'Even match';
   const leadClass = diff === 0 ? 'tie' : '';
   const johnDino = DINO_ROSTER[johnProfile.dino] || DINO_ROSTER.velociraptor;
   const lizDino = DINO_ROSTER[lizProfile.dino] || DINO_ROSTER.triceratops;
+  // Fighting-game layout: each health bar is that player's wins relative to the current leader.
+  const topWins=Math.max(jW,eW,1);
+  const decisive=scopedPlays.filter(p=>playerSlotFromWinner(p.winner)).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const recentPips=decisive.slice(-5).map(p=>{
+    const slot=playerSlotFromWinner(p.winner);
+    return `<i style="background:${escAttr(playerProfiles[slot].color)}" title="${escAttr(playerProfiles[slot].name)} won ${escAttr(p.game)}"></i>`;
+  }).join('');
+  const callout = diff===0 ? (tot ? 'Even match' : 'Ready?') : `${diff>0?johnProfile.name:lizProfile.name} leads by ${Math.abs(diff)}`;
+  const fighter=(profile,dino,wins,rate,side,leading)=>`
+        <div class="duel-fighter ${side} ${leading?'leading':''} ${diff!==0&&!leading?'trailing':''}" style="--accent:${escAttr(profile.color)}">
+          <div class="duel-sprite"><img src="${dino.asset}" alt="${escAttr(profile.name)}'s ${dino.label}"></div>
+        </div>`;
+  const bar=(profile,dino,wins,side)=>`
+        <div class="duel-bar ${side}" style="--accent:${escAttr(profile.color)}">
+          <div class="duel-bar-track" role="img" aria-label="${escAttr(profile.name)}: ${wins} wins"><span style="width:${Math.round(wins/topWins*100)}%"></span></div>
+          <div class="duel-bar-meta"><strong>${escAttr(profile.name)}</strong><span>${dino.label}</span></div>
+        </div>`;
+  const tally=(wins,rate,side,profile)=>`
+        <div class="duel-tally ${side}" style="--accent:${escAttr(profile.color)}"><strong>${wins}</strong><span>Wins</span><small>${rate}% win rate</small></div>`;
   document.getElementById('win-stats').innerHTML=`
-    <article class="battle-card" aria-label="Head to head record">
-      <header class="battle-header">
-        <span>Head to Head</span>
-        <span>Competitive plays only</span>
-      </header>
-      <div class="battle-stage">
-        <div class="battle-grid" aria-hidden="true"></div>
-        <section class="battle-side left" style="--fighter-accent:${escAttr(johnProfile.color)}">
-          <div class="fighter-hud">
-            <span class="fighter-callout">Player 1</span>
-            <strong>${escAttr(johnProfile.name)}</strong>
-            <span>${johnDino.label}</span>
-          </div>
-          <div class="fighter-art">
-            <div class="battle-avatar john" style="--avatar-image:url('../${johnDino.asset}')">
-              <img class="battle-dino" src="${johnDino.asset}" alt="">
-            </div>
-          </div>
-          <div class="fighter-score"><strong>${jW}</strong><span>Wins</span><small>${johnRate}% win rate</small></div>
-        </section>
-        <div class="battle-center">
-          <div class="battle-vs">VS</div>
-          <div class="battle-meter-text">Advantage</div>
-          <div class="battle-meter-bar" aria-label="${escAttr(johnProfile.name)} win share ${Math.round(pct)} percent">
-            <span class="battle-meter-john" style="width:${pct}%"></span>
-            <span class="battle-meter-liz" style="width:${100-pct}%"></span>
-          </div>
-          <div class="battle-lead ${leadClass}">${leadText}</div>
-        </div>
-        <section class="battle-side right" style="--fighter-accent:${escAttr(lizProfile.color)}">
-          <div class="fighter-hud">
-            <span class="fighter-callout">Player 2</span>
-            <strong>${escAttr(lizProfile.name)}</strong>
-            <span>${lizDino.label}</span>
-          </div>
-          <div class="fighter-art">
-            <div class="battle-avatar liz" style="--avatar-image:url('../${lizDino.asset}')">
-              <img class="battle-dino" src="${lizDino.asset}" alt="">
-            </div>
-          </div>
-          <div class="fighter-score"><strong>${eW}</strong><span>Wins</span><small>${lizRate}% win rate</small></div>
-        </section>
+    <article class="duel" aria-label="Head to head record">
+      <div class="duel-hud">
+        ${bar(johnProfile,johnDino,jW,'p1')}
+        <div class="duel-clock"><strong>${String(tot).padStart(2,'0')}</strong><span>Rounds</span></div>
+        ${bar(lizProfile,lizDino,eW,'p2')}
       </div>
-      <footer class="battle-footer">
+      <div class="duel-stage">
+        <div class="duel-sun" aria-hidden="true"></div>
+        <div class="duel-ridge" aria-hidden="true"></div>
+        <div class="duel-floor" aria-hidden="true"></div>
+        ${fighter(johnProfile,johnDino,jW,johnRate,'p1',diff>0)}
+        <div class="duel-call"><span class="duel-vs">VS</span><strong class="${leadClass}">${escAttr(callout)}</strong></div>
+        ${fighter(lizProfile,lizDino,eW,lizRate,'p2',diff<0)}
+      </div>
+      <div class="duel-score">
+        ${tally(jW,johnRate,'p1',johnProfile)}
+        <div class="duel-form">${recentPips?`<span>Last ${Math.min(decisive.length,5)}</span><div>${recentPips}</div>`:'<span>No rounds yet</span>'}</div>
+        ${tally(eW,lizRate,'p2',lizProfile)}
+      </div>
+      <footer class="duel-footer">
         <span>${tot} decisive play${tot===1?'':'s'}</span>
         <span>${scopedPlays.length-tot} tie / co-op</span>
         <span>${scopedPlays.length} total logged</span>
@@ -1729,7 +1746,7 @@ function pickRandom(){
   const el=document.getElementById('pick-result');
   const det=document.getElementById('pick-detail');
   const cover=document.getElementById('pick-cover');
-  if(!pool.length){el.textContent='No games match';det.textContent='Try relaxing one or two filters.';cover.className='pick-cover pick-empty';cover.removeAttribute('style');cover.innerHTML='<img class="pick-mascot" src="Pterodactyl-light-blue.png" alt=""><span class="pick-empty-label">No match found</span>';box?.classList.remove('rolling');return;}
+  if(!pool.length){el.textContent='No games match';det.textContent='Try relaxing one or two filters.';cover.className='pick-cover pick-empty';cover.removeAttribute('style');cover.innerHTML='<img class="pick-mascot" src="v3/assets/dinos/pterodactyl.png" alt=""><span class="pick-empty-label">No match found</span>';box?.classList.remove('rolling');return;}
   box?.classList.add('rolling');
   let c=0;
   const iv=setInterval(()=>{
@@ -1744,7 +1761,7 @@ function pickRandom(){
       const pickImage=getGameCover(p);
       cover.innerHTML=pickImage.src
         ? `<img src="${escAttr(pickImage.src)}" data-fallback="${escAttr(pickImage.fallback)}" alt="${escAttr(p.n)} cover" onload="styleCoverPresentation(this)" onerror="handleCoverError(this)">`
-        : '<img class="pick-mascot" src="Pterodactyl-light-blue.png" alt=""><span class="pick-empty-label">Cover unavailable</span>';
+        : '<img class="pick-mascot" src="v3/assets/dinos/pterodactyl.png" alt=""><span class="pick-empty-label">Cover unavailable</span>';
     }
   },72);
 }
@@ -1940,7 +1957,7 @@ function showPlaySyncToast(result){
     return;
   }
   console.error('Sheets writeback failed:', result.error);
-  showToast(result.error || 'Play saved locally — Sheet sync failed', '#c45c3c');
+  showToast(result.error || 'Play saved locally — Sheet sync failed', '#ff5c7a');
 }
 
 async function postToSheets(payload){
@@ -2192,7 +2209,7 @@ function toggleGuide(){
 // ═══════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════
-function showToast(msg,color='#4a9f6e'){
+function showToast(msg,color='#6dff5a'){
   const t=document.getElementById('toast');t.textContent=msg;t.style.background=color;
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
 }
@@ -2237,6 +2254,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if (gfEl) gfEl.value = globalFilters.eKnows || '';
   if (gfKidsEl) gfKidsEl.value = globalFilters.kids || '0';
   if (gfYearEl) gfYearEl.value = globalFilters.year || '';
+  syncKidsFilterButtons();
 
   const msg = document.getElementById('gf-active-msg');
   if (msg) msg.style.display = (globalFilters.eKnows || globalFilters.kids === '0' || globalFilters.year) ? 'block' : 'none';
