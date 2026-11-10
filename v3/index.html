@@ -1611,6 +1611,14 @@ async function syncNow(readForm=true){
   }
 
   // "owner" sees everything. "family" never receives spend data, so there is no value to show.
+  // A device that has just been connected with a family link starts on "Ready to Play? = Yes",
+  // whatever filter that browser had saved before. The person can still change it in Settings.
+  if(data.role==='family'&&cfg.role!=='family'){
+    globalFilters.eKnows='1';
+    saveGlobalFilters();
+    const readySelect=document.getElementById('gf-eknows');
+    if(readySelect) readySelect.value='1';
+  }
   cfg.role=data.role;
   cfg.familyKey=data.role==='owner'?(data.familyKey||''):'';
   const gameRows=normalizeSheetRows(data.games);
