@@ -1,6 +1,39 @@
+/**
+ * Access keys. Every request must carry one of two keys, kept in Script
+ * Properties (never in this file):
+ *   OWNER_KEY   full access, including spend columns and collection value.
+ *   FAMILY_KEY  can view the collection and log plays and ratings, but never
+ *               receives the spend columns, game notes, or the Stats sheet.
+ * Keys are created once by opening <web app URL>?action=setup, which returns
+ * them a single time. To replace them, delete both Script Properties and
+ * open ?action=setup again; every device then needs a new invite link.
+ */
+// Not sent to family devices. Notes are included because some mention prices.
+var SPEND_COLUMNS = ['Price paid', "Add'l Tax?", 'Tax', 'Shipping', 'Total', 'Bought condition', 'Vendor', 'Where', 'Buy Reason', 'Notes'];
+
+function accessRole_(key) {
+  var given = String(key || '');
+  if (!given) return '';
+  var props = PropertiesService.getScriptProperties();
+  if (given === props.getProperty('OWNER_KEY')) return 'owner';
+  if (given === props.getProperty('FAMILY_KEY')) return 'family';
+  return '';
+}
+
+function jsonOutput_(result) {
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function denied_() {
+  return jsonOutput_({status: 'error', message: 'This connection has no valid access key. Open a new invite link.'});
+}
+
 function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
+  if (!accessRole_(data.key)) return denied_();
   var result = {status: 'ok'};
 
   // Log play to Plays sheet.
@@ -127,26 +160,43 @@ function doPost(e) {
 }
 
 /**
- * GET ?action=data returns the Games, Plays, Stats, and Players sheets for the
- * private app, so the spreadsheet does not need to be published to the web.
- * This web app URL is the only key to that data: keep it out of public code.
+ * GET ?action=data&key=... returns the sheets for the app, so the spreadsheet
+ * does not need to be published to the web. What comes back depends on the key.
+ * GET ?action=setup creates the two access keys once and returns them.
  */
 function doGet(e) {
-  var result = {status: 'ok'};
-  if (e && e.parameter && e.parameter.action === 'data') {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    result.games = readSheetRows_(ss.getSheetByName('Games'));
-    result.plays = readSheetRows_(ss.getSheetByName('Plays'));
-    result.stats = readSheetRows_(ss.getSheetByName('Stats'));
-    result.players = readSheetRows_(ss.getSheetByName('Players'));
+  var params = (e && e.parameter) || {};
+  var props = PropertiesService.getScriptProperties();
+
+  if (params.action === 'setup') {
+    if (props.getProperty('OWNER_KEY')) {
+      return jsonOutput_({status: 'error', message: 'Access keys already exist.'});
+    }
+    var ownerKey = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+    var familyKey = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+    props.setProperty('OWNER_KEY', ownerKey);
+    props.setProperty('FAMILY_KEY', familyKey);
+    return jsonOutput_({status: 'ok', ownerKey: ownerKey, familyKey: familyKey});
   }
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+
+  if (params.action === 'data') {
+    var role = accessRole_(params.key);
+    if (!role) return denied_();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var result = {status: 'ok', role: role};
+    result.games = readSheetRows_(ss.getSheetByName('Games'), role === 'owner' ? [] : SPEND_COLUMNS);
+    result.plays = readSheetRows_(ss.getSheetByName('Plays'), []);
+    result.players = readSheetRows_(ss.getSheetByName('Players'), []);
+    result.stats = role === 'owner' ? readSheetRows_(ss.getSheetByName('Stats'), []) : [];
+    if (role === 'owner') result.familyKey = props.getProperty('FAMILY_KEY');
+    return jsonOutput_(result);
+  }
+
+  return jsonOutput_({status: 'ok'});
 }
 
-/** Rows as objects keyed by trimmed header, using the values as displayed in the sheet. */
-function readSheetRows_(sheet) {
+/** Rows as objects keyed by trimmed header, using the values as displayed in the sheet. Omitted columns are never read into the response. */
+function readSheetRows_(sheet, omitColumns) {
   if (!sheet) return [];
   var values = sheet.getDataRange().getDisplayValues();
   if (values.length < 2) return [];
@@ -156,7 +206,7 @@ function readSheetRows_(sheet) {
     var row = {};
     var hasValue = false;
     for (var c = 0; c < headers.length; c++) {
-      if (!headers[c]) continue;
+      if (!headers[c] || omitColumns.indexOf(headers[c]) >= 0) continue;
       var cell = String(values[r][c] == null ? '' : values[r][c]).trim();
       row[headers[c]] = cell;
       if (cell) hasValue = true;

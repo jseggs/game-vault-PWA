@@ -300,13 +300,20 @@
         <input class="fc" id="cfg-script" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" spellcheck="false">
         <span id="script-connection-status" class="connection-status"></span>
       </div></div>
+      <div class="form-row"><div class="fg">
+        <label>Access key</label>
+        <input class="fc" id="cfg-key" type="password" placeholder="Filled in by your invite link" autocomplete="off" spellcheck="false">
+      </div></div>
       <div class="settings-actions">
         <button class="btn btn-gold" onclick="saveConfig()">Save &amp; Sync</button>
         <button class="btn btn-outline" onclick="syncNow()">Sync Now</button>
-        <button class="btn btn-outline" onclick="copyInviteLink()">Copy invite link</button>
         <span id="sync-msg"></span>
       </div>
-      <p class="settings-note">An invite link connects another phone or computer in one step, with full access to log plays and edit ratings. For view-only sharing, send the share page instead.</p>
+      <div class="settings-actions">
+        <button class="btn btn-outline" id="invite-own" onclick="copyInviteLink('own')">Copy invite link</button>
+        <button class="btn btn-outline" id="invite-family" onclick="copyInviteLink('family')" hidden>Copy family link</button>
+      </div>
+      <p class="settings-note" id="invite-note">An invite link connects another phone or computer in one step.</p>
     </section>
 
     <div class="settings-stack">
@@ -998,7 +1005,9 @@ function renderCollection(){
     <div class="stat-card"><div class="stat-num">${baseGames.length}</div><div class="stat-label">Base games</div></div>
     <div class="stat-card"><div class="stat-num">${expansions.length}</div><div class="stat-label">Expansions</div></div>
     <div class="stat-card"><div class="stat-num">${unplayedGames.length}</div><div class="stat-label">Unplayed</div></div>
-    <div class="stat-card stat-value"><div class="stat-num" id="stat-invested">${cfg.invested?'$'+cfg.invested:cfg.scriptUrl?'…':'n/a'}</div><div class="stat-label">Collection value</div></div>
+    ${cfg.role==='family'
+      ? `<div class="stat-card"><div class="stat-num">${plays.length}</div><div class="stat-label">Plays logged</div></div>`
+      : `<div class="stat-card stat-value"><div class="stat-num" id="stat-invested">${cfg.invested?'$'+cfg.invested:cfg.scriptUrl?'…':'n/a'}</div><div class="stat-label">Collection value</div></div>`}
   `;
 
   const grid = document.getElementById('game-grid');
@@ -1516,7 +1525,7 @@ async function fetchSheetData(){
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),25000);
   try{
-    const url=cfg.scriptUrl+(cfg.scriptUrl.includes('?')?'&':'?')+'action=data';
+    const url=cfg.scriptUrl+(cfg.scriptUrl.includes('?')?'&':'?')+'action=data&key='+encodeURIComponent(cfg.accessKey||'');
     const response=await fetch(url,{cache:'no-store',redirect:'follow',signal:controller.signal});
     const raw=await response.text();
     let data;
@@ -1527,6 +1536,9 @@ async function fetchSheetData(){
         : 'Apps Script returned an unexpected response.');
     }
     if(data.status!=='ok') throw new Error(data.message||'Apps Script returned an error.');
+    if(!data.role){
+      throw new Error('This Apps Script deployment is out of date. Paste in the current Code.gs and deploy a new version.');
+    }
     if(!Array.isArray(data.games)){
       throw new Error('This Apps Script deployment is out of date. Paste in the current Code.gs and deploy a new version.');
     }
@@ -1594,6 +1606,9 @@ async function syncNow(readForm=true){
     return;
   }
 
+  // "owner" sees everything. "family" never receives spend data, so there is no value to show.
+  cfg.role=data.role;
+  cfg.familyKey=data.role==='owner'?(data.familyKey||''):'';
   const gameRows=normalizeSheetRows(data.games);
   if(!gameRows.length || !('Game' in gameRows[0])){
     msg.textContent='⚠ "Game" column not found in the Games sheet.';
@@ -1624,7 +1639,9 @@ async function syncNow(readForm=true){
 
   const hasPlayers=applyPlayerRows(normalizeSheetRows(data.players));
   applyStatsRows(normalizeSheetRows(data.stats), hasPlayers);
+  if(cfg.role!=='owner'){ cfg.invested=''; cfg.eKnowsInvested=''; cfg.totalSpent=''; }
   saveCfg();
+  updateAccessUI();
 
   badge.className='sstatus st-sheets';
   badge.textContent='● Google Sheets';
@@ -1651,7 +1668,7 @@ async function postToSheets(payload){
     const response = await fetch(cfg.scriptUrl,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload),
+      body:JSON.stringify({...payload,key:cfg.accessKey||''}),
       redirect:'follow'
     });
     const raw = await response.text();
@@ -1750,9 +1767,24 @@ function applyStatsRows(rows, hasPlayers){
 
 function readConnectionFields(){
   const scriptUrl=document.getElementById('cfg-script')?.value.trim()||'';
-  if(scriptUrl!==cfg.scriptUrl) cfg.invested='';
+  const accessKey=document.getElementById('cfg-key')?.value.trim()||'';
+  if(scriptUrl!==cfg.scriptUrl||accessKey!==cfg.accessKey){ cfg.invested=''; cfg.role=''; cfg.familyKey=''; }
   cfg.scriptUrl=scriptUrl;
+  cfg.accessKey=accessKey;
   saveCfg();
+}
+
+// Settings wording and buttons depend on which kind of access this device has.
+function updateAccessUI(){
+  const owner=cfg.role==='owner';
+  const own=document.getElementById('invite-own');
+  const family=document.getElementById('invite-family');
+  const note=document.getElementById('invite-note');
+  if(own) own.textContent=owner?'Copy full-access link':'Copy invite link';
+  if(family) family.hidden=!(owner&&cfg.familyKey);
+  if(note) note.textContent=owner
+    ? 'Full-access link: everything you see, including spend and collection value. Family link: the collection plus logging plays and ratings, with no spend data or collection value. For view-only sharing, send the share page instead.'
+    : 'An invite link connects another phone or computer in one step, with the same access as this one.';
 }
 
 async function saveConfig(){
@@ -1766,33 +1798,37 @@ async function saveConfig(){
 // Opening it connects that device in one step. Anyone holding the link gets full view and edit access.
 const SCRIPT_URL_PATTERN=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/;
 
-async function copyInviteLink(){
+async function copyInviteLink(kind){
   readConnectionFields();
-  if(!SCRIPT_URL_PATTERN.test(cfg.scriptUrl)){
-    showToast('Save a working Apps Script URL first.','#ff5c7a');
+  const key=kind==='family'?cfg.familyKey:cfg.accessKey;
+  if(!SCRIPT_URL_PATTERN.test(cfg.scriptUrl)||!key){
+    showToast('Connect and sync this device first.','#ff5c7a');
     return;
   }
-  const link=`${location.origin}${location.pathname}#connect=${encodeURIComponent(cfg.scriptUrl)}`;
+  const link=`${location.origin}${location.pathname}#connect=${encodeURIComponent(cfg.scriptUrl)}&key=${encodeURIComponent(key)}`;
   try{
     await navigator.clipboard.writeText(link);
-    showToast('Invite link copied. Share it only with people you trust.');
+    showToast(kind==='family'?'Family link copied.':'Invite link copied. Share it only with people you trust.');
   }catch(error){
     window.prompt('Copy this invite link:',link);
   }
 }
 
 function acceptInviteLink(){
-  const match=location.hash.match(/^#connect=(.+)$/);
+  const match=location.hash.match(/^#connect=([^&]+)(?:&key=([^&]+))?$/);
   if(!match) return false;
   history.replaceState(null,'',location.pathname+location.search);
-  let url='';
-  try{ url=decodeURIComponent(match[1]); }catch(error){}
-  if(!SCRIPT_URL_PATTERN.test(url)){
+  let url='',key='';
+  try{ url=decodeURIComponent(match[1]); key=decodeURIComponent(match[2]||''); }catch(error){}
+  if(!SCRIPT_URL_PATTERN.test(url)||!/^[A-Za-z0-9]{16,128}$/.test(key)){
     showToast('That invite link is not valid.','#ff5c7a');
     return false;
   }
   cfg.scriptUrl=url;
+  cfg.accessKey=key;
   cfg.invested='';
+  cfg.role='';
+  cfg.familyKey='';
   saveCfg();
   showToast('Connected. Loading the collection...');
   return true;
@@ -1821,6 +1857,9 @@ async function verifyScriptConnection(){
 function loadCfgUI(){
   const field=document.getElementById('cfg-script');
   if(field&&cfg.scriptUrl) field.value=cfg.scriptUrl;
+  const keyField=document.getElementById('cfg-key');
+  if(keyField&&cfg.accessKey) keyField.value=cfg.accessKey;
+  updateAccessUI();
   if(GAMES.length){
     document.getElementById('sync-badge').className='sstatus st-sheets';
     document.getElementById('sync-badge').textContent='● Saved copy';

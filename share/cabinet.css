@@ -3456,3 +3456,7 @@ pre {
     animation: none;
   }
 }
+
+[hidden] {
+  display: none !important;
+}
